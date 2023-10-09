@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+// Necessary for Next auth
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? // @db.Text
+    access_token      String? // @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? // @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+///
+///
+///
+model User {
+    id            String      @id @default(cuid())
+    name          String?
+    email         String?     @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    /// Users collection of libraries
+    libraries     Library[]
+    /// Collection of references and topics
+    notebook      Notebook?
+    /// Individual citable references associated with this user
+    references    Reference[]
+}
+
+model Library {
+    id        String     @id @default(cuid())
+    User      User       @relation(fields: [userId], references: [id])
+    userId    String
+    documents Document[]
+}
+
+model Document {
+    id String @id @default(cuid())
+
+    Library   Library @relation(fields: [libraryId], references: [id])
+    libraryId String
+}
+
+model Notebook {
+    User       User        @relation(fields: [userId], references: [id])
+    userId     String      @unique
+    topics     Topic[]
+    references Reference[]
+}
+
+model Topic {
+    id             String      @id @default(cuid())
+    name           String
+    /// Notes for this topic
+    notes          String?
+    references     Reference[]
+    notebook       Notebook    @relation(fields: [notebookUserId], references: [userId])
+    notebookUserId String
+}
+
+model Reference {
+    id             String   @id @default(cuid())
+    topic          Topic    @relation(fields: [topicId], references: [id])
+    topicId        String
+    /// The notes a user has written and entered for this reference
+    notes          String? // db.MediumText
+    userId         String
+    user           User     @relation(fields: [userId], references: [id])
+    notebook       Notebook @relation(fields: [notebookUserId], references: [userId])
+    notebookUserId String
+}
+
+//
+//
+//
+model Job {
+    id        String    @id @default(cuid())
+    status    Status
+    createdAt DateTime  @default(now())
+    startedAt DateTime?
+    endedAt   DateTime?
+}
+
+enum Status {
+    Waiting
+    Processing
+    Finished
+    Failed
+    Cancelled
+}
