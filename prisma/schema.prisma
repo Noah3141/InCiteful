@@ -66,20 +66,28 @@ model User {
     notebook      Notebook?
     /// Individual citable references associated with this user
     references    Reference[]
+    jobs          Job[]
 }
 
 model Library {
-    id        String     @id @default(cuid())
-    User      User       @relation(fields: [userId], references: [id])
-    userId    String
-    documents Document[]
+    id          String     @id @default(cuid())
+    /// User defined name for the library
+    title       String
+    User        User       @relation(fields: [userId], references: [id])
+    userId      String
+    createdAt   DateTime   @default(now())
+    /// Time of last document addition
+    lastUpdated DateTime   @default(now())
+    documents   Document[]
+    jobs        Job[]
 }
 
 model Document {
-    id String @id @default(cuid())
-
-    Library   Library @relation(fields: [libraryId], references: [id])
+    id        String   @id @default(cuid())
+    title     String
+    library   Library  @relation(fields: [libraryId], references: [id])
     libraryId String
+    createdAt DateTime @default(now())
 }
 
 model Notebook {
@@ -115,16 +123,22 @@ model Reference {
 //
 //
 model Job {
-    id        String    @id @default(cuid())
-    status    Status
-    createdAt DateTime  @default(now())
-    startedAt DateTime?
-    endedAt   DateTime?
+    id            String    @id @default(cuid())
+    status        Status
+    createdAt     DateTime  @default(now())
+    startedAt     DateTime?
+    endedAt       DateTime?
+    documentCount Int
+    Library       Library   @relation(fields: [libraryId], references: [id])
+    libraryId     String
+    User          User      @relation(fields: [userId], references: [id])
+    userId        String
+    message       String?
 }
 
 enum Status {
-    Waiting
     Processing
+    Pending
     Finished
     Failed
     Cancelled

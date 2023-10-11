@@ -6,7 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-import { Document } from "@prisma/client";
+import { Document, Job } from "@prisma/client";
 
 /// Adding a document will involve sending the refernce link to the Python
-export const documentsRouter: AnyRouter = createTRPCRouter({});
+export const documentsRouter = createTRPCRouter({});

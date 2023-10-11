@@ -8,4 +8,4 @@ import {
 
 import { Job, Status } from "@prisma/client";
 
-export const jobsRouter: AnyRouter = createTRPCRouter({});
+export const jobsRouter = createTRPCRouter({});

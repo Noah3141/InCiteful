@@ -5,16 +5,20 @@ import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
+import { Toaster } from "react-hot-toast";
+import Navbar from "~/components/Navbar";
 
 const MyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps: { session, ...pageProps },
+    Component,
+    pageProps: { session, ...pageProps },
 }) => {
-  return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
-  );
+    return (
+        <SessionProvider session={session}>
+            <Navbar />
+            <Toaster position="top-right" />
+            <Component {...pageProps} />
+        </SessionProvider>
+    );
 };
 
 export default api.withTRPC(MyApp);

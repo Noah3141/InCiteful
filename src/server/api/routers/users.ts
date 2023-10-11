@@ -8,4 +8,4 @@ import {
 
 import { User } from "@prisma/client";
 
-export const usersRouter: AnyRouter = createTRPCRouter({});
+export const usersRouter = createTRPCRouter({});

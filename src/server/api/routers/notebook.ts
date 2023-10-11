@@ -8,4 +8,4 @@ import {
 
 import { Notebook } from "@prisma/client";
 
-export const notebooksRouter: AnyRouter = createTRPCRouter({});
+export const notebooksRouter = createTRPCRouter({});
