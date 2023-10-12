@@ -6,7 +6,7 @@ import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 
 /// The page providing the dashboard to run a search against a selected library
 const Dashboard = () => {
-    const { session, status } = useSession();
+    const { data: session, status } = useSession();
     const { data: user, isLoading } = api.user.getDashboardData.useQuery();
 
     return (
