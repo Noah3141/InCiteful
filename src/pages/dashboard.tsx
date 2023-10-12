@@ -12,10 +12,10 @@ const Dashboard = () => {
     return (
         <div className="mx-auto max-w-7xl px-3">
             <div className="flex flex-row gap-3">
-                <div className="h-screen  bg-neutral-600">
-                    <div>
+                <div className="flex h-screen w-40 flex-col gap-3">
+                    <div className="h-96   bg-neutral-600">
                         <h1>Libraries</h1>
-                        <div className="max-h-96">
+                        <div>
                             {user?.libraries.map((library: Library) => {
                                 return (
                                     <div
@@ -31,9 +31,9 @@ const Dashboard = () => {
                             })}
                         </div>
                     </div>
-                    <div>
+                    <div className="h-40   bg-neutral-500">
                         <h1>Jobs</h1>
-                        <div className="max-h-96">
+                        <div className="h-32">
                             {user?.jobs.map((job: Job) => {
                                 return (
                                     <div key={job.id}>
@@ -52,7 +52,7 @@ const Dashboard = () => {
                     <div></div>
                     <div></div>
                 </div>
-                <div className="h-screen  bg-neutral-800">Notebook</div>
+                <div className="h-screen w-40 bg-neutral-800">Notebook</div>
             </div>
         </div>
     );
