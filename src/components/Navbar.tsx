@@ -35,7 +35,7 @@ const Navbar = () => {
                 <div className={`    ${mobileSize}`}></div>
             </>
         );
-    if (status == "unauthenticated" || !user)
+    if (status == "unauthenticated" || (!user && !isLoading))
         return (
             <>
                 <div
