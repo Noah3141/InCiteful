@@ -28,16 +28,19 @@ const Account = () => {
     if (isLoading && session.status != "unauthenticated") {
         return (
             <Hall>
-                <h1 className="page-title">Account</h1>
-                <Loading inline={false} color="secondary" />
+                <div className="px-6">
+                    <h1 className="page-title">Account</h1>
+                    <Loading inline={false} color="secondary" />
+                </div>
             </Hall>
         );
     }
     if (!user) {
         return (
             <Hall>
-                <h1 className="page-title">Account</h1>
-                <div className="flex h-36 flex-row items-center justify-center text-2xl">
+                <div className="px-6">
+                    <h1 className="page-title">Account</h1>
+                    <div className="flex h-36 flex-row items-center justify-center text-2xl"></div>
                     No user!
                 </div>
             </Hall>
@@ -46,8 +49,10 @@ const Account = () => {
 
     return (
         <Hall>
-            <h1 className="page-title">Account</h1>
-            <ProfileReadout user={user} />
+            <div className="px-6">
+                <h1 className="page-title">Account</h1>
+                <ProfileReadout user={user} />
+            </div>
         </Hall>
     );
 };
@@ -90,72 +95,101 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
 
     return (
         <>
-            <div>
-                {editting.name ? (
-                    <>
-                        <div className="flex flex-row items-center gap-3">
-                            <input
-                                onChange={(n) => {
-                                    setForm(
-                                        (prev): ProfileForm => ({
-                                            ...prev,
-                                            name: n.target.value,
-                                        }),
-                                    );
-                                }}
-                                className={`border-primary-600 bg-basic-50  text-basic-900 caret-basic-800 hover:outline-primary-600 rounded-md px-3 outline-none ring-0 hover:cursor-pointer hover:outline-1 focus:outline-none`}
-                                type="text"
-                                value={form.name ?? ""}
-                            ></input>
-                            <AiOutlineCheckCircle
-                                onClick={() => {
-                                    submitProfile(form);
-                                }}
-                                className="bg-primary-500  text-basic-800 hover:bg-primary-600 me-2 cursor-pointer rounded-sm p-[3px] "
-                            />
-                        </div>
-                    </>
-                ) : (
-                    <HoverEdit
-                        cursorHover={true}
-                        editEvent={() => {
-                            setEditting(
-                                (): ProfileEditState => ({
-                                    ...closedEdits,
-                                    name: true,
-                                }),
-                            );
-                        }}
-                        className="pe-10"
-                    >
-                        <span className="cursor-default text-2xl">
-                            {user.name}
-                        </span>
-                    </HoverEdit>
-                )}
+            <div className="flex flex-row items-center justify-between gap-3">
+                <div>Username:</div>
+                <div className="">
+                    {editting.name ? (
+                        <>
+                            <div className="flex flex-row items-center justify-end">
+                                <input
+                                    onChange={(n) => {
+                                        setForm(
+                                            (prev): ProfileForm => ({
+                                                ...prev,
+                                                name: n.target.value,
+                                            }),
+                                        );
+                                    }}
+                                    className={`border-primary-600  bg-basic-50 text-basic-900  caret-basic-800 hover:outline-primary-600 rounded-md px-3 text-2xl outline-none ring-0 hover:cursor-pointer hover:outline-1 focus:outline-none`}
+                                    type="text"
+                                    value={form.name ?? ""}
+                                ></input>
+                                <AiOutlineCheckCircle
+                                    size={28}
+                                    onClick={() => {
+                                        submitProfile(form);
+                                    }}
+                                    className="bg-primary-500  text-basic-800 hover:bg-primary-600 me-2 cursor-pointer rounded-sm p-[3px] "
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <HoverEdit
+                            cursorHover={true}
+                            editEvent={() => {
+                                setEditting(
+                                    (): ProfileEditState => ({
+                                        ...closedEdits,
+                                        name: true,
+                                    }),
+                                );
+                            }}
+                            className="pe-10"
+                        >
+                            <span className="cursor-default text-2xl">
+                                {user.name}
+                            </span>
+                        </HoverEdit>
+                    )}
+                </div>
             </div>
             <div>
-                <HoverEdit
-                    cursorHover={true}
-                    editEvent={() => {
-                        setEditting(
-                            (): ProfileEditState => ({
-                                ...closedEdits,
-                                name: true,
-                            }),
-                        );
-                    }}
-                    className="pe-10"
-                >
-                    <span className="cursor-default text-2xl">
-                        {user.email}
-                    </span>
-                </HoverEdit>
-            </div>
-            <div>
-                {user.emailVerified
-                    ? dtfmt.format(user.emailVerified)
-                    : "Not verified"}
+                <div className="flex flex-row items-center justify-between gap-3">
+                    <div>Email:</div>
+                    {editting.email ? (
+                        <>
+                            <div className="flex flex-row items-center justify-end">
+                                <input
+                                    onChange={(n) => {
+                                        setForm(
+                                            (prev): ProfileForm => ({
+                                                ...prev,
+                                                email: n.target.value,
+                                            }),
+                                        );
+                                    }}
+                                    className={`border-primary-600  bg-basic-50 text-basic-900  caret-basic-800 hover:outline-primary-600 rounded-md px-3 text-2xl outline-none ring-0 hover:cursor-pointer hover:outline-1 focus:outline-none`}
+                                    type="text"
+                                    value={form.email ?? ""}
+                                ></input>
+                                <AiOutlineCheckCircle
+                                    size={28}
+                                    onClick={() => {
+                                        submitProfile(form);
+                                    }}
+                                    className="bg-primary-500  text-basic-800 hover:bg-primary-600 me-2 cursor-pointer rounded-sm p-[3px] "
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <HoverEdit
+                            cursorHover={true}
+                            editEvent={() => {
+                                setEditting(
+                                    (): ProfileEditState => ({
+                                        ...closedEdits,
+                                        email: true,
+                                    }),
+                                );
+                            }}
+                            className="pe-10 "
+                        >
+                            <span className="cursor-default text-2xl ">
+                                {user.email}
+                            </span>
+                        </HoverEdit>
+                    )}
+                </div>
             </div>
         </>
     );

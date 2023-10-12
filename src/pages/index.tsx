@@ -4,7 +4,6 @@ import Link from "next/link";
 import Button from "~/components/Button";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
-import Left from "~/layouts/Left";
 
 import { api } from "~/utils/api";
 

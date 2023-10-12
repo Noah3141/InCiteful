@@ -46,8 +46,13 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-                <div className="h-screen w-full  bg-neutral-700"></div>
-                <div className="h-screen  bg-neutral-800">Fodddddo</div>
+                <div className="h-screen w-full  bg-neutral-700">
+                    <div>Search Bar</div>
+                    <div>List of REsponses</div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div className="h-screen  bg-neutral-800">Notebook</div>
             </div>
         </div>
     );

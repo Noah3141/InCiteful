@@ -4,6 +4,6 @@
 
 @layer components {
     .page-title {
-        @apply text-4xl;
+        @apply mb-6 text-4xl;
     }
 }

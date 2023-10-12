@@ -21,7 +21,7 @@ const HoverEdit = ({
                     className={`
                         absolute right-0 top-1/2 z-10 hidden 
                         -translate-y-1/2 before:absolute before:h-8 before:w-8 before:rounded-full before:bg-neutral-700 
-                        before:opacity-30 after:absolute after:top-0 after:h-8 after:w-8 after:scale-0 after:rounded-full after:bg-sushi-700 after:opacity-40 after:transition-all 
+                        before:opacity-30 after:absolute after:top-0 after:h-8 after:w-8 after:scale-0 after:rounded-full after:bg-gable-700 after:opacity-40 after:transition-all 
                         hover:cursor-pointer after:hover:scale-100 group-hover:inline
                     `}
                 >
@@ -40,12 +40,12 @@ const HoverEdit = ({
                 className={`
                         absolute right-[2px] top-[2px] z-10 hidden 
                         before:absolute before:top-0 before:h-6 before:w-6 before:rounded-full before:bg-neutral-700 before:opacity-70 
-                        after:absolute after:top-0 after:h-6 after:w-6 after:scale-0 after:rounded-full after:bg-sushi-600 after:opacity-70 after:transition-all hover:cursor-pointer after:hover:scale-100 
+                        after:absolute after:top-0 after:h-6 after:w-6 after:scale-0 after:rounded-full after:bg-gable-600 after:opacity-70 after:transition-all hover:cursor-pointer after:hover:scale-100 
                         group-hover:inline
                     `}
             >
                 <div className="flex h-6 w-6 flex-row items-center justify-center ">
-                    <VscEdit className="relative z-20 text-sushi-500" />
+                    <VscEdit className="relative z-20 text-gable-500" />
                 </div>
             </div>
         </span>

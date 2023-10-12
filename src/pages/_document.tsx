@@ -6,7 +6,7 @@ export default class MyDocument extends Document {
                 <Head>
                     <meta name="theme-color" content="#ffffff" />
                 </Head>
-                <body className="bg-sand-200 font-semibold text-tango-900">
+                <body className="h-full min-h-screen bg-sand-200 font-semibold text-tango-900">
                     <Main />
                     <NextScript />
                 </body>
