@@ -34,13 +34,20 @@ const Button = ({
             hover:bg-neutral-500 hover:text-neutral-100`
             : null;
     const sizeClasses = small ? "py-1 px-2" : "py-2 px-3";
-
+    const loaderColor =
+        color == "primary"
+            ? `primary`
+            : color == "secondary"
+            ? `secondary`
+            : color == "neutral"
+            ? `neutral`
+            : "neutral";
     return (
         <button
             {...props}
             className={`  ${className} ${sizeClasses} ${colorClasses}`}
         >
-            {loading ? <Loading inline={true} /> : text}
+            {loading ? <Loading color={loaderColor} inline={true} /> : text}
         </button>
     );
 };

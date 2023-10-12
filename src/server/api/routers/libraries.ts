@@ -17,6 +17,26 @@ export const librariesRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ input, ctx }) => {
+            // Tell user to make non empty name, passing error to toast
+            if (input.title === "") {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Please enter a title!",
+                });
+            }
+            const otherLibrariesWithName: Library[] =
+                await ctx.db.library.findMany({
+                    where: { userId: ctx.session.user.id, title: input.title },
+                });
+
+            // Tell user to make unique name
+            if (otherLibrariesWithName.length > 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Please choose a unique library name",
+                });
+            }
+
             const created: Library = await ctx.db.library.create({
                 data: {
                     userId: ctx.session.user.id,
@@ -47,7 +67,7 @@ export const librariesRouter = createTRPCRouter({
                 throw new TRPCError({ code: "NOT_FOUND" });
             }
 
-            const jobStatuses: Job[] = await ctx.db.job.findMany({
+            const jobs: Job[] = await ctx.db.job.findMany({
                 where: {
                     libraryId: input.libraryId,
                     userId: ctx.session.user.id,
@@ -60,15 +80,25 @@ export const librariesRouter = createTRPCRouter({
             });
 
             return {
-                jobStatuses,
+                jobs,
                 documents,
                 library,
             };
         }),
+
+    remove: protectedProcedure
+        .input(z.object({ libraryId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const removed: Library = await ctx.db.library.delete({
+                where: { id: input.libraryId, userId: ctx.session.user.id },
+            });
+
+            return removed;
+        }),
 });
 
 type LibraryDocsAndJobs = {
-    jobStatuses: Job[];
+    jobs: Job[];
     documents: Document[];
     library: Library;
 };

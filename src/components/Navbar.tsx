@@ -2,9 +2,13 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import React from "react";
 import Loading from "./Loading";
 import Link from "next/link";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
 
 const Navbar = () => {
     const { data: session, status } = useSession();
+    const { data: user, isLoading } = api.user.getSession.useQuery();
+    const router = useRouter();
 
     const mobileSize = `lg:hidden`;
     const fullSize = `hidden lg:flex`;
@@ -31,7 +35,7 @@ const Navbar = () => {
                 <div className={`    ${mobileSize}`}></div>
             </>
         );
-    if (status == "unauthenticated")
+    if (status == "unauthenticated" || !user)
         return (
             <>
                 <div
@@ -76,9 +80,9 @@ const Navbar = () => {
                         </Link>
                         <Link
                             className="px-3 py-3 hover:text-tango-600"
-                            href="/home"
+                            href="/dashboard"
                         >
-                            Home
+                            Dashboard
                         </Link>
                         <Link
                             className="px-3 py-3 hover:text-tango-600"
@@ -103,11 +107,12 @@ const Navbar = () => {
                     </div>
                     <div className="flex flex-row items-center gap-6">
                         <span className="cursor-default text-2xl text-tango-500">
-                            {session?.user.name}
+                            {user?.name}
                         </span>
                         <button
                             onClick={() => {
                                 void signOut();
+                                void router.push("/dashboard");
                             }}
                             className="px-3 py-3 text-xl text-tango-500 hover:text-tango-600"
                         >
