@@ -140,7 +140,7 @@ export const librariesRouter = createTRPCRouter({
         }),
 });
 
-type LibraryDocsAndJobs = {
+export type LibraryDocsAndJobs = {
     jobs: Job[];
     documents: Document[];
     library: Library;

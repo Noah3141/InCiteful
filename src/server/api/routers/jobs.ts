@@ -46,6 +46,8 @@ export const jobsRouter = createTRPCRouter({
 
             return jobInQuestion;
         }),
+
+    // updateJob:
 });
 
 // Add a job (fetch + note in my db)

@@ -1,9 +1,9 @@
-import { Job, Library, Status, Topic } from "@prisma/client";
+import { type Job, type Library, type Topic } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-import { MoonLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
+import { JobStatus } from "~/components/JobStatus";
 import List, { Body, Header } from "~/components/List";
 import MiddleColumn from "~/components/MiddleColumn";
 import { tooltipStyles } from "~/styles/tooltips";
@@ -181,55 +181,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-const JobStatus = ({ status }: { status: Status }) => {
-    const classes = "h-4 w-4";
-    switch (status) {
-        case "COMPLETED":
-            return (
-                <div title="Complete!" className={classes}>
-                    ✅
-                </div>
-            );
-        case "FAILED":
-            return (
-                <div title="Failed" className={classes}>
-                    ❌
-                </div>
-            );
-        case "PENDING":
-            return (
-                <div title="In queue" className={classes}>
-                    🗓️
-                </div>
-            );
-        case "RUNNING":
-            return (
-                <div>
-                    <MoonLoader
-                        title="Processing now"
-                        color="currentColor"
-                        className="text-sushi-500"
-                        speedMultiplier={0.5}
-                    />
-                </div>
-            );
-        case "CANCELLED":
-            return (
-                <div title="Cancelled" className={classes}>
-                    🛑
-                </div>
-            );
-        case "UNKNOWN":
-            return (
-                <div title="Unknown!" className={classes}>
-                    🐒
-                </div>
-            );
-
-        default:
-            break;
-    }
-
-    return;
-};

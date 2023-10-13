@@ -9,6 +9,9 @@ import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 import { Document as Doc, Document } from "@prisma/client";
+import Button from "~/components/Button";
+import { LibraryDocsAndJobs } from "~/server/api/routers/libraries";
+import { JobStatus } from "~/components/JobStatus";
 const LibraryPage = () => {
     const router = useRouter();
     const pathId =
@@ -52,7 +55,8 @@ const LibraryPage = () => {
                     <h1 className="page-title">{data?.library.title}</h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
-                <AddDocumentWizard libraryId={data.library.title} />
+                <AddDocumentWizard libraryId={data.library.id} />
+                <JobWizard data={data} />
                 <DocumentList documents={data.documents} />
             </Hall>
         );
@@ -60,15 +64,22 @@ const LibraryPage = () => {
 
 const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
-        <div className="max-h-96 overflow-y-scroll">
-            {documents.map((document: Doc) => {
-                return (
-                    <div key={document.id}>
-                        <div>{document.title}</div>
-                        <div>{dtfmt.format(document.createdAt)}</div>
-                    </div>
-                );
-            })}
+        <div className="mt-8 border-y border-sand-300 px-16  py-8">
+            <div>
+                <h1 className=" text-xl">Documents</h1>
+            </div>
+            <div className="mt-8 max-h-96 overflow-y-scroll">
+                {documents.length !== 0
+                    ? documents.map((document: Doc) => {
+                          return (
+                              <div key={document.id}>
+                                  <div>{document.title}</div>
+                                  <div>{dtfmt.format(document.createdAt)}</div>
+                              </div>
+                          );
+                      })
+                    : "No documents added yet"}
+            </div>
         </div>
     );
 };
@@ -160,5 +171,50 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
 };
 
 const AddDocumentWizard = ({ libraryId }: { libraryId: string }) => {
-    return <div>Foo</div>;
+    return (
+        <div className="w-full">
+            <div className="flex  justify-between border-sand-300 px-16 py-8">
+                <input type="text" />
+                <Button color="secondary" text="Upload File"></Button>
+            </div>
+            <div className="flex  justify-between border-sand-300 px-16 py-8">
+                <input type="text" />
+                <Button color="secondary" text="Upload Folder"></Button>
+            </div>
+        </div>
+    );
+};
+
+const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
+    return (
+        <div className="border-t border-sand-300 px-16 py-8">
+            <h1 className="text-xl">Jobs</h1>
+            <div>
+                {data.jobs.map((job) => {
+                    return (
+                        <div key={job.id}>
+                            <div className="flex flex-row justify-between">
+                                <div>{dtfmt.format(job.createdAt)}</div>
+                                <JobStatus status={job.status} />
+                            </div>
+                            <div>{job.message}</div>
+                            <div>
+                                Started:
+                                {job.startedAt
+                                    ? dtfmt.format(job.startedAt)
+                                    : "Not yet"}
+                            </div>
+                            <div>
+                                Finished:
+                                {job.endedAt
+                                    ? dtfmt.format(job.endedAt)
+                                    : "Not yet"}
+                            </div>
+                            <div>Cost:</div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
 };

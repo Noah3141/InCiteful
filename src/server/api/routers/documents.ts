@@ -126,15 +126,16 @@ export const documentsRouter = createTRPCRouter({
             return created;
         }),
 
-    postBatch: protectedProcedure
-        .input(
-            z.object({
-                batchUrl: z
-                    .string()
-                    .url({ message: "Please enter a valid URL" }),
-            }),
-        )
-        .mutation(async ({ ctx, input }) => {
-            return "f";
-        }),
+    // postBatch: protectedProcedure
+    //     .input(
+    //         z.object({
+    //             batchUrl: z
+    //                 .string()
+    //                 .url({ message: "Please enter a valid URL" }),
+    //         }),
+    //     )
+    //     .mutation(async ({ ctx, input }) => {
+
+    //         return "f";
+    //     }),
 });
