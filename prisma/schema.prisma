@@ -84,11 +84,13 @@ model Library {
 }
 
 model Document {
-    id        String   @id @default(cuid())
-    title     String
-    library   Library  @relation(fields: [libraryId], references: [id])
-    libraryId String
-    createdAt DateTime @default(now())
+    id          String   @id @default(cuid())
+    title       String
+    library     Library  @relation(fields: [libraryId], references: [id])
+    libraryId   String
+    createdAt   DateTime @default(now())
+    docletCount Int
+    authors     Author[]
 }
 
 model Notebook {
@@ -113,15 +115,28 @@ model Topic {
 }
 
 model Reference {
-    id             String   @id @default(cuid())
-    topic          Topic    @relation(fields: [topicId], references: [id])
-    topicId        String
+    id                   String   @id @default(cuid())
+    topic                Topic    @relation(fields: [topicId], references: [id])
+    topicId              String
     /// The notes a user has written and entered for this reference
-    notes          String? // db.MediumText
-    userId         String
-    user           User     @relation(fields: [userId], references: [id])
-    notebook       Notebook @relation(fields: [notebookUserId], references: [userId])
-    notebookUserId String
+    notes                String? // db.MediumText
+    userId               String
+    user                 User     @relation(fields: [userId], references: [id])
+    notebook             Notebook @relation(fields: [notebookUserId], references: [userId])
+    notebookUserId       String
+    addedAt              DateTime @default(now())
+    /// Article Title
+    articleTitle         String
+    articleAuthors       Author[]
+    articlePublishedDate DateTime
+    articleSource        String
+}
+
+model Author {
+    name        String     @id
+    Reference   Reference? @relation(fields: [referenceId], references: [id])
+    referenceId String?
+    Document    Document[]
 }
 
 //
@@ -142,9 +157,10 @@ model Job {
 }
 
 enum Status {
-    Processing
-    Pending
-    Finished
-    Failed
-    Cancelled
+    RUNNING
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELLED
+    UNKNOWN
 }

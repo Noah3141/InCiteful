@@ -8,7 +8,7 @@ import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
-import { Document as Doc } from "@prisma/client";
+import { Document as Doc, Document } from "@prisma/client";
 const LibraryPage = () => {
     const router = useRouter();
     const pathId =
@@ -21,8 +21,8 @@ const LibraryPage = () => {
     if (isLoading) {
         return (
             <Hall>
-                <div className="flex flex-row items-center justify-between px-6">
-                    <h1 className="page-title">{}</h1>
+                <div className="flex h-16 flex-row items-center justify-between px-16">
+                    <h1 className="page-title"> </h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
                 <Loading inline={false} color="secondary" />
@@ -30,23 +30,46 @@ const LibraryPage = () => {
         );
     }
 
+    if (!data?.documents && !!data?.library.title) {
+        return (
+            <Hall>
+                <div className="flex h-16 flex-row items-center justify-between px-16">
+                    <h1 className="page-title"> </h1>
+                    <DeleteLibrary libraryId={pathId} />
+                </div>
+                <AddDocumentWizard libraryId={data.library.title} />
+            </Hall>
+        );
+    }
+
+    if (!data?.library) {
+        void router.push("/libraries");
+        toast.error("No library found here!");
+    } else
+        return (
+            <Hall>
+                <div className="flex h-16 flex-row items-center justify-between px-16">
+                    <h1 className="page-title">{data?.library.title}</h1>
+                    <DeleteLibrary libraryId={pathId} />
+                </div>
+                <AddDocumentWizard libraryId={data.library.title} />
+                <DocumentList documents={data.documents} />
+            </Hall>
+        );
+};
+
+const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
-        <Hall>
-            <div className="flex flex-row items-center justify-between px-6">
-                <h1 className="page-title">{data?.library.title}</h1>
-                <DeleteLibrary libraryId={pathId} />
-            </div>
-            <div>
-                {data?.documents.map((document: Doc) => {
-                    return (
-                        <div key={document.id}>
-                            <div>{document.title}</div>
-                            <div>{dtfmt.format(document.createdAt)}</div>
-                        </div>
-                    );
-                })}
-            </div>
-        </Hall>
+        <div className="max-h-96 overflow-y-scroll">
+            {documents.map((document: Doc) => {
+                return (
+                    <div key={document.id}>
+                        <div>{document.title}</div>
+                        <div>{dtfmt.format(document.createdAt)}</div>
+                    </div>
+                );
+            })}
+        </div>
     );
 };
 
@@ -134,4 +157,8 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
             />
         </>
     );
+};
+
+const AddDocumentWizard = ({ libraryId }: { libraryId: string }) => {
+    return <div>Foo</div>;
 };

@@ -28,7 +28,7 @@ const Account = () => {
     if (isLoading && session.status != "unauthenticated") {
         return (
             <Hall>
-                <div className="px-6">
+                <div className="px-16">
                     <h1 className="page-title">Account</h1>
                     <Loading inline={false} color="secondary" />
                 </div>
@@ -38,7 +38,7 @@ const Account = () => {
     if (!user) {
         return (
             <Hall>
-                <div className="px-6">
+                <div className="px-16">
                     <h1 className="page-title">Account</h1>
                     <div className="flex h-36 flex-row items-center justify-center text-2xl"></div>
                     No user!
@@ -49,7 +49,7 @@ const Account = () => {
 
     return (
         <Hall>
-            <div className="px-6">
+            <div className="px-16">
                 <h1 className="page-title">Account</h1>
                 <ProfileReadout user={user} />
             </div>

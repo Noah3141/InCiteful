@@ -8,6 +8,28 @@ import {
 
 import { type Library, type Job, type Document } from "@prisma/client";
 
+import {
+    type Request as LibCreateReq,
+    type Response as LibCreateRes,
+} from "../../../models/libraries_create";
+import { JsonHeaders, pythonPath } from "~/models/all_request";
+
+const libraries_create = async (
+    params: LibCreateReq,
+): Promise<LibCreateRes> => {
+    const res = await fetch(`${pythonPath}/libraries/create`, {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+        headers: JsonHeaders,
+        body: JSON.stringify(params),
+    });
+
+    const libraryCreatedRes = (await res.json()) as LibCreateRes;
+
+    return libraryCreatedRes;
+};
+
 export const librariesRouter = createTRPCRouter({
     createEmpty: protectedProcedure
         .input(
@@ -17,6 +39,7 @@ export const librariesRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ input, ctx }) => {
+            //
             // Tell user to make non empty name, passing error to toast
             if (input.title === "") {
                 throw new TRPCError({
@@ -43,6 +66,26 @@ export const librariesRouter = createTRPCRouter({
                     title: input.title,
                 },
             });
+
+            // Alert the Python
+            const res = await libraries_create({
+                library_id: created.id,
+                library_name: created.title,
+                user_id: ctx.session.user.id,
+            });
+
+            // If the Python says something went wrong, undo our work to keep in sync
+            if (!res.success) {
+                const deleted: Library = await ctx.db.library.delete({
+                    where: { id: created.id, title: created.title },
+                });
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message:
+                        "API returned 'success: false' to create library attempt",
+                });
+            }
+
             return created;
         }),
 
