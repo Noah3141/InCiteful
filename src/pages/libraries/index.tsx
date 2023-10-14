@@ -30,7 +30,7 @@ const Libraries = () => {
                     <h1 className="page-title text-neutral-800">Libraries</h1>
                     <AddLibrary />
                 </div>
-                <p>No libraries found!</p>
+                <p className="px-16">No libraries found!</p>
             </Hall>
         );
 

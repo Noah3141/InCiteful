@@ -13,6 +13,10 @@ import {
     type Response as DocAddRes,
 } from "../../../models/documents_add";
 import {
+    type Request as JobAddReq,
+    type Response as JobAddRes,
+} from "../../../models/jobs_add";
+import {
     type Request as DocRemReq,
     type Response as DocRemRes,
 } from "../../../models/documents_remove";
@@ -20,7 +24,12 @@ import {
     type Request as DocListReq,
     type Response as DocListRes,
 } from "../../../models/documents_list";
-import { FileFormHeaders, JsonHeaders, pythonPath } from "~/models/all_request";
+import {
+    FileFormHeaders,
+    JsonHeaders,
+    SourceType,
+    pythonPath,
+} from "~/models/all_request";
 
 // todo MAKE SURE ALL CRUD TO PYTHON IS SYNCED HERE, elsewhere is then valid
 
@@ -58,6 +67,20 @@ const documents_list = async (params: DocListReq): Promise<DocListRes> => {
     const document_list = (await res.json()) as DocListRes;
 
     return document_list;
+};
+
+const jobs_add = async (params: JobAddReq): Promise<JobAddRes> => {
+    const res = await fetch(`${pythonPath}/documents/list`, {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+        headers: JsonHeaders,
+        body: JSON.stringify(params),
+    });
+
+    const addedJob = (await res.json()) as JobAddRes;
+
+    return addedJob;
 };
 
 // Post single file
@@ -126,16 +149,38 @@ export const documentsRouter = createTRPCRouter({
             return created;
         }),
 
-    // postBatch: protectedProcedure
-    //     .input(
-    //         z.object({
-    //             batchUrl: z
-    //                 .string()
-    //                 .url({ message: "Please enter a valid URL" }),
-    //         }),
-    //     )
-    //     .mutation(async ({ ctx, input }) => {
+    postBatch: protectedProcedure
+        .input(
+            z.object({
+                batchUrl: z
+                    .string()
+                    .url({ message: "Please enter a valid URL" }),
+                libraryId: z.string(),
+                sourceType: z.nativeEnum(SourceType),
+                notifyByEmail: z.string().nullable(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const job_added = await jobs_add({
+                user_id: ctx.session.user.id,
+                library_id: input.libraryId,
+                source_type: input.sourceType,
+                source_location: input.batchUrl,
+                notify_by_email: input.notifyByEmail,
+            });
 
-    //         return "f";
-    //     }),
+            const jobAdded: Job = await ctx.db.job.create({
+                data: {
+                    status: "PENDING",
+                    documentCount: job_added.num_docs,
+                    id: job_added.job_id,
+                    // createdAt generated as Now() by Prisma/DB
+                    startedAt: job_added.start_time, //todo IS THE PYTHON ENCODING THIS AS ACTUAL PROCESSING START TIME OR DOES IT JUST NOT DISTINGUISH CREATED VS STARTED
+                    userId: ctx.session.user.id,
+                    libraryId: job_added.library_id,
+                },
+            });
+
+            return jobAdded;
+        }),
 });

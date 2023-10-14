@@ -6,12 +6,16 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-import { Job, Status } from "@prisma/client";
-
+import { Status, type Job } from "@prisma/client";
+import { type UpdateJobData } from "~/pages/api/job-status";
 import {
     type Request as JobsListReq,
     type Response as JobsListRes,
 } from "../../../models/jobs_list";
+import {
+    type Request as JobsAddReq,
+    type Response as JobsAddRes,
+} from "../../../models/jobs_add";
 import { JsonHeaders, pythonPath } from "~/models/all_request";
 
 const jobs_list = async (params: JobsListReq) => {
@@ -47,8 +51,33 @@ export const jobsRouter = createTRPCRouter({
             return jobInQuestion;
         }),
 
-    // updateJob:
-});
+    updateJob: publicProcedure
+        .input(
+            z.object({
+                newStatus: z.nativeEnum(Status),
+                userId: z.string(),
+                libraryId: z.string(),
+                jobId: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const endedAt =
+                input.newStatus === ("CANCELLED" || "COMPLETED" || "FAILED")
+                    ? new Date() //todo THIS CAN BE PASSED BY PYTHON TO API TO MUTATE TO INPUT TO HERE, WHICH WILL NEED TO HAPPEN TO GET STARTED & ENDED VS CREATED
+                    : undefined;
 
-// Add a job (fetch + note in my db)
-// Check job (fetch + update my db) [trigger through stay-open-connection ]
+            const updatedJob: Job = await ctx.db.job.update({
+                where: {
+                    id: input.jobId,
+                    userId: input.userId,
+                    libraryId: input.libraryId,
+                },
+                data: {
+                    status: input.newStatus,
+                    endedAt: endedAt,
+                },
+            });
+
+            return updatedJob;
+        }),
+});

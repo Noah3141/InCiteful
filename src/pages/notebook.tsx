@@ -1,3 +1,4 @@
+import { Reference, Topic } from "@prisma/client";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
@@ -23,9 +24,15 @@ const Notebook = () => {
 
     if (isLoading) return <Loading inline={false} color="secondary" />;
 
-    if (!notebook) return <Hall>No notebook!</Hall>;
+    if (!notebook)
+        return (
+            <Hall>
+                <div className="px-12">No notebook!</div>
+            </Hall>
+        );
 
-    const topic = notebook[viewedTopic];
+    const topic: (Topic & { references: Reference[] }) | undefined =
+        notebook[viewedTopic];
     if (!topic) setViewedTopic(0);
 
     return (
