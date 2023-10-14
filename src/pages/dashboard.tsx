@@ -33,6 +33,8 @@ const Dashboard = () => {
         return <Loading inline={false} color="secondary" />;
     }
 
+    const currentSelectedLibrary = user?.libraries[selectedLibrary];
+
     return (
         <div className="mx-auto max-w-7xl px-3 pt-12">
             <div className="flex  flex-col gap-3  lg:flex-row">
@@ -68,27 +70,26 @@ const Dashboard = () => {
                             ) : (
                                 user?.libraries.map((library: Library, idx) => {
                                     return (
-                                        <div
-                                            key={library.id}
-                                            className="flex flex-row items-center justify-between"
-                                        >
-                                            <button
-                                                className={`flex w-full items-center justify-between px-2 py-2 text-left hover:bg-gable-900  ${
-                                                    selectedLibrary === idx
-                                                        ? "text-tango-500 hover:text-tango-500"
-                                                        : " hover:text-sushi-400"
-                                                }`}
-                                                onClick={() =>
-                                                    setSelectedLibrary(idx)
-                                                }
-                                            >
-                                                <div>{library.title}</div>
-                                                <div className="self-end whitespace-nowrap text-sm text-gable-700">
-                                                    {dtfmt.format(
-                                                        library.updatedAt,
-                                                    )}
-                                                </div>
-                                            </button>
+                                        <div key={library.id}>
+                                            <div className="flex flex-row items-center justify-between">
+                                                <button
+                                                    className={`flex w-full items-center justify-between px-2 py-2 text-left hover:bg-gable-900  ${
+                                                        selectedLibrary === idx
+                                                            ? "text-tango-500 hover:text-tango-500"
+                                                            : " hover:text-sushi-400"
+                                                    }`}
+                                                    onClick={() =>
+                                                        setSelectedLibrary(idx)
+                                                    }
+                                                >
+                                                    <div>{library.title}</div>
+                                                    <div className="self-end whitespace-nowrap text-sm text-gable-700">
+                                                        {dtfmt.format(
+                                                            library.updatedAt,
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            </div>
                                         </div>
                                     );
                                 })
@@ -98,13 +99,38 @@ const Dashboard = () => {
                     <List>
                         <Header>
                             <div>
-                                <h1 className="block text-lg">Jobs</h1>
+                                <h1 className="block text-lg">Library:</h1>
                                 <h2>
                                     {user?.libraries[selectedLibrary]?.title}
                                 </h2>
                             </div>
                         </Header>
-                        <div className="max-h-60 overflow-x-hidden overflow-y-scroll p-2">
+                        <div className="px-2 py-3">
+                            <h1 className="flex flex-row justify-between">
+                                <span> Documents: </span>
+                                <span>
+                                    {currentSelectedLibrary?.documents.length}
+                                </span>
+                            </h1>
+                            <h1 className="flex flex-row justify-between">
+                                <span>Created at: </span>
+                                <span>
+                                    {dtfmt.format(
+                                        currentSelectedLibrary?.createdAt,
+                                    )}
+                                </span>
+                            </h1>
+                            <h1 className="flex flex-row justify-between">
+                                <span>Last updated: </span>
+                                <span>
+                                    {dtfmt.format(
+                                        currentSelectedLibrary?.updatedAt,
+                                    )}
+                                </span>
+                            </h1>
+                        </div>
+                        <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-2">
+                            <h1 className="block text-lg">Jobs</h1>
                             {isLoading ? (
                                 <Loading
                                     inline={true}
@@ -160,9 +186,17 @@ const Dashboard = () => {
                     </List>
                 </div>
                 <MiddleColumn>
-                    <div className="max-h-[70vh] bg-baltic-900">
-                        <div>Search Bar</div>
-                        <div>List of REsponses</div>
+                    <div className="max-h-[70vh] ">
+                        <div>
+                            <input
+                                type="text"
+                                placeholder="Enter a search query"
+                                className="w-full rounded-sm px-2 py-1 outline-none hover:ring-1 hover:ring-tango-500 focus:ring-0"
+                            />
+                        </div>
+                        <div className="w-full pt-56 text-center">
+                            BIG LOGO UNTIL LIST SLIGHTLY DARKER THAN BG
+                        </div>
                         <div></div>
                         <div></div>
                     </div>
