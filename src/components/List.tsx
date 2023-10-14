@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 
 const List = ({ children }: { children: ReactNode }) => {
     return (
-        <div className="h-fit w-64 rounded-sm bg-gable-950  text-neutral-100">
+        <div className="h-fit  rounded-sm bg-gable-950  text-neutral-100">
             {children}
         </div>
     );
@@ -33,7 +33,9 @@ export const Body = ({
     children: ReactNode;
 }) => {
     return (
-        <div className={` max-h-96 overflow-y-scroll text-lg  ${className}`}>
+        <div
+            className={`max-h-96 overflow-x-clip overflow-y-scroll text-ellipsis text-lg  ${className}`}
+        >
             {children}
         </div>
     );

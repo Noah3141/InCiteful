@@ -37,9 +37,9 @@ const Notebook = () => {
 
     return (
         <div className="mx-auto max-w-7xl px-3 pt-12">
-            <div className="flex flex-row gap-3 ">
+            <div className="flex flex-col gap-3 lg:flex-row ">
                 <List>
-                    <Header className="flex  flex-row items-center justify-between border-b border-b-gable-900 p-2">
+                    <Header className="flex flex-row items-center justify-between border-b border-b-gable-900 p-2 lg:w-60">
                         <h1 className="text-xl">Topics</h1>
                         <AddTopic />
                     </Header>
@@ -93,32 +93,40 @@ const Notebook = () => {
                             </div>
                         </div>
 
-                        {topic?.references.map((reference) => {
-                            return (
-                                <div
-                                    key={reference.id}
-                                    className="flex flex-row justify-between"
-                                >
-                                    <div className="w-full border">
-                                        <div>{reference.articleTitle}</div>
-                                        <div>
-                                            Reference Added:
-                                            {dtfmt.format(reference.addedAt)}
-                                        </div>
-                                        <div>
-                                            Article Published:
-                                            {dtfmt.format(
-                                                reference.articlePublishedDate,
-                                            )}
-                                        </div>
-                                        <div></div>
-                                    </div>
-                                    <ReferenceNoteWizard
-                                        referenceId={reference.id}
-                                    />
-                                </div>
-                            );
-                        })}
+                        <div className="p-2">
+                            {topic?.references.length !== 0
+                                ? topic?.references.map((reference) => {
+                                      return (
+                                          <div
+                                              key={reference.id}
+                                              className="flex flex-row justify-between"
+                                          >
+                                              <div className="w-full border">
+                                                  <div>
+                                                      {reference.articleTitle}
+                                                  </div>
+                                                  <div>
+                                                      Reference Added:
+                                                      {dtfmt.format(
+                                                          reference.addedAt,
+                                                      )}
+                                                  </div>
+                                                  <div>
+                                                      Article Published:
+                                                      {dtfmt.format(
+                                                          reference.articlePublishedDate,
+                                                      )}
+                                                  </div>
+                                                  <div></div>
+                                              </div>
+                                              <ReferenceNoteWizard
+                                                  referenceId={reference.id}
+                                              />
+                                          </div>
+                                      );
+                                  })
+                                : "No references yet"}
+                        </div>
                     </div>
                     <TopicNoteWizard topicId={topic?.id ?? ""} />
                 </MiddleColumn>

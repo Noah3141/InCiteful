@@ -271,7 +271,7 @@ const AddDocumentWizard = ({
                         text="Upload File"
                     ></Button>
                 </div>
-                <div className="flex h-full items-center justify-between border-sand-300 px-16">
+                <div className="mt-6 flex h-full flex-col items-start justify-between gap-3 border-sand-300 px-16 lg:mt-0 lg:flex-row lg:items-center">
                     <div>
                         <input
                             className="h-full w-72 text-ellipsis rounded-sm p-1 px-2 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0"

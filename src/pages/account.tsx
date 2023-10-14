@@ -115,7 +115,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex flex-row items-center justify-between text-2xl">
+            <div className="flex flex-col justify-between text-2xl lg:flex-row lg:items-center">
                 <div>Username:</div>
                 <div className="">
                     {editting.name ? (
@@ -164,7 +164,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                 </div>
             </div>
             <div>
-                <div className="flex flex-row items-center justify-between  text-2xl">
+                <div className="flex flex-col justify-between text-2xl lg:flex-row  lg:items-center">
                     <div>Email:</div>
                     {editting.email ? (
                         <>
@@ -212,7 +212,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                 </div>
             </div>
             <div className="">
-                <div className="flex flex-row items-center justify-between pe-10   text-2xl">
+                <div className="flex flex-col justify-between gap-3 pe-10 text-2xl lg:flex-row   lg:items-center">
                     <div>Notify by Email:</div>
                     <div className="group">
                         <Button
