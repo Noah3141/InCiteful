@@ -5,7 +5,9 @@ const Loading = ({
     inline = true,
     hideOnce = false,
     color = "neutral",
+    className = "",
 }: {
+    className?: string;
     inline: boolean;
     hideOnce?: boolean;
     color: "neutral" | "primary" | "secondary";
@@ -21,7 +23,9 @@ const Loading = ({
 
     if (inline)
         return (
-            <div className="flex w-full justify-center">
+            <div
+                className={`flex h-full w-full items-center justify-center ${className}`}
+            >
                 <ClipLoader
                     color="currentColor"
                     className={` ${colorVal}`}
@@ -32,7 +36,9 @@ const Loading = ({
         );
     else
         return (
-            <div className="flex h-96 flex-row items-center justify-center ">
+            <div
+                className={`flex h-96 flex-row items-center justify-center  ${className}`}
+            >
                 <ClipLoader
                     color="currentColor"
                     className={` ${colorVal}`}

@@ -7,7 +7,6 @@ import {
 } from "~/server/api/trpc";
 
 import { Author, Document, Job } from "@prisma/client";
-
 import {
     type Request as DocAddReq,
     type Response as DocAddRes,
@@ -34,10 +33,10 @@ import {
 // todo MAKE SURE ALL CRUD TO PYTHON IS SYNCED HERE, elsewhere is then valid
 
 const documents_add = async (params: DocAddReq): Promise<DocAddRes> => {
-    const { file, ...body } = params;
+    const { file, filename, ...body } = params;
 
     const formData = new FormData();
-    formData.append("file", file, undefined);
+    formData.append("file", file, filename);
     for (const [key, value] of Object.entries(body)) {
         formData.append(key, value);
     }
@@ -106,14 +105,26 @@ export const documentsRouter = createTRPCRouter({
     postOne: protectedProcedure
         .input(
             z.object({
+                filename: z.string(),
                 libraryId: z.string(),
-                file: z.instanceof(File),
+                file: z.string().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
+            // Verify this document
+            if (!input.file) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Please select a file to upload",
+                });
+            }
+
+            const file = new Blob([input.file]);
+
             // Send document to the backend
             const res = await documents_add({
-                file: input.file,
+                filename: input.filename,
+                file: file,
                 library_id: input.libraryId,
                 user_id: ctx.session.user.id,
             });

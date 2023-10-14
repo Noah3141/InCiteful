@@ -8,11 +8,13 @@ import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import Button from "~/components/Button";
 
 type ProfileForm = {
     name: string | null;
     email: string | null;
     image: string | null;
+    notifyByEmail: string | null;
 };
 
 type ProfileEditState = {
@@ -63,11 +65,28 @@ type ProfileReadoutProps = {
     user: User;
 };
 
+const unsavedChanges = ({
+    form,
+    savedForm,
+}: {
+    form: ProfileForm;
+    savedForm: ProfileForm;
+}): boolean => {
+    let unsavedChanges = false;
+    let k: keyof typeof form;
+    for (k in form) {
+        if (form[k] != savedForm[k]) {
+            unsavedChanges = true;
+        }
+    }
+    return unsavedChanges;
+};
+
 const ProfileReadout = ({ user }: ProfileReadoutProps) => {
     const trpc = api.useContext();
     const initialForm: ProfileForm = user;
+    const [savedForm, setSavedForm] = useState<ProfileForm>({ ...initialForm });
     const [form, setForm] = useState<ProfileForm>({ ...initialForm });
-
     const closedEdits = {
         name: false,
         email: false,
@@ -85,6 +104,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                 await trpc.user.invalidate();
                 toast.success("Profile updated!", { id: profileSubmitToast });
                 setEditting(closedEdits);
+                setSavedForm(form);
             },
             onError: () => {
                 toast.error("Something went wrong!", {
@@ -94,8 +114,8 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
         });
 
     return (
-        <>
-            <div className="flex flex-row items-center justify-between gap-3">
+        <div className="flex flex-col gap-6">
+            <div className="flex flex-row items-center justify-between text-2xl">
                 <div>Username:</div>
                 <div className="">
                     {editting.name ? (
@@ -117,9 +137,9 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                 <AiOutlineCheckCircle
                                     size={28}
                                     onClick={() => {
-                                        submitProfile(form);
+                                        setEditting(closedEdits);
                                     }}
-                                    className="bg-primary-500  text-basic-800 hover:bg-primary-600 me-2 cursor-pointer rounded-sm p-[3px] "
+                                    className="bg-primary-500 text-basic-800  hover:bg-primary-600 me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
                                 />
                             </div>
                         </>
@@ -137,14 +157,14 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                             className="pe-10"
                         >
                             <span className="cursor-default text-2xl">
-                                {user.name}
+                                {form.name}
                             </span>
                         </HoverEdit>
                     )}
                 </div>
             </div>
             <div>
-                <div className="flex flex-row items-center justify-between gap-3">
+                <div className="flex flex-row items-center justify-between  text-2xl">
                     <div>Email:</div>
                     {editting.email ? (
                         <>
@@ -165,9 +185,9 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                 <AiOutlineCheckCircle
                                     size={28}
                                     onClick={() => {
-                                        submitProfile(form);
+                                        setEditting(closedEdits);
                                     }}
-                                    className="bg-primary-500  text-basic-800 hover:bg-primary-600 me-2 cursor-pointer rounded-sm p-[3px] "
+                                    className="bg-primary-500 text-basic-800  hover:bg-primary-600 me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
                                 />
                             </div>
                         </>
@@ -185,12 +205,45 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                             className="pe-10 "
                         >
                             <span className="cursor-default text-2xl ">
-                                {user.email}
+                                {form.email}
                             </span>
                         </HoverEdit>
                     )}
                 </div>
             </div>
-        </>
+            <div className="">
+                <div className="flex flex-row items-center justify-between pe-10   text-2xl">
+                    <div>Notify by Email:</div>
+                    <div className="group">
+                        <Button
+                            color="neutral"
+                            onClick={() => {
+                                setForm((p) => ({
+                                    ...p,
+                                    notifyByEmail: p.notifyByEmail
+                                        ? null
+                                        : p.email,
+                                }));
+                                setEditting(closedEdits);
+                            }}
+                            className="text-xl"
+                            text={form.notifyByEmail ? "Yes" : "No"}
+                        />
+                    </div>
+                </div>
+                <div className="mt-6 flex flex-row justify-end pe-10">
+                    <Button
+                        disabled={!unsavedChanges({ form, savedForm })}
+                        color="secondary"
+                        className="disabled:bg-neutral-500"
+                        onClick={() => {
+                            submitProfile(form);
+                        }}
+                        text="Submit"
+                    ></Button>
+                </div>
+            </div>
+            Usage:
+        </div>
     );
 };

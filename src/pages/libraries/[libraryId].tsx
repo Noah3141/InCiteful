@@ -1,6 +1,11 @@
 // import "react-tooltip/dist/react-tooltip.css";
 import { useRouter } from "next/router";
-import React from "react";
+import React, {
+    DetailedHTMLProps,
+    InputHTMLAttributes,
+    useRef,
+    useState,
+} from "react";
 import toast from "react-hot-toast";
 import { IoIosRemoveCircle, IoIosRemoveCircleOutline } from "react-icons/io";
 import { Tooltip } from "react-tooltip";
@@ -8,10 +13,13 @@ import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
-import { Document as Doc, Document } from "@prisma/client";
+import { type Document } from "@prisma/client";
 import Button from "~/components/Button";
-import { LibraryDocsAndJobs } from "~/server/api/routers/libraries";
+import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
 import { JobStatus } from "~/components/JobStatus";
+import { SourceType } from "~/models/all_request";
+//
+
 const LibraryPage = () => {
     const router = useRouter();
     const pathId =
@@ -40,7 +48,10 @@ const LibraryPage = () => {
                     <h1 className="page-title"> </h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
-                <AddDocumentWizard libraryId={data.library.title} />
+                <AddDocumentWizard
+                    notifyByEmail={data.notifyByEmail}
+                    libraryId={data.library.title}
+                />
             </Hall>
         );
     }
@@ -55,7 +66,10 @@ const LibraryPage = () => {
                     <h1 className="page-title">{data?.library.title}</h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
-                <AddDocumentWizard libraryId={data.library.id} />
+                <AddDocumentWizard
+                    notifyByEmail={data.notifyByEmail}
+                    libraryId={data.library.id}
+                />
                 <JobWizard data={data} />
                 <DocumentList documents={data.documents} />
             </Hall>
@@ -70,7 +84,7 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
             </div>
             <div className="mt-8 max-h-96 overflow-y-scroll">
                 {documents.length !== 0
-                    ? documents.map((document: Doc) => {
+                    ? documents.map((document: Document) => {
                           return (
                               <div key={document.id}>
                                   <div>{document.title}</div>
@@ -170,16 +184,123 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
     );
 };
 
-const AddDocumentWizard = ({ libraryId }: { libraryId: string }) => {
+const AddDocumentWizard = ({
+    libraryId,
+    notifyByEmail,
+}: {
+    libraryId: string;
+    notifyByEmail: string | null;
+}) => {
+    const [uploadFiles, setUploadFiles] = useState<FileList | null>(null);
+    const [batchUrl, setBatchUrl] = useState<string>("");
+    const [sourceType, sourceTypeDisplay] = parseForType(batchUrl);
+
+    const addDocToast = "addDocToastId";
+    const { mutate: addDocument, isLoading: singleLoading } =
+        api.document.postOne.useMutation({
+            onMutate: () => {
+                toast.loading("Loading...", { id: addDocToast });
+            },
+            onSuccess: () => {
+                toast.success("Success!", { id: addDocToast });
+            },
+            onError: () => {
+                toast.error(`Something went wrong`, { id: addDocToast });
+            },
+        });
+
+    const upload = () => {
+        const file = uploadFiles?.item(0);
+        const contents = (file as Blob).toString();
+        addDocument({
+            file: contents,
+            libraryId: libraryId,
+            filename: file?.name ?? "Not found",
+        });
+    };
+
+    // Create a reference to the hidden file input element
+    const hiddenFileInput = useRef<HTMLInputElement>(null);
+
+    const addBatchToast = "addBatchToastId";
+    const { mutate: addBatchDocument, isLoading: batchLoading } =
+        api.document.postBatch.useMutation({
+            onMutate: () => {
+                toast.loading("Loading...", { id: addDocToast });
+            },
+            onSuccess: () => {
+                toast.success("Success!", { id: addDocToast });
+            },
+            onError: () => {
+                toast.error(`Something went wrong`, { id: addDocToast });
+            },
+        });
+
     return (
-        <div className="w-full">
-            <div className="flex  justify-between border-sand-300 px-16 py-8">
-                <input type="text" />
-                <Button color="secondary" text="Upload File"></Button>
+        <div className="w-full pb-6 pt-12">
+            <div className="px-16">
+                <h1 className="text-xl">Add Documents</h1>
             </div>
-            <div className="flex  justify-between border-sand-300 px-16 py-8">
-                <input type="text" />
-                <Button color="secondary" text="Upload Folder"></Button>
+            <div className="mt-8 flex flex-col gap-3">
+                <div className="flex  h-full items-center justify-between border-sand-300 px-16">
+                    <input
+                        ref={hiddenFileInput}
+                        className="hidden"
+                        onChange={(e) => {
+                            setUploadFiles(e.target.files);
+                        }}
+                        type="file"
+                        placeholder="Upload a single file"
+                    />
+                    <div>
+                        <Button
+                            text="Select a single file"
+                            color="neutral"
+                            className="bg"
+                            onClick={(e) => hiddenFileInput?.current?.click()}
+                        />
+                        <span className="ps-3">
+                            {hiddenFileInput.current?.files?.item(0)?.name}
+                        </span>
+                    </div>
+                    <Button
+                        disabled={!uploadFiles}
+                        onClick={upload}
+                        className="disabled:bg-neutral-200"
+                        color="secondary"
+                        text="Upload File"
+                    ></Button>
+                </div>
+                <div className="flex h-full items-center justify-between border-sand-300 px-16">
+                    <div>
+                        <input
+                            className="h-full w-72 text-ellipsis rounded-sm p-1 px-2 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0"
+                            type="text"
+                            value={batchUrl}
+                            onChange={(e) => {
+                                setBatchUrl(e.target.value);
+                            }}
+                            placeholder="Provide a link to a folder of files"
+                        />
+                        <span className="ps-3">{sourceTypeDisplay}</span>
+                    </div>
+                    <Button
+                        disabled={sourceType === null}
+                        onClick={() => {
+                            if (!!sourceType) {
+                                addBatchDocument({
+                                    batchUrl,
+                                    libraryId,
+                                    notifyByEmail,
+                                    sourceType,
+                                });
+                            }
+                        }}
+                        className=" disabled:bg-neutral-200"
+                        color="secondary"
+                        text="Upload Folder"
+                    ></Button>
+                </div>
             </div>
         </div>
     );
@@ -189,32 +310,42 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
     return (
         <div className="border-t border-sand-300 px-16 py-8">
             <h1 className="text-xl">Jobs</h1>
-            <div>
-                {data.jobs.map((job) => {
-                    return (
-                        <div key={job.id}>
-                            <div className="flex flex-row justify-between">
-                                <div>{dtfmt.format(job.createdAt)}</div>
-                                <JobStatus status={job.status} />
-                            </div>
-                            <div>{job.message}</div>
-                            <div>
-                                Started:
-                                {job.startedAt
-                                    ? dtfmt.format(job.startedAt)
-                                    : "Not yet"}
-                            </div>
-                            <div>
-                                Finished:
-                                {job.endedAt
-                                    ? dtfmt.format(job.endedAt)
-                                    : "Not yet"}
-                            </div>
-                            <div>Cost:</div>
-                        </div>
-                    );
-                })}
+            <div className="mt-8">
+                {data.jobs.length !== 0
+                    ? data.jobs.map((job) => {
+                          return (
+                              <div key={job.id}>
+                                  <div className="flex flex-row justify-between">
+                                      <div>{dtfmt.format(job.createdAt)}</div>
+                                      <JobStatus status={job.status} />
+                                  </div>
+                                  <div>{job.message}</div>
+                                  <div>
+                                      Started:
+                                      {job.startedAt
+                                          ? dtfmt.format(job.startedAt)
+                                          : "Not yet"}
+                                  </div>
+                                  <div>
+                                      Finished:
+                                      {job.endedAt
+                                          ? dtfmt.format(job.endedAt)
+                                          : "Not yet"}
+                                  </div>
+                                  <div>Cost:</div>
+                              </div>
+                          );
+                      })
+                    : "No jobs"}
             </div>
         </div>
     );
+};
+
+const parseForType = (url: string): [SourceType | null, string] => {
+    if (url.includes("https://drive.google.com/drive/folders/")) {
+        return [SourceType.GoogleDrive, "Google Drive"];
+    } else {
+        return [null, ""];
+    }
 };

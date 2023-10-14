@@ -1,7 +1,9 @@
 export type Request = {
     user_id: string;
     library_id: string;
-    file: File;
+    file: Blob;
+    ///
+    filename: string;
 };
 
 export type Response = {

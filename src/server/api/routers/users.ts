@@ -6,7 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-import { Job, Library, Topic, User } from "@prisma/client";
+import { type User } from "@prisma/client";
 
 export const usersRouter = createTRPCRouter({
     getSession: protectedProcedure.query(async ({ ctx }) => {
@@ -33,6 +33,7 @@ export const usersRouter = createTRPCRouter({
                 email: z.string().nullable(),
                 name: z.string().nullable(),
                 image: z.string().nullable(),
+                notifyByEmail: z.string().nullable(),
             }),
         )
         .mutation(async ({ ctx, input }): Promise<User> => {
@@ -42,6 +43,7 @@ export const usersRouter = createTRPCRouter({
                     email: input.email ?? undefined,
                     name: input.name ?? undefined,
                     image: input.image ?? undefined,
+                    notifyByEmail: input.notifyByEmail,
                 },
             });
 

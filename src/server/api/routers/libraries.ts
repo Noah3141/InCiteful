@@ -102,8 +102,9 @@ export const librariesRouter = createTRPCRouter({
     getDocuments: protectedProcedure
         .input(z.object({ libraryId: z.string() }))
         .query(async ({ ctx, input }): Promise<LibraryDocsAndJobs> => {
-            const library: Library | null = await ctx.db.library.findUnique({
+            const library = await ctx.db.library.findUnique({
                 where: { id: input.libraryId },
+                include: { User: { select: { notifyByEmail: true } } },
             });
 
             if (!library) {
@@ -122,10 +123,16 @@ export const librariesRouter = createTRPCRouter({
                 where: { libraryId: input.libraryId },
             });
 
+            const user = (await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { notifyByEmail: true },
+            })) ?? { notifyByEmail: null };
+
             return {
                 jobs,
                 documents,
                 library,
+                notifyByEmail: user.notifyByEmail,
             };
         }),
 
@@ -144,4 +151,5 @@ export type LibraryDocsAndJobs = {
     jobs: Job[];
     documents: Document[];
     library: Library;
+    notifyByEmail: string | null;
 };
