@@ -1,4 +1,4 @@
-import { Status } from "@prisma/client";
+import { type Status } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env.mjs";
 import { api } from "~/utils/api";
