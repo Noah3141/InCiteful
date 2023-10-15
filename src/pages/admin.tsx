@@ -92,7 +92,7 @@ const Admin = () => {
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
-                                                Jobs
+                                                Jobs - {user._count.jobs}
                                             </h1>
                                             <button
                                                 className="pb-3"
@@ -133,10 +133,16 @@ const Admin = () => {
                                                     : "h-0"
                                             }`}
                                         >
-                                            <ol type="1">
+                                            <ol
+                                                type="1"
+                                                className="divide-y bg-sand-300"
+                                            >
                                                 {user.jobs.map((job) => {
                                                     return (
-                                                        <li key={job.id}>
+                                                        <li
+                                                            key={job.id}
+                                                            className="px-2 py-6"
+                                                        >
                                                             <div>
                                                                 {job.status}
                                                             </div>
@@ -174,7 +180,8 @@ const Admin = () => {
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
-                                                Sessions
+                                                Sessions -{" "}
+                                                {user._count.sessions}
                                             </h1>
                                             <button
                                                 className="pb-3"
@@ -218,13 +225,16 @@ const Admin = () => {
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
-                                            <ol type="1">
+                                            <ol
+                                                type="1"
+                                                className="divide-y bg-sand-300"
+                                            >
                                                 {user.sessions.map(
                                                     (session) => {
                                                         return (
                                                             <li
                                                                 key={session.id}
-                                                                className="flex flex-col pb-6"
+                                                                className="flex flex-col px-2 py-6"
                                                             >
                                                                 <span>
                                                                     Session ID:{" "}
@@ -246,7 +256,8 @@ const Admin = () => {
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
-                                                Accounts
+                                                Accounts -{" "}
+                                                {user._count.accounts}
                                             </h1>
                                             <button
                                                 className="pb-3"
@@ -290,13 +301,16 @@ const Admin = () => {
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
-                                            <ol type="1">
+                                            <ol
+                                                type="1"
+                                                className="divide-y bg-sand-300"
+                                            >
                                                 {user.accounts.map(
                                                     (account) => {
                                                         return (
                                                             <li
                                                                 key={account.id}
-                                                                className="flex flex-col pb-6"
+                                                                className="flex flex-col px-2 py-6"
                                                             >
                                                                 <span>
                                                                     Type:
@@ -320,6 +334,95 @@ const Admin = () => {
                                                                     Provider:{" "}
                                                                     {
                                                                         account.provider
+                                                                    }
+                                                                </span>
+                                                            </li>
+                                                        );
+                                                    },
+                                                )}
+                                            </ol>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <h1 className="mt-3 text-xl">
+                                                Libraries -
+                                                {user._count.libraries}
+                                            </h1>
+                                            <button
+                                                className="pb-3"
+                                                onClick={() => {
+                                                    setDataUnfolded(
+                                                        (prevMap) => {
+                                                            const menu =
+                                                                prevMap.get(
+                                                                    user.id,
+                                                                ) ??
+                                                                defaultMenu;
+                                                            const updatedMenu =
+                                                                {
+                                                                    ...menu,
+                                                                    libraries:
+                                                                        !menu.libraries,
+                                                                };
+                                                            const newMap =
+                                                                new Map(
+                                                                    prevMap,
+                                                                );
+                                                            newMap.set(
+                                                                user.id,
+                                                                updatedMenu,
+                                                            );
+                                                            return newMap;
+                                                        },
+                                                    );
+                                                }}
+                                            >
+                                                {menu.libraries
+                                                    ? "Hide"
+                                                    : "Expand"}
+                                            </button>
+                                        </div>
+
+                                        <div
+                                            className={`border-x transition-all duration-300 ${
+                                                menu.libraries
+                                                    ? "h-96 overflow-y-scroll"
+                                                    : "h-0 overflow-hidden"
+                                            }`}
+                                        >
+                                            <ol
+                                                type="1"
+                                                className="divide-y bg-sand-300"
+                                            >
+                                                {user.libraries.map(
+                                                    (library) => {
+                                                        return (
+                                                            <li
+                                                                key={library.id}
+                                                                className="flex flex-col px-2 py-6  "
+                                                            >
+                                                                <span>
+                                                                    Library ID:{" "}
+                                                                    {library.id}
+                                                                </span>
+                                                                <span>
+                                                                    Title:{" "}
+                                                                    {
+                                                                        library.title
+                                                                    }
+                                                                </span>
+                                                                <span>
+                                                                    {dtfmt.format(
+                                                                        library.createdAt,
+                                                                    )}
+                                                                </span>
+                                                                <span>
+                                                                    Documents:{" "}
+                                                                    {
+                                                                        library
+                                                                            ._count
+                                                                            .documents
                                                                     }
                                                                 </span>
                                                             </li>

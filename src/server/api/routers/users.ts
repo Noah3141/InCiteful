@@ -95,7 +95,12 @@ export const usersRouter = createTRPCRouter({
                 include: {
                     _count: true,
                     jobs: true,
-                    libraries: true,
+                    libraries: {
+                        include: {
+                            _count: true,
+                            documents: true,
+                        },
+                    },
                     sessions: true,
                     accounts: true,
                 },
