@@ -49,15 +49,16 @@ const Admin = () => {
         new Map(map),
     );
 
-    if (status === "loading" || !session)
+    if (status === "loading")
         return (
             <Hall>
                 <Loading color="secondary" inline={false} />
             </Hall>
         );
 
-    if (session.user.role !== "Admin") {
+    if (session?.user.role !== "Admin" || !session) {
         void router.push("//");
+        return "";
     }
 
     if (isLoading)
@@ -241,7 +242,7 @@ const Admin = () => {
                                                                     {session.id}
                                                                 </span>
                                                                 <span>
-                                                                    User ID:
+                                                                    User ID:{" "}
                                                                     {
                                                                         session.userId
                                                                     }
@@ -313,7 +314,7 @@ const Admin = () => {
                                                                 className="flex flex-col px-2 py-6"
                                                             >
                                                                 <span>
-                                                                    Type:
+                                                                    Type:{" "}
                                                                     {
                                                                         account.type
                                                                     }
@@ -327,7 +328,7 @@ const Admin = () => {
                                                                     }
                                                                 </span>
                                                                 <span>
-                                                                    Account ID:
+                                                                    Account ID:{" "}
                                                                     {account.id}
                                                                 </span>
                                                                 <span>
@@ -346,7 +347,7 @@ const Admin = () => {
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
-                                                Libraries -
+                                                Libraries -{" "}
                                                 {user._count.libraries}
                                             </h1>
                                             <button
@@ -413,6 +414,7 @@ const Admin = () => {
                                                                     }
                                                                 </span>
                                                                 <span>
+                                                                    Created:{" "}
                                                                     {dtfmt.format(
                                                                         library.createdAt,
                                                                     )}
