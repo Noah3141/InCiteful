@@ -72,6 +72,7 @@ model User {
     references    Reference[]
     jobs          Job[]
     topics        Topic[]
+    createdAt     DateTime    @default(now())
 }
 
 enum Membership {

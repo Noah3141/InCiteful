@@ -104,6 +104,17 @@ const Navbar = () => {
                         >
                             Account
                         </Link>
+                        {user?.role === "Admin" ? (
+                            <Link
+                                className="px-3 py-3 hover:text-tango-600"
+                                px-2
+                                href="/admin"
+                            >
+                                Admin
+                            </Link>
+                        ) : (
+                            ""
+                        )}
                     </div>
                     <div className="flex flex-row items-center gap-6">
                         <span className="cursor-default text-2xl text-tango-500">

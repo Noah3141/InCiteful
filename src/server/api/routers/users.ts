@@ -6,7 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-import { type User } from "@prisma/client";
+import { Membership, Role, type User } from "@prisma/client";
 
 export const usersRouter = createTRPCRouter({
     getSession: protectedProcedure.query(async ({ ctx }) => {
@@ -76,4 +76,38 @@ export const usersRouter = createTRPCRouter({
 
         return dashboardData;
     }),
+
+    getAdminPanel: protectedProcedure
+        .input(
+            z.object({
+                membership: z.nativeEnum(Membership).optional(),
+                role: z.nativeEnum(Role).optional(),
+                createdAfter: z.date().optional(),
+                email: z.string().optional(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            if (ctx.session.user.role !== "Admin") {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const data = await ctx.db.user.findMany({
+                include: {
+                    _count: true,
+                    jobs: true,
+                    libraries: true,
+                    sessions: true,
+                    accounts: true,
+                },
+                orderBy: { createdAt: "desc" },
+                where: {
+                    membership: input.membership,
+                    email: input.email,
+                    role: input.role,
+                    createdAt: { gt: input.createdAfter },
+                },
+            });
+
+            return data;
+        }),
 });
