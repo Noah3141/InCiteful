@@ -20,11 +20,11 @@ const libraries_create = async (
     const res = await fetch(`${pythonPath}/libraries/create`, {
         method: "POST",
         mode: "cors",
-        credentials: "include",
         headers: JsonHeaders,
         body: JSON.stringify(params),
     });
 
+    console.log(res);
     const libraryCreatedRes = (await res.json()) as LibCreateRes;
 
     return libraryCreatedRes;
@@ -81,8 +81,9 @@ export const librariesRouter = createTRPCRouter({
                 });
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message:
-                        "API returned 'success: false' to create library attempt",
+                    message: `API returned 'success: false' to create library attempt: ${
+                        res.msg ?? "No message provided"
+                    }`,
                 });
             }
 

@@ -1,5 +1,5 @@
 export const JsonHeaders = {
-    Authorization: "Bearer Token temp_api_key",
+    Authorization: "Bearer temp_api_key",
     "Content-Type": "application/json",
 };
 
@@ -9,7 +9,8 @@ export const FileFormHeaders = {
 };
 
 /// No final slash
-export const pythonPath = "ec2-18-236-172-218.us-west-2.compute.amazonaws.com";
+export const pythonPath =
+    "http://ec2-18-236-172-218.us-west-2.compute.amazonaws.com";
 
 export enum SourceType {
     GoogleDrive = "google-drive",

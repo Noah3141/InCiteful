@@ -95,7 +95,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
     const [editting, setEditting] = useState<ProfileEditState>(closedEdits);
 
     const profileSubmitToast = "profileSubmitToastId";
-    const { mutate: submitProfile, isLoading: profileSubmitLoading } =
+    const { mutate: submitProfile, isLoading: submitLoading } =
         api.user.updateSession.useMutation({
             onMutate: () => {
                 toast.loading("Loading...", { id: profileSubmitToast });
@@ -216,6 +216,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                     <div>Notify by Email:</div>
                     <div className="group">
                         <Button
+                            small={true}
                             color="neutral"
                             onClick={() => {
                                 setForm((p) => ({
@@ -233,6 +234,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                 </div>
                 <div className="mt-6 flex flex-row justify-end pe-10">
                     <Button
+                        loading={submitLoading}
                         disabled={!unsavedChanges({ form, savedForm })}
                         color="secondary"
                         className="disabled:bg-neutral-500"

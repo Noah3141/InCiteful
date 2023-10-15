@@ -130,7 +130,12 @@ export const documentsRouter = createTRPCRouter({
             });
 
             if (!res.success) {
-                throw new TRPCError({ code: "CONFLICT" });
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: `API returned 'success: false' to create library attempt: ${
+                        res.msg ?? "No message provided"
+                    }`,
+                });
             }
 
             // Make me objects of name: authorName so that I can take that object[] list and pass it directly to Prisma

@@ -24,7 +24,7 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
-                            Quill
+                            InCiteful
                         </Link>
                     </div>
                     <div className="flex flex-row items-center">
@@ -46,7 +46,7 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
-                            Quill
+                            InCiteful
                         </Link>
                     </div>
                     <div className="flex flex-row items-center">
@@ -76,7 +76,7 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
-                            Quill
+                            InCiteful
                         </Link>
                         <Link
                             className="px-3 py-3 hover:text-tango-600"
