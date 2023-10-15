@@ -60,6 +60,8 @@ model User {
     notifyByEmail String?
     emailVerified DateTime?
     image         String?
+    role          Role        @default(User)
+    membership    Membership  @default(Unpaid)
     accounts      Account[]
     sessions      Session[]
     /// Users collection of libraries
@@ -70,6 +72,16 @@ model User {
     references    Reference[]
     jobs          Job[]
     topics        Topic[]
+}
+
+enum Membership {
+    Unpaid
+    Paid
+}
+
+enum Role {
+    User
+    Admin
 }
 
 model Library {

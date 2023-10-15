@@ -9,7 +9,7 @@ export const FileFormHeaders = {
 };
 
 /// No final slash
-export const pythonPath = "https://api.agify.io/?name=meelad";
+export const pythonPath = "ec2-18-236-172-218.us-west-2.compute.amazonaws.com";
 
 export enum SourceType {
     GoogleDrive = "google-drive",

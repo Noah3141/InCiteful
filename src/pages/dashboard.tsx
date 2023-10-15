@@ -83,7 +83,7 @@ const Dashboard = () => {
                                                     }
                                                 >
                                                     <div>{library.title}</div>
-                                                    <div className="self-end whitespace-nowrap text-sm text-gable-700">
+                                                    <div className="self-end whitespace-nowrap text-sm text-gable-800">
                                                         {dtfmt.format(
                                                             library.updatedAt,
                                                         )}
@@ -190,9 +190,23 @@ const Dashboard = () => {
                         <div>
                             <input
                                 type="text"
-                                placeholder="Enter a search query"
-                                className="w-full rounded-sm px-2 py-1 outline-none hover:ring-1 hover:ring-tango-500 focus:ring-0"
+                                placeholder="Enter a search prompt"
+                                className="w-full rounded-sm px-2 py-1 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:ring-0"
                             />
+                        </div>
+                        <div className="flex w-full flex-row justify-end divide-x divide-gable-800 rounded-b-sm bg-gable-700">
+                            <button className=" px-2 py-1 hover:bg-gable-600">
+                                Show
+                            </button>
+                            <button className=" px-2 py-1 hover:bg-gable-600">
+                                Sort
+                            </button>
+                            <button className=" px-2 py-1 hover:bg-gable-600">
+                                Top Results
+                            </button>
+                            <button className=" px-2 py-1 hover:bg-gable-600">
+                                Search
+                            </button>
                         </div>
                         <div className="w-full pt-56 text-center">
                             BIG LOGO UNTIL LIST SLIGHTLY DARKER THAN BG

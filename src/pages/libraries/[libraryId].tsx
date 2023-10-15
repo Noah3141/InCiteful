@@ -78,7 +78,7 @@ const LibraryPage = () => {
 
 const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
-        <div className="mt-8 border-y border-sand-300 px-16  py-8">
+        <div className="border-y border-sand-300 px-16  py-6">
             <div>
                 <h1 className=" text-xl">Documents</h1>
             </div>
@@ -237,7 +237,7 @@ const AddDocumentWizard = ({
         });
 
     return (
-        <div className="w-full pb-6 pt-12">
+        <div className="w-full py-6">
             <div className="px-16">
                 <h1 className="text-xl">Add Documents</h1>
             </div>
@@ -308,7 +308,7 @@ const AddDocumentWizard = ({
 
 const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
     return (
-        <div className="border-t border-sand-300 px-16 py-8">
+        <div className="border-t border-sand-300 px-16 py-6">
             <h1 className="text-xl">Jobs</h1>
             <div className="mt-8">
                 {data.jobs.length !== 0

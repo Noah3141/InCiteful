@@ -8,8 +8,12 @@ import { Tooltip } from "react-tooltip";
 
 import { IoIosAddCircleOutline, IoIosAddCircle } from "react-icons/io";
 import toast from "react-hot-toast";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 const Libraries = () => {
+    const router = useRouter();
+    const { data: session, status } = useSession();
     const { data, isLoading } = api.library.getAllSessions.useQuery();
 
     if (isLoading)
@@ -33,6 +37,11 @@ const Libraries = () => {
                 <p className="px-16">No libraries found!</p>
             </Hall>
         );
+
+    if (status == "unauthenticated") {
+        void router.push("//");
+        return <div></div>;
+    }
 
     return (
         <Hall>
