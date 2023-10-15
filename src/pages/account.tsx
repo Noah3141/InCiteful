@@ -237,7 +237,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                         loading={submitLoading}
                         disabled={!unsavedChanges({ form, savedForm })}
                         color="secondary"
-                        className="disabled:bg-neutral-500"
+                        className=""
                         onClick={() => {
                             submitProfile(form);
                         }}

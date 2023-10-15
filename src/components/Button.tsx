@@ -27,8 +27,8 @@ const Button = ({
             ? ` rounded-sm  text-tango-500 border-4 border-tango-500
             hover:bg-tango-500 hover:text-sand-100`
             : color == "secondary"
-            ? `rounded-sm  text-neutral-800
-            bg-sushi-500 hover:bg-sushi-600  hover:text-neutral-900`
+            ? `rounded-sm  text-gable-900
+            bg-sushi-500 hover:bg-sushi-600  hover:text-gable-950 disabled:bg-neutral-500 disabled:text-neutral-900`
             : color == "neutral"
             ? `bg-neutral-700 rounded-sm text-neutral-100
             hover:bg-neutral-800 hover:text-neutral-100`

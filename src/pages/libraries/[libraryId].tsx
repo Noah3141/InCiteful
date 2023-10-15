@@ -266,7 +266,7 @@ const AddDocumentWizard = ({
                     <Button
                         disabled={!uploadFiles}
                         onClick={upload}
-                        className="disabled:bg-neutral-200"
+                        className=""
                         color="secondary"
                         text="Upload File"
                     ></Button>
@@ -296,7 +296,7 @@ const AddDocumentWizard = ({
                                 });
                             }
                         }}
-                        className=" disabled:bg-neutral-200"
+                        className=" "
                         color="secondary"
                         text="Upload Folder"
                     ></Button>

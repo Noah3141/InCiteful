@@ -49,7 +49,7 @@ const Libraries = () => {
                 <h1 className="page-title text-neutral-800">Libraries</h1>
                 <AddLibrary />
             </div>
-            <div className="divide-y">
+            <div className="">
                 {data.map((library) => {
                     return (
                         <div

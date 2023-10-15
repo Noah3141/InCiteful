@@ -8,7 +8,7 @@ type Props = {
 const Hall = ({ children, className = "" }: Props) => {
     return (
         <div
-            className={`mx-auto h-full min-h-screen max-w-4xl border-x border-x-sand-300 pt-12 ${className}`}
+            className={`mx-auto h-full min-h-screen max-w-4xl pt-12 ${className}`}
         >
             {children}
         </div>
