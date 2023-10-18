@@ -1,12 +1,8 @@
 import { z } from "zod";
-import { AnyRouter, TRPCError } from "@trpc/server";
-import {
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
-} from "~/server/api/trpc";
+import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-import { Author, Document, Job } from "@prisma/client";
+import { type Author, type Document, type Job } from "@prisma/client";
 import {
     type Request as DocAddReq,
     type Response as DocAddRes,
@@ -27,6 +23,7 @@ import {
     FileFormHeaders,
     JsonHeaders,
     SourceType,
+    log,
     pythonPath,
 } from "~/models/all_request";
 
@@ -51,6 +48,7 @@ const documents_add = async (params: DocAddReq): Promise<DocAddRes> => {
 
     const document_added = (await res.json()) as DocAddRes;
 
+    log(document_added, "documents/add");
     return document_added;
 };
 
@@ -65,11 +63,12 @@ const documents_list = async (params: DocListReq): Promise<DocListRes> => {
 
     const document_list = (await res.json()) as DocListRes;
 
+    log(document_list, "documents/list");
     return document_list;
 };
 
 const jobs_add = async (params: JobAddReq): Promise<JobAddRes> => {
-    const res = await fetch(`${pythonPath}/documents/list`, {
+    const res = await fetch(`${pythonPath}/jobs/add`, {
         method: "POST",
         mode: "cors",
         credentials: "include",
@@ -79,6 +78,7 @@ const jobs_add = async (params: JobAddReq): Promise<JobAddRes> => {
 
     const addedJob = (await res.json()) as JobAddRes;
 
+    log(addedJob, "jobs/add");
     return addedJob;
 };
 
@@ -184,6 +184,14 @@ export const documentsRouter = createTRPCRouter({
                 source_location: input.batchUrl,
                 notify_by_email: input.notifyByEmail,
             });
+
+            if (job_added.msg === "No such library.") {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message:
+                        "Library does not exist in Python which does exist in Prisma.",
+                });
+            }
 
             const jobAdded: Job = await ctx.db.job.create({
                 data: {

@@ -18,6 +18,7 @@ export type JobAPI = {
     status: Status;
     start_time: string;
     finish_time: string;
+    took_time: number;
     notificaton_requested?: string;
     msg: string;
 };

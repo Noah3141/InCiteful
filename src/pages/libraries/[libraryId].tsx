@@ -226,13 +226,13 @@ const AddDocumentWizard = ({
     const { mutate: addBatchDocument, isLoading: batchLoading } =
         api.document.postBatch.useMutation({
             onMutate: () => {
-                toast.loading("Loading...", { id: addDocToast });
+                toast.loading("Loading...", { id: addBatchToast });
             },
             onSuccess: () => {
-                toast.success("Success!", { id: addDocToast });
+                toast.success("Success!", { id: addBatchToast });
             },
             onError: () => {
-                toast.error(`Something went wrong`, { id: addDocToast });
+                toast.error(`Something went wrong`, { id: addBatchToast });
             },
         });
 
@@ -342,10 +342,21 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
     );
 };
 
+/// SourceType is the Data parsed form, string is the display form shown
 const parseForType = (url: string): [SourceType | null, string] => {
-    if (url.includes("https://drive.google.com/drive/folders/")) {
+    if (url === "") return [null, ""];
+
+    if (url.includes("google.com/drive/u/0/folders/")) {
+        toast.error(
+            `Please do not use the searchbar URL, instead use: \n"Share > Get link > Copy Link" `,
+            { duration: 10_000, id: "Wrong Dropbox Link Toast" },
+        );
+        return [null, "Not a valid URL"];
+    }
+
+    if (url.includes("https://drive.google.com/drive")) {
         return [SourceType.GoogleDrive, "Google Drive"];
     } else {
-        return [null, ""];
+        return [null, "Not a valid URL"];
     }
 };

@@ -12,7 +12,7 @@ import {
     type Request as LibCreateReq,
     type Response as LibCreateRes,
 } from "../../../models/libraries_create";
-import { JsonHeaders, pythonPath } from "~/models/all_request";
+import { JsonHeaders, log, pythonPath } from "~/models/all_request";
 
 const libraries_create = async (
     params: LibCreateReq,
@@ -27,6 +27,7 @@ const libraries_create = async (
     console.log(res);
     const libraryCreatedRes = (await res.json()) as LibCreateRes;
 
+    log(libraryCreatedRes, "libraries/create");
     return libraryCreatedRes;
 };
 

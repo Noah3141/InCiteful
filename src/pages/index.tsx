@@ -20,7 +20,7 @@ export default function Index() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <RoundTop className="absolute -z-10 w-screen" />
-            <main className="mx-auto min-h-screen max-w-4xl pt-52">
+            <main className="mx-auto min-h-screen max-w-4xl px-4 pt-52">
                 <div className="text-center">
                     <div className="mb-4 text-5xl">InCiteful</div>
                     <div className="text-4xl  text-baltic-950">

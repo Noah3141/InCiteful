@@ -57,5 +57,5 @@ export default function handler(
             newStatus: body.new_status,
         });
 
-    res.status(200).json({ message: "Hello from Next.js!" });
+    res.status(200).json({ message: "Success" });
 }

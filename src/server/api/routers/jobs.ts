@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AnyRouter, TRPCError } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import {
     createTRPCRouter,
     protectedProcedure,
@@ -7,16 +7,11 @@ import {
 } from "~/server/api/trpc";
 
 import { Status, type Job } from "@prisma/client";
-import { type UpdateJobData } from "~/pages/api/job-status";
 import {
     type Request as JobsListReq,
     type Response as JobsListRes,
 } from "../../../models/jobs_list";
-import {
-    type Request as JobsAddReq,
-    type Response as JobsAddRes,
-} from "../../../models/jobs_add";
-import { JsonHeaders, pythonPath } from "~/models/all_request";
+import { JsonHeaders, log, pythonPath } from "~/models/all_request";
 
 const jobs_list = async (params: JobsListReq) => {
     const res = await fetch(`${pythonPath}/jobs/list`, {
@@ -28,6 +23,8 @@ const jobs_list = async (params: JobsListReq) => {
     });
 
     const jobsList = (await res.json()) as JobsListRes;
+
+    log(jobsList, "jobs/list");
 
     return jobsList;
 };

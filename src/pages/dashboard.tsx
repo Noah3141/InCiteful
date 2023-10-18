@@ -2,6 +2,7 @@ import { Reference, type Job, type Library, type Topic } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { Tooltip } from "react-tooltip";
 import { JobStatus } from "~/components/JobStatus";
@@ -12,6 +13,12 @@ import { tooltipStyles } from "~/styles/tooltips";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 
+type QueryState = {
+    text: string;
+    orderBy: "score" | "foo";
+    topN: number;
+};
+
 /// The page providing the dashboard to run a search against a selected library
 const Dashboard = () => {
     const { data: session, status } = useSession();
@@ -19,6 +26,12 @@ const Dashboard = () => {
     const { data: user, isLoading } = api.user.getDashboardData.useQuery();
     const [selectedLibrary, setSelectedLibrary] = useState(0);
     const [selectedTopic, setSelectedTopic] = useState(0);
+
+    const [query, setQuery] = useState<QueryState>({
+        text: "",
+        orderBy: "score",
+        topN: 10,
+    });
 
     if (status == "loading")
         return <Loading inline={false} color="secondary" />;
@@ -73,10 +86,10 @@ const Dashboard = () => {
                                         <div key={library.id}>
                                             <div className="flex flex-row items-center justify-between">
                                                 <button
-                                                    className={`flex w-full items-center justify-between px-2 py-2 text-left hover:bg-gable-900  ${
+                                                    className={`flex w-full items-center justify-between border-s-4 px-2 py-2 text-left hover:bg-gable-900  ${
                                                         selectedLibrary === idx
-                                                            ? "text-tango-500 hover:text-tango-500"
-                                                            : " hover:text-sushi-400"
+                                                            ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
+                                                            : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
                                                     }`}
                                                     onClick={() =>
                                                         setSelectedLibrary(idx)
@@ -194,19 +207,33 @@ const Dashboard = () => {
                                 className="w-full rounded-sm px-2 py-1 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:ring-0"
                             />
                         </div>
-                        <div className="flex w-full flex-row justify-end divide-x divide-gable-800 rounded-b-sm bg-gable-700">
-                            <button className=" px-2 py-1 hover:bg-gable-600">
-                                Show
-                            </button>
-                            <button className=" px-2 py-1 hover:bg-gable-600">
-                                Sort
-                            </button>
-                            <button className=" px-2 py-1 hover:bg-gable-600">
-                                Top Results
-                            </button>
-                            <button className=" px-2 py-1 hover:bg-gable-600">
-                                Search
-                            </button>
+                        <div className="flex w-full flex-row divide-x  divide-gable-800 rounded-b-sm bg-gable-700 text-neutral-100">
+                            <div className="w-full">
+                                <button className="w-full px-2 py-1 hover:bg-gable-600">
+                                    Sort by: {query.orderBy}
+                                </button>
+                            </div>
+                            <div className="w-full">
+                                <button className="w-full px-2 py-1 hover:bg-gable-600">
+                                    Top Results: {query.topN}
+                                </button>
+                            </div>
+                            <div className="w-full">
+                                <button
+                                    onClick={() => {
+                                        if (query.text === "") {
+                                            toast.error(
+                                                "Please enter a query!",
+                                                // { id: "No query text toast" },
+                                            );
+                                            return;
+                                        }
+                                    }}
+                                    className="w-full px-2 py-1 hover:bg-gable-600"
+                                >
+                                    Search
+                                </button>
+                            </div>
                         </div>
                         <div className="w-full pt-56 text-center">
                             BIG LOGO UNTIL LIST SLIGHTLY DARKER THAN BG
@@ -261,11 +288,11 @@ const Dashboard = () => {
                                                                 idx,
                                                             );
                                                         }}
-                                                        className={`w-full p-2 text-left hover:bg-gable-900 ${
+                                                        className={`w-full border-s-4 p-2 text-left hover:bg-gable-900 ${
                                                             selectedTopic ===
                                                             idx
-                                                                ? "text-tango-500"
-                                                                : ""
+                                                                ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
+                                                                : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
                                                         }`}
                                                     >
                                                         <div>
