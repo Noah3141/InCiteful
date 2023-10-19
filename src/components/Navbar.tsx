@@ -4,6 +4,7 @@ import Loading from "./Loading";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import InCiteful from "~/images/logos/InCiteful";
 
 const Navbar = () => {
     const { data: session, status } = useSession();
@@ -24,6 +25,7 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
+                            <InCiteful className="inline h-12 w-12" />
                             InCiteful
                         </Link>
                     </div>
@@ -46,6 +48,7 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
+                            <InCiteful className="inline h-12 w-12" />
                             InCiteful
                         </Link>
                     </div>
@@ -76,6 +79,10 @@ const Navbar = () => {
                             className="px-3 py-3 text-3xl hover:text-tango-600"
                             href={`/`}
                         >
+                            <InCiteful
+                                size="small"
+                                className="inline h-12 w-12"
+                            />
                             InCiteful
                         </Link>
                         <Link
@@ -91,15 +98,13 @@ const Navbar = () => {
                             Libraries
                         </Link>
                         <Link
-                            className="px-3 py-3 hover:text-tango-600"
-                            px-2
+                            className=" px-3 py-3 hover:text-tango-600"
                             href="/notebook"
                         >
                             Notebook
                         </Link>
                         <Link
                             className="px-3 py-3 hover:text-tango-600"
-                            px-2
                             href="/account"
                         >
                             Account
@@ -107,7 +112,6 @@ const Navbar = () => {
                         {user?.role === "Admin" ? (
                             <Link
                                 className="px-3 py-3 hover:text-tango-600"
-                                px-2
                                 href="/admin"
                             >
                                 Admin

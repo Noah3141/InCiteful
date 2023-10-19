@@ -130,6 +130,7 @@ export const documentsRouter = createTRPCRouter({
             });
 
             if (!res.success) {
+                log(res, "Res:");
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: ${
@@ -190,6 +191,15 @@ export const documentsRouter = createTRPCRouter({
                     code: "CONFLICT",
                     message:
                         "Library does not exist in Python which does exist in Prisma.",
+                });
+            }
+
+            if (!job_added.success) {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: `API returned 'success: false' to create library attempt: ${
+                        job_added.msg ?? "No message provided"
+                    }`,
                 });
             }
 

@@ -110,7 +110,10 @@ export const librariesRouter = createTRPCRouter({
             });
 
             if (!library) {
-                throw new TRPCError({ code: "NOT_FOUND" });
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: `Prisma lacked the specified library ID: ${input.libraryId}`,
+                });
             }
 
             const jobs: Job[] = await ctx.db.job.findMany({

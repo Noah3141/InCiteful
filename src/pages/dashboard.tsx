@@ -12,6 +12,8 @@ import MiddleColumn from "~/components/MiddleColumn";
 import { tooltipStyles } from "~/styles/tooltips";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import Image from "next/image";
+import InCiteful from "~/images/logos/InCiteful";
 
 type QueryState = {
     text: string;
@@ -199,7 +201,10 @@ const Dashboard = () => {
                     </List>
                 </div>
                 <MiddleColumn>
-                    <div className="max-h-[70vh] ">
+                    <div className=" relative max-h-[70vh] ">
+                        <div className="absolute -z-10 mt-12 flex h-96 w-full flex-row items-end justify-center">
+                            <InCiteful className=" text-sand-300" />
+                        </div>
                         <div>
                             <input
                                 type="text"
@@ -235,10 +240,6 @@ const Dashboard = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="w-full pt-56 text-center">
-                            BIG LOGO UNTIL LIST SLIGHTLY DARKER THAN BG
-                        </div>
-                        <div></div>
                         <div></div>
                     </div>
                 </MiddleColumn>
