@@ -19,5 +19,5 @@ export enum SourceType {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const log = (data: any, label: string) => {
-    console.log(`\n\n\n${label}\nPython data received: \n`, data);
+    console.log(`\n\n\n${label}\nPython data received: \n`, data, "\n");
 };

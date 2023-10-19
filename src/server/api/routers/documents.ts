@@ -37,6 +37,7 @@ const documents_add = async (params: DocAddReq): Promise<DocAddRes> => {
     for (const [key, value] of Object.entries(body)) {
         formData.append(key, value);
     }
+    console.log(formData);
 
     const res = await fetch(`${pythonPath}/documents/add`, {
         method: "POST",
@@ -130,7 +131,6 @@ export const documentsRouter = createTRPCRouter({
             });
 
             if (!res.success) {
-                log(res, "Res:");
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: ${

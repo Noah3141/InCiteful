@@ -57,7 +57,7 @@ const Libraries = () => {
                             className="flex flex-row justify-between  border-y-sand-600 border-opacity-20 px-6 py-2 "
                         >
                             <Link
-                                className="text-xl hover:text-neutral-700"
+                                className="text-2xl hover:text-neutral-700"
                                 href={`/libraries/${library.id}`}
                             >
                                 {library.title}

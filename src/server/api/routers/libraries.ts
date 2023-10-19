@@ -24,7 +24,6 @@ const libraries_create = async (
         body: JSON.stringify(params),
     });
 
-    console.log(res);
     const libraryCreatedRes = (await res.json()) as LibCreateRes;
 
     log(libraryCreatedRes, "libraries/create");

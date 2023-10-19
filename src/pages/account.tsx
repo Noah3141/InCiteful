@@ -30,7 +30,7 @@ const Account = () => {
     if (isLoading && session.status != "unauthenticated") {
         return (
             <Hall>
-                <div className="px-16">
+                <div className="px-3 transition-all duration-300 lg:px-16">
                     <h1 className="page-title">Account</h1>
                     <Loading inline={false} color="secondary" />
                 </div>
@@ -40,7 +40,7 @@ const Account = () => {
     if (!user) {
         return (
             <Hall>
-                <div className="px-16">
+                <div className="px-3 transition-all duration-300 lg:px-16">
                     <h1 className="page-title">Account</h1>
                     <div className="flex h-36 flex-row items-center justify-center text-2xl"></div>
                     No user!
@@ -51,7 +51,7 @@ const Account = () => {
 
     return (
         <Hall>
-            <div className="px-16">
+            <div className="px-3 transition-all duration-300 lg:px-16">
                 <h1 className="page-title">Account</h1>
                 <ProfileReadout user={user} />
             </div>
@@ -154,7 +154,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                     }),
                                 );
                             }}
-                            className="pe-10"
+                            className="pe-0 lg:pe-10"
                         >
                             <span className="cursor-default text-2xl">
                                 {form.name}
@@ -202,7 +202,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                     }),
                                 );
                             }}
-                            className="pe-10 "
+                            className="pe-0 lg:pe-10 "
                         >
                             <span className="cursor-default text-2xl ">
                                 {form.email}
@@ -212,7 +212,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                 </div>
             </div>
             <div className="">
-                <div className="flex flex-col justify-between gap-3 pe-10 text-2xl lg:flex-row   lg:items-center">
+                <div className="flex flex-col justify-between gap-3 pe-0 text-2xl lg:flex-row lg:items-center   lg:pe-10">
                     <div>Notify by Email:</div>
                     <div className="group">
                         <Button
@@ -232,7 +232,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                         />
                     </div>
                 </div>
-                <div className="mt-6 flex flex-row justify-end pe-10">
+                <div className="mt-6 flex flex-row justify-end pe-0 lg:pe-10">
                     <Button
                         loading={submitLoading}
                         disabled={!unsavedChanges({ form, savedForm })}
@@ -245,7 +245,11 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                     ></Button>
                 </div>
             </div>
-            Usage:
+            <div>Usage:</div>
+            <div>
+                Membership status:{" "}
+                {user.membership == "Paid" ? "Active" : "Inactive"}
+            </div>
         </div>
     );
 };
