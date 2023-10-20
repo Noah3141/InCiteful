@@ -31,7 +31,7 @@ const LibraryPage = () => {
 
     if (isLoading) {
         return (
-            <Hall>
+            <Hall title="...">
                 <div className="flex h-16 flex-row items-center justify-between px-16">
                     <h1 className="page-title"> </h1>
                     <DeleteLibrary libraryId={pathId} />
@@ -43,7 +43,7 @@ const LibraryPage = () => {
 
     if (!data?.documents && !!data?.library.title) {
         return (
-            <Hall>
+            <Hall title={data.library.title}>
                 <div className="flex h-16 flex-row items-center justify-between px-16">
                     <h1 className="page-title"> </h1>
                     <DeleteLibrary libraryId={pathId} />
@@ -61,7 +61,7 @@ const LibraryPage = () => {
         toast.error("No library found here!");
     } else
         return (
-            <Hall>
+            <Hall title={data.library.title}>
                 <div className="flex h-16 flex-row items-center justify-between px-16">
                     <h1 className="page-title">{data?.library.title}</h1>
                     <DeleteLibrary libraryId={pathId} />

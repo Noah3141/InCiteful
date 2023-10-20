@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { AnyRouter, TRPCError } from "@trpc/server";
-import {
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-import { Notebook, Reference, Topic } from "@prisma/client";
+import {
+    Author,
+    type Notebook,
+    type Reference,
+    type Topic,
+} from "@prisma/client";
 
 export const notebooksRouter = createTRPCRouter({
     createTopic: protectedProcedure
@@ -42,14 +42,16 @@ export const notebooksRouter = createTRPCRouter({
         }),
 
     getNotebookData: protectedProcedure.query(async ({ ctx }) => {
-        const topics: (Topic & { references: Reference[] })[] =
-            await ctx.db.topic.findMany({
-                where: { notebookUserId: ctx.session.user.id },
-                include: {
-                    references: { orderBy: { addedAt: "desc" } },
-                    _count: true,
+        const topics = await ctx.db.topic.findMany({
+            where: { notebookUserId: ctx.session.user.id },
+            include: {
+                references: {
+                    orderBy: { addedAt: "desc" },
+                    include: { document: true, Author: true },
                 },
-            });
+                _count: true,
+            },
+        });
 
         return topics;
     }),

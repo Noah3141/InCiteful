@@ -11,7 +11,7 @@ import { type Library, type Job, type Document } from "@prisma/client";
 import {
     type Request as LibCreateReq,
     type Response as LibCreateRes,
-} from "../../../models/libraries_create";
+} from "~/models/libraries_create";
 import { JsonHeaders, log, pythonPath } from "~/models/all_request";
 
 const libraries_create = async (
@@ -24,10 +24,10 @@ const libraries_create = async (
         body: JSON.stringify(params),
     });
 
-    const libraryCreatedRes = (await res.json()) as LibCreateRes;
+    const library_created = (await res.json()) as LibCreateRes;
 
-    log(libraryCreatedRes, "libraries/create");
-    return libraryCreatedRes;
+    log(library_created, "libraries/create");
+    return library_created;
 };
 
 export const librariesRouter = createTRPCRouter({

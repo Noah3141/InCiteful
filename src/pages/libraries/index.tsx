@@ -18,7 +18,7 @@ const Libraries = () => {
 
     if (isLoading)
         return (
-            <Hall>
+            <Hall title="...">
                 <div className="flex flex-row items-center justify-between px-16">
                     <h1 className="page-title text-neutral-800">Libraries</h1>
                     <AddLibrary />
@@ -29,7 +29,7 @@ const Libraries = () => {
 
     if (!data)
         return (
-            <Hall>
+            <Hall title="Libraries">
                 <div className="flex flex-row items-center justify-between px-16">
                     <h1 className="page-title text-neutral-800">Libraries</h1>
                     <AddLibrary />
@@ -44,7 +44,7 @@ const Libraries = () => {
     }
 
     return (
-        <Hall>
+        <Hall title="Libraries">
             <div className="flex flex-row items-center justify-between px-16">
                 <h1 className="page-title text-neutral-800">Libraries</h1>
                 <AddLibrary />
@@ -91,7 +91,7 @@ const AddLibrary = ({}: AddLibraryProps) => {
             }
         },
         onSuccess: async () => {
-            toast.success("Success!", { id: createLibId, duration: 20 });
+            toast.success("Success!", { id: createLibId, duration: 2_000 });
             toast.dismiss("titleModal");
             await trpc.library.invalidate();
         },

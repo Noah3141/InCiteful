@@ -29,7 +29,7 @@ const Account = () => {
 
     if (isLoading && session.status != "unauthenticated") {
         return (
-            <Hall>
+            <Hall title="...">
                 <div className="px-3 transition-all duration-300 lg:px-16">
                     <h1 className="page-title">Account</h1>
                     <Loading inline={false} color="secondary" />
@@ -39,7 +39,7 @@ const Account = () => {
     }
     if (!user) {
         return (
-            <Hall>
+            <Hall title="Account">
                 <div className="px-3 transition-all duration-300 lg:px-16">
                     <h1 className="page-title">Account</h1>
                     <div className="flex h-36 flex-row items-center justify-center text-2xl"></div>
@@ -50,7 +50,7 @@ const Account = () => {
     }
 
     return (
-        <Hall>
+        <Hall title="Account">
             <div className="px-3 transition-all duration-300 lg:px-16">
                 <h1 className="page-title">Account</h1>
                 <ProfileReadout user={user} />

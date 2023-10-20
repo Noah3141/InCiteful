@@ -1,4 +1,4 @@
-import { Reference, Topic } from "@prisma/client";
+import { type Reference, type Topic } from "@prisma/client";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
@@ -31,107 +31,119 @@ const Notebook = () => {
             </Hall>
         );
 
-    const topic: (Topic & { references: Reference[] }) | undefined =
-        notebook[viewedTopic];
+    const topic = notebook[viewedTopic];
     if (!topic) setViewedTopic(0);
 
     return (
-        <div className="mx-auto max-w-7xl px-3 pt-12">
-            <div className="flex flex-col gap-3 lg:flex-row ">
-                <List>
-                    <Header className="flex flex-row items-center justify-between border-b border-b-gable-900 p-2 lg:w-60">
-                        <h1 className="text-xl">Topics</h1>
-                        <AddTopic />
-                    </Header>
-                    <Body>
-                        {notebook.map((topic, idx) => {
-                            return (
-                                <div
-                                    key={topic.id}
-                                    className="flex flex-row items-center justify-between"
-                                >
-                                    <button
-                                        className={`flex w-full items-center justify-between px-2 py-1 text-left hover:bg-gable-900  ${
-                                            viewedTopic === idx
-                                                ? "text-tango-500 hover:text-tango-500"
-                                                : " hover:text-sushi-400"
-                                        }`}
-                                        onClick={() => setViewedTopic(idx)}
+        <>
+            <title>Notebook</title>
+            <div className="mx-auto max-w-7xl px-3 pt-12">
+                <div className="flex flex-col gap-3 lg:flex-row ">
+                    <List>
+                        <Header className="flex flex-row items-center justify-between border-b border-b-gable-900 p-2 lg:w-60">
+                            <h1 className="text-xl">Topics</h1>
+                            <AddTopic />
+                        </Header>
+                        <Body>
+                            {notebook.map((topic, idx) => {
+                                return (
+                                    <div
+                                        key={topic.id}
+                                        className="flex flex-row items-center justify-between"
                                     >
-                                        {topic.name}
-                                        {viewedTopic === idx && (
-                                            <RemoveTopic
-                                                idx={idx}
-                                                setViewedTopic={setViewedTopic}
-                                                topicId={topic.id}
-                                            />
-                                        )}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </Body>
-                </List>
-                <MiddleColumn>
-                    <div className="max-h-[70vh] bg-baltic-900 text-neutral-50">
-                        <div className="p-2 text-2xl leading-none">
-                            {notebook[viewedTopic]?.name}
-                        </div>
-                        <div className="flex flex-row gap-4 px-2 pb-2">
-                            <div>
-                                Created:{" "}
-                                {topic?.createdAt &&
-                                    dtfmt.format(topic.createdAt)}
-                            </div>
-                            <div>
-                                {topic?.updatedAt && (
-                                    <div>
-                                        <span>Last Updated: </span>{" "}
-                                        {dtfmt.format(topic.updatedAt)}
+                                        <button
+                                            className={`flex w-full items-center justify-between px-2 py-1 text-left hover:bg-gable-900  ${
+                                                viewedTopic === idx
+                                                    ? "text-tango-500 hover:text-tango-500"
+                                                    : " hover:text-sushi-400"
+                                            }`}
+                                            onClick={() => setViewedTopic(idx)}
+                                        >
+                                            {topic.name}
+                                            {viewedTopic === idx && (
+                                                <RemoveTopic
+                                                    idx={idx}
+                                                    setViewedTopic={
+                                                        setViewedTopic
+                                                    }
+                                                    topicId={topic.id}
+                                                />
+                                            )}
+                                        </button>
                                     </div>
-                                )}
+                                );
+                            })}
+                        </Body>
+                    </List>
+                    <MiddleColumn>
+                        <div className="max-h-[70vh] bg-baltic-900 text-neutral-50">
+                            <div className="p-2 text-2xl leading-none">
+                                {notebook[viewedTopic]?.name}
+                            </div>
+                            <div className="flex flex-row gap-4 px-2 pb-2">
+                                <div>
+                                    Created:{" "}
+                                    {topic?.createdAt &&
+                                        dtfmt.format(topic.createdAt)}
+                                </div>
+                                <div>
+                                    {topic?.updatedAt && (
+                                        <div>
+                                            <span>Last Updated: </span>{" "}
+                                            {dtfmt.format(topic.updatedAt)}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="p-2">
+                                {topic?.references.length !== 0
+                                    ? topic?.references.map((reference) => {
+                                          return (
+                                              <div
+                                                  key={reference.id}
+                                                  className="flex flex-row justify-between"
+                                              >
+                                                  <div className="w-full border">
+                                                      <div>
+                                                          {
+                                                              reference.document
+                                                                  .title
+                                                          }
+                                                      </div>
+                                                      <div>
+                                                          Reference Added:
+                                                          {dtfmt.format(
+                                                              reference.addedAt,
+                                                          )}
+                                                      </div>
+                                                      <div>
+                                                          Article Published:
+                                                          {reference.document
+                                                              .publishedAt &&
+                                                              dtfmt.format(
+                                                                  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                                                                  reference
+                                                                      .document
+                                                                      .publishedAt,
+                                                              )}
+                                                      </div>
+                                                      <div></div>
+                                                  </div>
+                                                  <ReferenceNoteWizard
+                                                      referenceId={reference.id}
+                                                  />
+                                              </div>
+                                          );
+                                      })
+                                    : "No references yet"}
                             </div>
                         </div>
-
-                        <div className="p-2">
-                            {topic?.references.length !== 0
-                                ? topic?.references.map((reference) => {
-                                      return (
-                                          <div
-                                              key={reference.id}
-                                              className="flex flex-row justify-between"
-                                          >
-                                              <div className="w-full border">
-                                                  <div>
-                                                      {reference.articleTitle}
-                                                  </div>
-                                                  <div>
-                                                      Reference Added:
-                                                      {dtfmt.format(
-                                                          reference.addedAt,
-                                                      )}
-                                                  </div>
-                                                  <div>
-                                                      Article Published:
-                                                      {dtfmt.format(
-                                                          reference.articlePublishedDate,
-                                                      )}
-                                                  </div>
-                                                  <div></div>
-                                              </div>
-                                              <ReferenceNoteWizard
-                                                  referenceId={reference.id}
-                                              />
-                                          </div>
-                                      );
-                                  })
-                                : "No references yet"}
-                        </div>
-                    </div>
-                    <TopicNoteWizard topicId={topic?.id ?? ""} />
-                </MiddleColumn>
+                        <TopicNoteWizard topicId={topic?.id ?? ""} />
+                    </MiddleColumn>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

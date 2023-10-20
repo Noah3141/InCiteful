@@ -70,12 +70,12 @@ const Admin = () => {
 
     if (session.user.role === "Admin")
         return (
-            <Hall>
-                <h1 className="page-title">Admin</h1>
+            <Hall title="Admin Panel">
+                <h1 className="page-title px-2">Admin</h1>
                 {isLoading ? (
                     <Loading color="neutral" inline={false} />
                 ) : (
-                    <div>
+                    <div className="px-2">
                         {data?.map((user) => {
                             const menu =
                                 dataUnfolded.get(user.id) ?? defaultMenu;

@@ -2,23 +2,23 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-import { type Author, type Document, type Job } from "@prisma/client";
+import { type Document, type Job } from "@prisma/client";
 import {
     type Request as DocAddReq,
     type Response as DocAddRes,
-} from "../../../models/documents_add";
+} from "~/models/documents_add";
 import {
     type Request as JobAddReq,
     type Response as JobAddRes,
-} from "../../../models/jobs_add";
+} from "~/models/jobs_add";
 import {
     type Request as DocRemReq,
     type Response as DocRemRes,
-} from "../../../models/documents_remove";
+} from "~/models/documents_remove";
 import {
     type Request as DocListReq,
     type Response as DocListRes,
-} from "../../../models/documents_list";
+} from "~/models/documents_list";
 import {
     FileFormHeaders,
     JsonHeaders,

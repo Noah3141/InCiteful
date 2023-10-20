@@ -1,8 +1,8 @@
-import { DocumentAPI } from "./documents_add";
+import { type DocumentAPI } from "./documents_add";
 
 export type Request = {
     user_id: string;
-    library_name: string;
+    library_id: string;
     query: string;
 };
 

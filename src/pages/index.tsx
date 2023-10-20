@@ -1,16 +1,11 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import Button from "~/components/Button";
-import Loading from "~/components/Loading";
 import RoundTop from "~/images/backgrounds/RoundTop";
-import Hall from "~/layouts/Hall";
-
-import { api } from "~/utils/api";
 
 export default function Index() {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
     return (
         <>
