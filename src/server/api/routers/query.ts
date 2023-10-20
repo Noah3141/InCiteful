@@ -36,9 +36,9 @@ export const queryRouter = createTRPCRouter({
             if (!res.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: `API returned 'success: false' to query: ${
+                    message: `API returned 'success: false' to query: "${
                         res.msg ?? "No message provided"
-                    }`,
+                    }"`,
                 });
             }
             const dateTime = new Date().toISOString();
