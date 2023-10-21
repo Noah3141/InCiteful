@@ -1,3 +1,5 @@
+import { JsonHeaders, log, PythonPath } from "./all_request";
+
 export type Request = {
     user_id: string;
     library_id: string;
@@ -18,26 +20,19 @@ export type Response = {
     success: boolean;
 };
 
-// Request:
-// ```
-// {
-//     "user_id": "2",
-//     "library_name": "test7",
-//     "source_type": "google-drive",
-//     "source_location": "https://drive.google.com/drive/folders/1ejDcgTRUvk9Fcb4g3fFYXIMBgEIEihd-"
-// }
-// ```
+//todo) This is now supposed to be a formData with many files
 
-// Response:
-// ```
-// {
-//     "job_id" : "xyz1234"
-//     library_name": "test7",
-//     "msg": "",
-//     "notify_email" : "asteckley@comcast.net",   // no notify if absent
-//     "num_docs": 43  // optional... would require a bit longer turnaround on this request though
-//     "est_duration": "24 min"  // optional... rough estimate of job duration based on num_docs
-//     "start_time": "2023-10-10 12:38:43"   // This will be provided in end-user's timezone
-//     "success": true,
-//     "user_id": "2"
-// }
+export const jobs_add = async (params: Request): Promise<Response> => {
+    const res = await fetch(`${PythonPath}/jobs/add`, {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+        headers: JsonHeaders,
+        body: JSON.stringify(params),
+    });
+
+    const addedJob = (await res.json()) as Response;
+
+    log(addedJob, "jobs/add");
+    return addedJob;
+};

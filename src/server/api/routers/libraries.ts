@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AnyRouter, TRPCError } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import {
     createTRPCRouter,
     protectedProcedure,
@@ -8,27 +8,7 @@ import {
 
 import { type Library, type Job, type Document } from "@prisma/client";
 
-import {
-    type Request as LibCreateReq,
-    type Response as LibCreateRes,
-} from "~/models/libraries_create";
-import { JsonHeaders, log, pythonPath } from "~/models/all_request";
-
-const libraries_create = async (
-    params: LibCreateReq,
-): Promise<LibCreateRes> => {
-    const res = await fetch(`${pythonPath}/libraries/create`, {
-        method: "POST",
-        mode: "cors",
-        headers: JsonHeaders,
-        body: JSON.stringify(params),
-    });
-
-    const library_created = (await res.json()) as LibCreateRes;
-
-    log(library_created, "libraries/create");
-    return library_created;
-};
+import { libraries_create } from "~/models/libraries_create";
 
 export const librariesRouter = createTRPCRouter({
     createEmpty: protectedProcedure
@@ -76,7 +56,7 @@ export const librariesRouter = createTRPCRouter({
 
             // If the Python says something went wrong, undo our work to keep in sync
             if (!res.success) {
-                const deleted: Library = await ctx.db.library.delete({
+                await ctx.db.library.delete({
                     where: { id: created.id, title: created.title },
                 });
                 throw new TRPCError({

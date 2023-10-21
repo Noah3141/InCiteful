@@ -7,27 +7,7 @@ import {
 } from "~/server/api/trpc";
 
 import { Status, type Job } from "@prisma/client";
-import {
-    type Request as JobsListReq,
-    type Response as JobsListRes,
-} from "../../../models/jobs_list";
-import { JsonHeaders, log, pythonPath } from "~/models/all_request";
-
-const jobs_list = async (params: JobsListReq) => {
-    const res = await fetch(`${pythonPath}/jobs/list`, {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-        headers: JsonHeaders,
-        body: JSON.stringify(params),
-    });
-
-    const jobsList = (await res.json()) as JobsListRes;
-
-    log(jobsList, "jobs/list");
-
-    return jobsList;
-};
+import { jobs_list } from "~/models/jobs_list";
 
 export const jobsRouter = createTRPCRouter({
     checkJob: protectedProcedure

@@ -27,6 +27,7 @@ const Notebook = () => {
     if (!notebook)
         return (
             <Hall>
+                <title>Notebook</title>
                 <div className="px-12">No notebook!</div>
             </Hall>
         );

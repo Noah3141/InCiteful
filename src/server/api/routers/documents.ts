@@ -3,89 +3,11 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 import { type Document, type Job } from "@prisma/client";
-import {
-    type Request as DocAddReq,
-    type Response as DocAddRes,
-} from "~/models/documents_add";
-import {
-    type Request as JobAddReq,
-    type Response as JobAddRes,
-} from "~/models/jobs_add";
-import {
-    type Request as DocRemReq,
-    type Response as DocRemRes,
-} from "~/models/documents_remove";
-import {
-    type Request as DocListReq,
-    type Response as DocListRes,
-} from "~/models/documents_list";
-import {
-    FileFormHeaders,
-    JsonHeaders,
-    SourceType,
-    log,
-    pythonPath,
-} from "~/models/all_request";
-
-// todo MAKE SURE ALL CRUD TO PYTHON IS SYNCED HERE, elsewhere is then valid
-
-const documents_add = async (params: DocAddReq): Promise<DocAddRes> => {
-    const { file, filename, ...body } = params;
-
-    const formData = new FormData();
-    formData.append("file", file, filename);
-    for (const [key, value] of Object.entries(body)) {
-        formData.append(key, value);
-    }
-    console.log(formData);
-
-    const res = await fetch(`${pythonPath}/documents/add`, {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-        headers: FileFormHeaders,
-        body: formData,
-    });
-
-    const document_added = (await res.json()) as DocAddRes;
-
-    log(document_added, "documents/add");
-    return document_added;
-};
-
-const documents_list = async (params: DocListReq): Promise<DocListRes> => {
-    const res = await fetch(`${pythonPath}/documents/list`, {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-        headers: JsonHeaders,
-        body: JSON.stringify(params),
-    });
-
-    const document_list = (await res.json()) as DocListRes;
-
-    log(document_list, "documents/list");
-    return document_list;
-};
-
-const jobs_add = async (params: JobAddReq): Promise<JobAddRes> => {
-    const res = await fetch(`${pythonPath}/jobs/add`, {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-        headers: JsonHeaders,
-        body: JSON.stringify(params),
-    });
-
-    const addedJob = (await res.json()) as JobAddRes;
-
-    log(addedJob, "jobs/add");
-    return addedJob;
-};
-
-// Post single file
-
-// Post batch URL link (creating a job, telling user to come back)
+import { documents_add } from "~/models/documents_add";
+import { jobs_add } from "~/models/jobs_add";
+import {} from "~/models/documents_remove";
+import { documents_list } from "~/models/documents_list";
+import { SourceType } from "~/models/all_request";
 
 /// Adding a document will involve sending the refernce link to the Python
 export const documentsRouter = createTRPCRouter({

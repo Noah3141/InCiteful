@@ -1,12 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-import {
-    Author,
-    type Notebook,
-    type Reference,
-    type Topic,
-} from "@prisma/client";
+import { type Topic } from "@prisma/client";
 
 export const notebooksRouter = createTRPCRouter({
     createTopic: protectedProcedure

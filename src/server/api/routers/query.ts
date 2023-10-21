@@ -1,31 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { JsonHeaders, log, pythonPath } from "~/models/all_request";
 
-import {
-    type Request as QueryReq,
-    type Response as QueryRes,
-} from "~/models/query";
+import { query } from "~/models/query";
 import { type Reference, type Document } from "@prisma/client";
-
-const query = async (params: QueryReq): Promise<QueryRes> => {
-    const res = await fetch(`${pythonPath}/query`, {
-        method: "POST",
-        mode: "cors",
-        headers: JsonHeaders,
-        body: JSON.stringify(params),
-    });
-
-    try {
-        const query_res = (await res.json()) as QueryRes;
-        log(query_res, "/query");
-        return query_res;
-    } catch (error) {
-        log(res, "/query response before json");
-        throw new Error("Failed to parse data above as JSON");
-    }
-};
 
 export const queryRouter = createTRPCRouter({
     send: protectedProcedure
