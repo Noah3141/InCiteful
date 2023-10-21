@@ -24,7 +24,7 @@ import { ReferencesWithDocuments } from "~/server/api/routers/query";
 
 type QueryState = {
     text: string;
-    orderBy: "score" | "date";
+    orderBy: "Score" | "Date";
     topN: number;
 };
 
@@ -50,7 +50,7 @@ const Dashboard = () => {
     // Query bar's active settings
     const [query, setQuery] = useState<QueryState>({
         text: "",
-        orderBy: "score",
+        orderBy: "Score",
         topN: 10,
     });
     // Actual reference list returned by API
@@ -76,7 +76,7 @@ const Dashboard = () => {
             <title>Dashboard</title>
             <div className="mx-auto max-w-[1400px] px-3 pt-12">
                 <div className="flex  flex-col gap-3  lg:flex-row">
-                    <div className="flex w-full flex-col  gap-3 lg:h-screen lg:w-fit lg:max-w-xs">
+                    <div className="flex w-full flex-col  gap-3 lg:h-screen lg:w-[450px]  lg:max-w-xs">
                         <LibrarySelector
                             {...{
                                 isLoading,
@@ -144,6 +144,7 @@ const LibrarySelector = ({
                 <h1 className="text-xl">Libraries</h1>
                 <div>
                     <AiOutlineInfoCircle
+                        className="hover:text-tango-500"
                         data-tooltip-id="dashboard-libraries-info"
                         data-tooltip-content="Select a library to search for your prompt"
                         data-tooltip-variant="info"
@@ -294,6 +295,7 @@ const TopicsReadout = ({
                 <h1 className="text-lg">Topics</h1>
                 <div>
                     <AiOutlineInfoCircle
+                        className="hover:text-tango-500"
                         data-tooltip-id="dashboard-topics-info"
                         data-tooltip-content="Select a topic to add references to"
                         data-tooltip-variant="info"
@@ -357,7 +359,7 @@ type QueryBarProps = {
     setQueryDropdowns: Dispatch<SetStateAction<QueryDropdowns>>;
     queryDropdownsClosed: QueryDropdowns;
     setSelectedLibrary: Dispatch<SetStateAction<number>>;
-    selectedLibrary: Library | undefined;
+    selectedLibrary: (Library & { documents: Document[] }) | undefined;
     setReferences: Dispatch<
         SetStateAction<ReferencesWithDocuments | undefined>
     >;
@@ -384,12 +386,19 @@ const QueryBar = ({
                 setReferences(data);
             },
             onError: (error) => {
-                toast.error("Something went wrong!", { id: queryToast });
+                if (error.data?.code == "BAD_REQUEST") {
+                    toast.error(`${error.message}`, { id: queryToast });
+                } else {
+                    toast.error("Something went wrong!", { id: queryToast });
+                }
             },
             // onSettled: (data, error, query) => {
             //     toast.success("Settled");
             // },
         });
+
+    const disabled = false; //selectedLibrary?.documents.length === 0
+
     return (
         <>
             <div>
@@ -403,7 +412,7 @@ const QueryBar = ({
                         }));
                     }}
                     placeholder="Enter a search prompt"
-                    className="w-full rounded-sm px-2 py-1 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:ring-0"
+                    className="w-full rounded-t-sm px-2 py-1 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50"
                 />
             </div>
             <div className="flex w-full flex-row divide-x  divide-gable-800 rounded-b-sm bg-gable-700 text-neutral-100">
@@ -415,25 +424,28 @@ const QueryBar = ({
                                 topN: false,
                             }));
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600"
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400"
                     >
-                        Sort by: {query.orderBy}
+                        <span>Sort by: </span>
+                        <span className="">{query.orderBy}</span>
                     </button>
                     <div
-                        className={`absolute w-32  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
-                            queryDropdowns.orderBy ? "h-16 border" : "h-0"
+                        className={`absolute left-1/2 w-32 -translate-x-1/2  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
+                            queryDropdowns.orderBy
+                                ? "h-16 border shadow-lg shadow-[#3635355b]"
+                                : "h-0"
                         }`}
                     >
-                        <div className="py-2">
+                        <div className="">
                             <div
                                 onClick={() => {
                                     setQuery((p) => ({
                                         ...p,
-                                        orderBy: "score",
+                                        orderBy: "Score",
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 hover:bg-gable-900"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 Score
                             </div>
@@ -441,11 +453,11 @@ const QueryBar = ({
                                 onClick={() => {
                                     setQuery((p) => ({
                                         ...p,
-                                        orderBy: "date",
+                                        orderBy: "Date",
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 hover:bg-gable-900"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 Date
                             </div>
@@ -460,16 +472,19 @@ const QueryBar = ({
                                 orderBy: false,
                             }));
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600"
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400"
                     >
-                        Top Results: {query.topN}
+                        <span>Top Results: </span>
+                        <span className="">{query.topN}</span>
                     </button>
                     <div
-                        className={`absolute w-32  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
-                            queryDropdowns.topN ? "h-16 border" : "h-0"
+                        className={`absolute left-1/2 w-32  -translate-x-1/2  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
+                            queryDropdowns.topN
+                                ? "h-16 border shadow-lg shadow-[#3635355b]"
+                                : "h-0"
                         }`}
                     >
-                        <div className="py-2">
+                        <div className="">
                             <div
                                 onClick={() => {
                                     setQuery((p) => ({
@@ -478,7 +493,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 hover:bg-gable-900"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 10
                             </div>
@@ -490,7 +505,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 hover:bg-gable-900"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 25
                             </div>
@@ -516,7 +531,8 @@ const QueryBar = ({
                                 query: query.text,
                             });
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600"
+                        disabled={disabled}
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400 disabled:bg-gable-800 disabled:hover:text-neutral-50"
                     >
                         Search
                     </button>

@@ -34,7 +34,7 @@ export const Body = ({
 }) => {
     return (
         <div
-            className={`max-h-96 overflow-x-clip overflow-y-scroll text-ellipsis text-lg  ${className}`}
+            className={`max-h-96 overflow-x-clip overflow-y-scroll text-ellipsis text-lg font-medium ${className}`}
         >
             {children}
         </div>

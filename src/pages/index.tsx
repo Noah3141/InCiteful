@@ -16,9 +16,9 @@ export default function Index() {
             </Head>
             <RoundTop className="absolute -z-10 w-screen" />
             <main className="mx-auto min-h-screen max-w-4xl px-4 pt-52">
-                <div className="text-center">
-                    <div className="mb-4 text-5xl">InCiteful</div>
-                    <div className="text-4xl  text-baltic-950">
+                <div className="border">
+                    <div className="mb-4 text-center  text-5xl">InCiteful</div>
+                    <div className="text-center  text-4xl text-baltic-950">
                         Citations Made Easy.
                     </div>
                     <div className=" flex flex-col items-center gap-6 py-64 text-3xl">
@@ -55,12 +55,16 @@ export default function Index() {
                             </div>
                         )}
                     </div>
-                    <div>Showcase of Search</div>
-                    <div>Showcase of Batch upload</div>
+                    <div className="my-12 flex flex-row justify-between gap-6">
+                        <div className="h-36 w-64 border">GIF</div>
+                        <div className="w-full border p-4">Search</div>
+                    </div>
+                    <div className="flex flex-row justify-between gap-6">
+                        <div className="w-full border p-4">Batch Upload</div>
+                        <div className="h-36 w-64 border">GIF</div>
+                    </div>
                 </div>
             </main>
         </>
     );
 }
-
-// EXPLAIN HERE ON THIS PAGE WHAT THE APP IS

@@ -114,141 +114,155 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
         });
 
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex flex-col justify-between text-2xl lg:flex-row lg:items-center">
-                <div>Username:</div>
-                <div className="">
-                    {editting.name ? (
-                        <>
-                            <div className="flex flex-row items-center justify-end">
-                                <input
-                                    onChange={(n) => {
-                                        setForm(
-                                            (prev): ProfileForm => ({
-                                                ...prev,
-                                                name: n.target.value,
+        <div className="">
+            {/* Rows */}
+            <div className="flex flex-col gap-6  py-12">
+                <div className="flex flex-col  gap-3 text-2xl lg:flex-row lg:items-center">
+                    <span>Username:</span>
+                    <span className="font-medium">
+                        {editting.name ? (
+                            <>
+                                <div className="flex flex-row items-center justify-end">
+                                    <input
+                                        onChange={(n) => {
+                                            setForm(
+                                                (prev): ProfileForm => ({
+                                                    ...prev,
+                                                    name: n.target.value,
+                                                }),
+                                            );
+                                        }}
+                                        className={`
+                                        w-full  max-w-md rounded-md  bg-neutral-50  px-3 text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
+                                        hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0
+                                        `}
+                                        type="text"
+                                        value={form.name ?? ""}
+                                    ></input>
+                                    <AiOutlineCheckCircle
+                                        size={28}
+                                        onClick={() => {
+                                            setEditting(closedEdits);
+                                        }}
+                                        className="me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <HoverEdit
+                                cursorHover={true}
+                                editEvent={() => {
+                                    setEditting(
+                                        (): ProfileEditState => ({
+                                            ...closedEdits,
+                                            name: true,
+                                        }),
+                                    );
+                                }}
+                                className="pe-10"
+                            >
+                                <span className="cursor-default text-2xl">
+                                    {form.name}
+                                </span>
+                            </HoverEdit>
+                        )}
+                    </span>
+                </div>
+                <div>
+                    <div className="flex flex-col gap-3 text-2xl lg:flex-row  lg:items-center">
+                        <span>Email:</span>
+                        <span className="font-medium">
+                            {editting.email ? (
+                                <>
+                                    <div className="flex flex-row items-center justify-end">
+                                        <input
+                                            onChange={(n) => {
+                                                setForm(
+                                                    (prev): ProfileForm => ({
+                                                        ...prev,
+                                                        email: n.target.value,
+                                                    }),
+                                                );
+                                            }}
+                                            className={`
+                                            w-full  max-w-md rounded-md  bg-neutral-50  px-3 text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
+                                            hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0
+                                            `}
+                                            type="text"
+                                            value={form.email ?? ""}
+                                        ></input>
+                                        <AiOutlineCheckCircle
+                                            size={28}
+                                            onClick={() => {
+                                                setEditting(closedEdits);
+                                            }}
+                                            className=" me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <HoverEdit
+                                    cursorHover={true}
+                                    editEvent={() => {
+                                        setEditting(
+                                            (): ProfileEditState => ({
+                                                ...closedEdits,
+                                                email: true,
                                             }),
                                         );
                                     }}
-                                    className={`border-primary-600  bg-basic-50 text-basic-900  caret-basic-800 hover:outline-primary-600 rounded-md px-3 text-2xl outline-none ring-0 hover:cursor-pointer hover:outline-1 focus:outline-none`}
-                                    type="text"
-                                    value={form.name ?? ""}
-                                ></input>
-                                <AiOutlineCheckCircle
-                                    size={28}
-                                    onClick={() => {
-                                        setEditting(closedEdits);
-                                    }}
-                                    className="bg-primary-500 text-basic-800  hover:bg-primary-600 me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <HoverEdit
-                            cursorHover={true}
-                            editEvent={() => {
-                                setEditting(
-                                    (): ProfileEditState => ({
-                                        ...closedEdits,
-                                        name: true,
-                                    }),
-                                );
-                            }}
-                            className="pe-0 lg:pe-10"
-                        >
-                            <span className="cursor-default text-2xl">
-                                {form.name}
-                            </span>
-                        </HoverEdit>
-                    )}
-                </div>
-            </div>
-            <div>
-                <div className="flex flex-col justify-between text-2xl lg:flex-row  lg:items-center">
-                    <div>Email:</div>
-                    {editting.email ? (
-                        <>
-                            <div className="flex flex-row items-center justify-end">
-                                <input
-                                    onChange={(n) => {
-                                        setForm(
-                                            (prev): ProfileForm => ({
-                                                ...prev,
-                                                email: n.target.value,
-                                            }),
-                                        );
-                                    }}
-                                    className={`border-primary-600  bg-basic-50 text-basic-900  caret-basic-800 hover:outline-primary-600 rounded-md px-3 text-2xl outline-none ring-0 hover:cursor-pointer hover:outline-1 focus:outline-none`}
-                                    type="text"
-                                    value={form.email ?? ""}
-                                ></input>
-                                <AiOutlineCheckCircle
-                                    size={28}
-                                    onClick={() => {
-                                        setEditting(closedEdits);
-                                    }}
-                                    className="bg-primary-500 text-basic-800  hover:bg-primary-600 me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <HoverEdit
-                            cursorHover={true}
-                            editEvent={() => {
-                                setEditting(
-                                    (): ProfileEditState => ({
-                                        ...closedEdits,
-                                        email: true,
-                                    }),
-                                );
-                            }}
-                            className="pe-0 lg:pe-10 "
-                        >
-                            <span className="cursor-default text-2xl ">
-                                {form.email}
-                            </span>
-                        </HoverEdit>
-                    )}
-                </div>
-            </div>
-            <div className="">
-                <div className="flex flex-col justify-between gap-3 pe-0 text-2xl lg:flex-row lg:items-center   lg:pe-10">
-                    <div>Notify by Email:</div>
-                    <div className="group">
-                        <Button
-                            small={true}
-                            color="neutral"
-                            onClick={() => {
-                                setForm((p) => ({
-                                    ...p,
-                                    notifyByEmail: p.notifyByEmail
-                                        ? null
-                                        : p.email,
-                                }));
-                                setEditting(closedEdits);
-                            }}
-                            className="text-xl"
-                            text={form.notifyByEmail ? "Yes" : "No"}
-                        />
+                                    className="pe-10 "
+                                >
+                                    <span className="cursor-default text-2xl ">
+                                        {form.email}
+                                    </span>
+                                </HoverEdit>
+                            )}
+                        </span>
                     </div>
                 </div>
-                <div className="mt-6 flex flex-row justify-end pe-0 lg:pe-10">
-                    <Button
-                        loading={submitLoading}
-                        disabled={!unsavedChanges({ form, savedForm })}
-                        color="secondary"
-                        className=""
-                        onClick={() => {
-                            submitProfile(form);
-                        }}
-                        text="Submit"
-                    ></Button>
+                <div className="">
+                    <div className="flex flex-col  gap-3 pe-0 text-2xl lg:flex-row lg:items-center   lg:pe-10">
+                        <div>Notify by Email:</div>
+                        <div className="group">
+                            <Button
+                                small={true}
+                                color="neutral"
+                                onClick={() => {
+                                    setForm((p) => ({
+                                        ...p,
+                                        notifyByEmail: p.notifyByEmail
+                                            ? null
+                                            : p.email,
+                                    }));
+                                    setEditting(closedEdits);
+                                }}
+                                className="text-xl"
+                                text={form.notifyByEmail ? "Yes" : "No"}
+                            />
+                        </div>
+                    </div>
+                    <div className="mt-6 flex flex-row justify-end pe-0 lg:pe-10">
+                        <Button
+                            loading={submitLoading}
+                            disabled={!unsavedChanges({ form, savedForm })}
+                            color="secondary"
+                            className=""
+                            onClick={() => {
+                                submitProfile(form);
+                            }}
+                            text="Submit"
+                        ></Button>
+                    </div>
                 </div>
             </div>
-            <div>Usage:</div>
-            <div>
-                Membership status:{" "}
-                {user.membership == "Paid" ? "Active" : "Inactive"}
+            <div className="py-12">
+                <div>Usage:</div>
+
+                <div>
+                    Membership status:{" "}
+                    {user.membership == "Paid" ? "Active" : "Inactive"}
+                </div>
             </div>
         </div>
     );

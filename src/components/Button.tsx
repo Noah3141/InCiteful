@@ -24,28 +24,33 @@ const Button = ({
 }: Props) => {
     const colorClasses =
         color == "primary"
-            ? ` rounded-sm  text-tango-500 border-4 border-tango-500
+            ? ` rounded  text-tango-500 border-4 border-tango-500
             hover:bg-tango-500 hover:text-sand-100`
             : color == "secondary"
-            ? `rounded-sm  text-gable-900
-            bg-sushi-500 hover:bg-sushi-600  hover:text-gable-950 disabled:bg-neutral-500 disabled:text-neutral-900`
+            ? `text-sushi-600 border border-sushi-600 rounded-lg 
+            ${
+                loading
+                    ? ""
+                    : " hover:bg-sushi-500 hover:border-sushi-500 hover:text-sand-50"
+            }
+            disabled:opacity-70 hover:disabled:bg-sand-200 hover:disabled:text-sushi-600 hover:disabled:border-sushi-600 disabled:cursor-default`
             : color == "neutral"
-            ? `bg-neutral-700 rounded-sm text-neutral-100
+            ? `bg-neutral-700 rounded-sm text-neutral-100 rounded
             hover:bg-neutral-800 hover:text-neutral-100`
             : null;
-    const sizeClasses = small ? "py-1 px-4 w-fit" : "py-3 px-5 w-fit";
+    const sizeClasses = small ? "py-1 px-4 w-fit" : "py-3 px-6 w-fit";
     const loaderColor =
         color == "primary"
             ? `neutral`
             : color == "secondary"
-            ? `neutral`
+            ? `secondary`
             : color == "neutral"
             ? `primary`
             : "neutral";
     return (
         <button
             {...props}
-            className={`relative w-fit  ${className} ${sizeClasses} ${colorClasses}`}
+            className={`relative w-fit cursor-pointer  ${className} ${sizeClasses} ${colorClasses}`}
         >
             {loading ? (
                 <Loading

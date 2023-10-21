@@ -18,7 +18,7 @@ const Loading = ({
             : color == "primary"
             ? "text-tango-500"
             : color == "secondary"
-            ? "text-sushi-500"
+            ? "text-sushi-600"
             : undefined;
 
     if (inline)

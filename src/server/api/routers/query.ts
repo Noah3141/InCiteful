@@ -17,10 +17,14 @@ const query = async (params: QueryReq): Promise<QueryRes> => {
         body: JSON.stringify(params),
     });
 
-    const query_res = (await res.json()) as QueryRes;
-
-    log(query_res, "/query");
-    return query_res;
+    try {
+        const query_res = (await res.json()) as QueryRes;
+        log(query_res, "/query");
+        return query_res;
+    } catch (error) {
+        log(res, "/query response before json");
+        throw new Error("Failed to parse data above as JSON");
+    }
 };
 
 export const queryRouter = createTRPCRouter({
@@ -41,6 +45,14 @@ export const queryRouter = createTRPCRouter({
                     }"`,
                 });
             }
+
+            if (res.msg?.includes("Library contains no documents")) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Library doesn't have any documents to search!",
+                });
+            }
+
             const dateTime = new Date().toISOString();
             const idList: string[] = [];
             const referenceData = res.references.map((reference) => {
