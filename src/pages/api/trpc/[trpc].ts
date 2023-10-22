@@ -1,4 +1,5 @@
 import { createNextApiHandler } from "@trpc/server/adapters/next";
+import { NextConfig } from "next";
 
 import { env } from "~/env.mjs";
 import { appRouter } from "~/server/api/root";
@@ -19,3 +20,11 @@ export default createNextApiHandler({
               }
             : undefined,
 });
+
+export const config: NextConfig = {
+    api: {
+        bodyParser: {
+            sizeLimit: "10mb",
+        },
+    },
+};

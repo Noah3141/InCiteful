@@ -71,9 +71,10 @@ export const librariesRouter = createTRPCRouter({
         }),
 
     getAllSessions: protectedProcedure.query(async ({ ctx }) => {
-        const libraries: Library[] = await ctx.db.library.findMany({
+        const libraries = await ctx.db.library.findMany({
             where: { userId: ctx.session.user.id },
             orderBy: { documents: { _count: "desc" } },
+            include: { _count: true },
         });
 
         return libraries;

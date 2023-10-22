@@ -1,11 +1,17 @@
 import { TRPCError } from "@trpc/server";
-import { FileFormHeaders, log, PythonPath } from "./all_request";
+import { FileFormHeaders, JsonHeaders, log, PythonPath } from "./all_request";
+import { z } from "zod";
 
 export type Request = {
     user_id: string;
     library_id: string;
-    file: Blob;
+    file: FileAPI;
+};
+// Wherever imported, marked with -API to indicate that it is a subordinate model of a Request, not the probably intended DB model
+export type FileAPI = {
+    contents: string;
     filename: string;
+    size: number;
 };
 
 export type Response = {
@@ -27,29 +33,20 @@ export type DocumentAPI = {
 };
 
 export const documents_add = async (params: Request): Promise<Response> => {
-    const { file, filename, ...body } = params;
-
-    const formData = new FormData();
-    formData.append("file", file, filename);
-    for (const [key, value] of Object.entries(body)) {
-        formData.append(key, value);
-    }
-
     const res = await fetch(`${PythonPath}/documents/add`, {
         method: "POST",
         mode: "cors",
         credentials: "include",
-        headers: FileFormHeaders,
-        body: formData,
+        headers: JsonHeaders,
+        body: JSON.stringify(params),
     });
-    console.log(await res.text());
 
     try {
         const document_added = (await res.json()) as Response;
         log(document_added, "documents/add");
         return document_added;
     } catch (error) {
-        log(res.bodyUsed, "Failed to de-json from Python at documents/add");
-        throw new TRPCError({ code: "CONFLICT" });
+        log(res, "Failed to parse JSON, from this response:");
+        throw new Error("Document add fail");
     }
 };

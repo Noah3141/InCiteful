@@ -10,6 +10,7 @@ import { IoIosAddCircleOutline, IoIosAddCircle } from "react-icons/io";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 
 const Libraries = () => {
     const router = useRouter();
@@ -49,7 +50,7 @@ const Libraries = () => {
                 <h1 className="page-title text-neutral-800">Libraries</h1>
                 <AddLibrary />
             </div>
-            <div className="">
+            <div className="divide-y border-t-2 border-gable-700">
                 {data.map((library) => {
                     return (
                         <div
@@ -62,6 +63,13 @@ const Libraries = () => {
                             >
                                 {library.title}
                             </Link>
+                            <div className="flex flex-row items-center gap-6 font-medium">
+                                <div>
+                                    Last updated:{" "}
+                                    {dtfmt.format(library.updatedAt)}
+                                </div>
+                                <div>Documents: {library._count.documents}</div>
+                            </div>
                         </div>
                     );
                 })}

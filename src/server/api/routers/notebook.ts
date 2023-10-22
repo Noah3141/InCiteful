@@ -42,7 +42,7 @@ export const notebooksRouter = createTRPCRouter({
             include: {
                 references: {
                     orderBy: { addedAt: "desc" },
-                    include: { document: true, Author: true },
+                    include: { document: true, authors: true },
                 },
                 _count: true,
             },
@@ -67,5 +67,47 @@ export const notebooksRouter = createTRPCRouter({
             });
 
             return removed;
+        }),
+
+    addToTopic: protectedProcedure
+        .input(z.object({ topicId: z.string(), referenceId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return await ctx.db.topic.update({
+                where: { id: input.topicId },
+                data: { references: { connect: { id: input.referenceId } } },
+            });
+        }),
+
+    getTopicNotes: protectedProcedure
+        .input(z.object({ topicId: z.string() }))
+        .query(async ({ ctx, input }) => {
+            return await ctx.db.topic.findUnique({
+                where: {
+                    id: input.topicId,
+                    userId: ctx.session.user.id,
+                },
+            });
+        }),
+
+    updateTopicNotes: protectedProcedure
+        .input(z.object({ topicId: z.string(), notes: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return await ctx.db.topic.update({
+                where: { id: input.topicId },
+                data: {
+                    notes: input.notes,
+                },
+            });
+        }),
+
+    updateReferenceNotes: protectedProcedure
+        .input(z.object({ referenceId: z.string(), notes: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return await ctx.db.reference.update({
+                where: { id: input.referenceId },
+                data: {
+                    notes: input.notes,
+                },
+            });
         }),
 });

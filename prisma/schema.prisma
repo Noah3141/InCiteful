@@ -152,7 +152,7 @@ model Reference {
     addedAt        DateTime @default(now())
     document       Document @relation(fields: [documentId], references: [id])
     documentId     String
-    Author         Author[]
+    authors        Author[]
 }
 
 model Author {

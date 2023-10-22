@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-
+import { createId } from "@paralleldrive/cuid2";
 import { query } from "~/models/query";
 import { type Reference, type Document } from "@prisma/client";
 
@@ -31,11 +31,10 @@ export const queryRouter = createTRPCRouter({
                 });
             }
 
-            const dateTime = new Date().toISOString();
             const idList: string[] = [];
             const referenceData = res.references.map((reference) => {
-                const refId = reference.focal_text + dateTime;
-                idList.push(refId);
+                const referenceId = createId();
+                idList.push(referenceId);
                 return {
                     notebookUserId: ctx.session.user.id,
                     userId: ctx.session.user.id,
@@ -48,11 +47,11 @@ export const queryRouter = createTRPCRouter({
                     score: reference.score,
                     sentenceNumber: parseInt(reference.sentence_num),
                     pageNumber: reference.page_num,
-                    id: refId,
+                    id: referenceId,
                 };
             });
             // Convert and create references and pass THAT back to front end
-            const references = await ctx.db.reference.createMany({
+            await ctx.db.reference.createMany({
                 data: referenceData,
             });
 

@@ -1,10 +1,10 @@
 import { JsonHeaders, log, PythonPath } from "./all_request";
+import { type FileAPI } from "./documents_add";
 
 export type Request = {
     user_id: string;
     library_id: string;
-    source_type: string;
-    source_location: string;
+    files: FileAPI[];
     notify_by_email: string | null;
 };
 

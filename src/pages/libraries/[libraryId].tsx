@@ -18,6 +18,7 @@ import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
 import { JobStatus } from "~/components/JobStatus";
 import { SourceType } from "~/models/all_request";
+import { FileAPI } from "~/models/documents_add";
 //
 
 const LibraryPage = () => {
@@ -80,15 +81,29 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
         <div className="border-y border-sand-300 px-16  py-6">
             <div>
-                <h1 className=" text-xl">Documents</h1>
+                <h1 className=" text-xl">
+                    Documents{documents.length > 0 && `: ${documents.length}`}
+                </h1>
             </div>
-            <div className="mt-8 max-h-96 overflow-y-scroll">
+            <div className="mt-8 flex max-h-96 flex-col overflow-y-scroll">
                 {documents.length !== 0
                     ? documents.map((document: Document) => {
+                          //
+                          const publishedAt = document.publishedAt ? (
+                              <div>{dtfmt.format(document.publishedAt)}</div>
+                          ) : (
+                              <div></div>
+                          );
                           return (
-                              <div key={document.id}>
+                              <div key={document.id} className="py-3">
                                   <div>{document.title}</div>
-                                  <div>{dtfmt.format(document.createdAt)}</div>
+                                  <div className="font-medium">
+                                      <div>
+                                          Added:{" "}
+                                          {dtfmt.format(document.createdAt)}
+                                      </div>
+                                      {publishedAt}
+                                  </div>
                               </div>
                           );
                       })
@@ -191,9 +206,9 @@ const AddDocumentWizard = ({
     libraryId: string;
     notifyByEmail: string | null;
 }) => {
+    const [uploadFile, setUploadFile] = useState<FileList | null>(null);
     const [uploadFiles, setUploadFiles] = useState<FileList | null>(null);
-    const [batchUrl, setBatchUrl] = useState<string>("");
-    const [sourceType, sourceTypeDisplay] = parseForType(batchUrl);
+    // const [sourceType, sourceTypeDisplay] = parseForType(batchUrl);
 
     const addDocToast = "addDocToastId";
     const { mutate: addDocument, isLoading: singleLoading } =
@@ -204,26 +219,14 @@ const AddDocumentWizard = ({
             onSuccess: () => {
                 toast.success("Success!", { id: addDocToast });
             },
-            onError: () => {
-                toast.error(`Something went wrong`, { id: addDocToast });
+            onError: (e) => {
+                console.log("ERROR MESSAGE", e);
+                toast.error(`Something went wrong!`, { id: addDocToast });
             },
         });
 
-    const upload = () => {
-        const file = uploadFiles?.item(0);
-        const contents = (file as Blob).toString();
-        addDocument({
-            file: contents,
-            libraryId: libraryId,
-            filename: file?.name ?? "Not found",
-        });
-    };
-
-    // Create a reference to the hidden file input element
-    const hiddenFileInput = useRef<HTMLInputElement>(null);
-
     const addBatchToast = "addBatchToastId";
-    const { mutate: addBatchDocument, isLoading: batchLoading } =
+    const { mutate: addDocuments, isLoading: multiLoading } =
         api.document.postBatch.useMutation({
             onMutate: () => {
                 toast.loading("Loading...", { id: addBatchToast });
@@ -232,9 +235,84 @@ const AddDocumentWizard = ({
                 toast.success("Success!", { id: addBatchToast });
             },
             onError: () => {
-                toast.error(`Something went wrong`, { id: addBatchToast });
+                toast.error(`Something went wrong!`, { id: addBatchToast });
             },
         });
+
+    const upload = () => {
+        const file = uploadFile?.item(0);
+        if (!file) {
+            throw new Error("No file");
+        }
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            if (event.target && typeof event.target.result === "string") {
+                const contents = event.target.result.split(",")[1] ?? "";
+
+                if (new Blob([contents]).size > 1_000_000 * 10) {
+                    toast.error(`File too large for single upload!`, {
+                        id: addDocToast,
+                    });
+                } else {
+                    addDocument({
+                        file: contents,
+                        libraryId: libraryId,
+                        filename: file?.name ?? "Not found",
+                    });
+                }
+            }
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    const uploadMany = () => {
+        if (!uploadFiles) {
+            throw new Error("No files");
+        }
+        const files: FileAPI[] = [];
+
+        for (const file of uploadFiles) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target && typeof event.target.result === "string") {
+                    const contents = event.target.result.split(",")[1] ?? "";
+
+                    if (new Blob([contents]).size > 1_000_000 * 10) {
+                        toast.error(
+                            `File ${file?.name} too large for single upload!`,
+                            {
+                                id: addDocToast,
+                            },
+                        );
+                        throw new Error("File too large");
+                    } else {
+                        files.push({
+                            contents,
+                            filename: file.name,
+                            size: file.size,
+                        });
+                    }
+                }
+            };
+            reader.onerror = () => {
+                toast.error(`Error reading file: ${file.name}`);
+                throw new Error(`Error reading file during multiple upload`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        addDocuments({
+            files,
+            libraryId,
+            notifyByEmail,
+        });
+    };
+
+    // Create a reference to the hidden file input element
+    const singleFileInput = useRef<HTMLInputElement>(null);
+    const multiFileInput = useRef<HTMLInputElement>(null);
 
     return (
         <div className="w-full py-6">
@@ -244,10 +322,10 @@ const AddDocumentWizard = ({
             <div className="mt-8 flex flex-col gap-3">
                 <div className="flex  h-full items-center justify-between border-sand-300 px-16">
                     <input
-                        ref={hiddenFileInput}
+                        ref={singleFileInput}
                         className="hidden"
                         onChange={(e) => {
-                            setUploadFiles(e.target.files);
+                            setUploadFile(e.target.files);
                         }}
                         type="file"
                         placeholder="Upload a single file"
@@ -257,14 +335,14 @@ const AddDocumentWizard = ({
                             text="Select a single file"
                             color="neutral"
                             className="bg"
-                            onClick={(e) => hiddenFileInput?.current?.click()}
+                            onClick={(e) => singleFileInput?.current?.click()}
                         />
                         <span className="ps-3">
-                            {hiddenFileInput.current?.files?.item(0)?.name}
+                            {singleFileInput.current?.files?.item(0)?.name}
                         </span>
                     </div>
                     <Button
-                        disabled={!uploadFiles}
+                        disabled={!uploadFile || singleLoading}
                         onClick={upload}
                         className=""
                         color="secondary"
@@ -274,31 +352,28 @@ const AddDocumentWizard = ({
                 <div className="mt-6 flex h-full flex-col items-start justify-between gap-3 border-sand-300 px-16 lg:mt-0 lg:flex-row lg:items-center">
                     <div>
                         <input
-                            className="h-full w-72 text-ellipsis rounded-sm p-1 px-2 outline-none hover:cursor-pointer hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0"
-                            type="text"
-                            value={batchUrl}
+                            className="hidden"
+                            type="file"
+                            multiple
+                            ref={multiFileInput}
                             onChange={(e) => {
-                                setBatchUrl(e.target.value);
+                                setUploadFiles(e.target.files);
                             }}
                             placeholder="Provide a link to a folder of files"
                         />
-                        <span className="ps-3">{sourceTypeDisplay}</span>
+                        <Button
+                            text="Submit multiple files"
+                            color="neutral"
+                            className="bg"
+                            onClick={(e) => multiFileInput?.current?.click()}
+                        />
                     </div>
                     <Button
-                        disabled={sourceType === null}
-                        onClick={() => {
-                            if (!!sourceType) {
-                                addBatchDocument({
-                                    batchUrl,
-                                    libraryId,
-                                    notifyByEmail,
-                                    sourceType,
-                                });
-                            }
-                        }}
+                        disabled={!uploadFiles || multiLoading}
+                        onClick={uploadMany}
                         className=" "
                         color="secondary"
-                        text="Upload Folder"
+                        text="Create Job"
                     ></Button>
                 </div>
             </div>
@@ -342,21 +417,21 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
     );
 };
 
-/// SourceType is the Data parsed form, string is the display form shown
-const parseForType = (url: string): [SourceType | null, string] => {
-    if (url === "") return [null, ""];
+// /// SourceType is the Data parsed form, string is the display form shown
+// const parseForType = (url: string): [SourceType | null, string] => {
+//     if (url === "") return [null, ""];
 
-    if (url.includes("google.com/drive/u/0/folders/")) {
-        toast.error(
-            `Please do not use the searchbar URL, instead use: \n"Share > Get link > Copy Link" `,
-            { duration: 10_000, id: "Wrong Dropbox Link Toast" },
-        );
-        return [null, "Not a valid URL"];
-    }
+//     if (url.includes("google.com/drive/u/0/folders/")) {
+//         toast.error(
+//             `Please do not use the searchbar URL, instead use: \n"Share > Get link > Copy Link" `,
+//             { duration: 10_000, id: "Wrong Dropbox Link Toast" },
+//         );
+//         return [null, "Not a valid URL"];
+//     }
 
-    if (url.includes("https://drive.google.com/drive")) {
-        return [SourceType.GoogleDrive, "Google Drive"];
-    } else {
-        return [null, "Not a valid URL"];
-    }
-};
+//     if (url.includes("https://drive.google.com/drive")) {
+//         return [SourceType.GoogleDrive, "Google Drive"];
+//     } else {
+//         return [null, "Not a valid URL"];
+//     }
+// };

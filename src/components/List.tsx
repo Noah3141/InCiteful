@@ -19,7 +19,7 @@ export const Header = ({
 }) => {
     return (
         <div
-            className={`flex  flex-row items-center justify-between border-b border-b-gable-900 p-2  ${className}`}
+            className={`flex  flex-row items-center justify-between border-b border-b-gable-900 p-4  ${className}`}
         >
             {children}
         </div>

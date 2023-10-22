@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
-import { AiOutlineInfoCircle } from "react-icons/ai";
+import { AiOutlineInfoCircle, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Tooltip } from "react-tooltip";
 import { JobStatus } from "~/components/JobStatus";
 import List, { Body, Header } from "~/components/List";
@@ -21,6 +21,12 @@ import { dateTimeFormatter as dtfmt } from "~/utils/tools";
 import Image from "next/image";
 import InCiteful from "~/images/logos/InCiteful";
 import { ReferencesWithDocuments } from "~/server/api/routers/query";
+import {
+    IoIosAddCircle,
+    IoIosAddCircleOutline,
+    IoIosCheckmarkCircle,
+    IoIosRefreshCircle,
+} from "react-icons/io";
 
 type QueryState = {
     text: string;
@@ -70,6 +76,7 @@ const Dashboard = () => {
     }
 
     const selectedLibrary = user?.libraries[selectedLibraryIdx];
+    const selectedTopicId = user?.topics[selectedTopicIdx]?.id ?? "";
 
     return (
         <>
@@ -104,7 +111,9 @@ const Dashboard = () => {
                                     setReferences,
                                 }}
                             />
-                            <ReferenceList {...{ references }} />
+                            <ReferenceList
+                                {...{ references, selectedTopicId }}
+                            />
                         </div>
                     </MiddleColumn>
                     <div className="">
@@ -165,14 +174,14 @@ const LibrarySelector = ({
                 {isLoading ? (
                     <Loading inline={true} color="primary" className="py-2" />
                 ) : libraries?.length == 0 ? (
-                    <div className="px-2 py-1 text-base">No libraries yet</div>
+                    <div className="px-4 py-1 text-base">No libraries yet</div>
                 ) : (
                     libraries?.map((library: Library, idx) => {
                         return (
                             <div key={library.id}>
                                 <div className="flex  flex-row items-center justify-between">
                                     <button
-                                        className={`flex w-full items-center justify-between  border-s-4 px-2 py-2 text-left hover:bg-gable-900  ${
+                                        className={`flex w-full items-center justify-between  border-s-4 px-4 py-2 text-left hover:bg-gable-900  ${
                                             selectedLibraryIdx === idx
                                                 ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
                                                 : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
@@ -213,7 +222,7 @@ const LibraryReadout = ({
                     <h2 className="text-tango-500">{selectedLibrary?.title}</h2>
                 </div>
             </Header>
-            <div className="px-2 py-3">
+            <div className="px-4 py-3  font-medium">
                 <h1 className="flex flex-row justify-between">
                     <span> Documents: </span>
                     <span>{selectedLibrary?.documents.length}</span>
@@ -227,7 +236,7 @@ const LibraryReadout = ({
                     <span>{dtfmt.format(selectedLibrary?.updatedAt)}</span>
                 </h1>
             </div>
-            <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-2">
+            <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-4">
                 <h1 className="block text-lg">Jobs</h1>
                 {isLoading ? (
                     <Loading inline={true} color="primary" className="py-2" />
@@ -331,7 +340,7 @@ const TopicsReadout = ({
                                             onClick={() => {
                                                 setSelectedTopic(idx);
                                             }}
-                                            className={`w-full border-s-4 p-2 text-left hover:bg-gable-900 ${
+                                            className={`w-full border-s-4 px-4 py-2 text-left hover:bg-gable-900 ${
                                                 selectedTopicIdx === idx
                                                     ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
                                                     : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
@@ -542,16 +551,47 @@ const QueryBar = ({
     );
 };
 
-type ReferenceListProps = { references: ReferencesWithDocuments | undefined };
+type ReferenceListProps = {
+    references: ReferencesWithDocuments | undefined;
+    selectedTopicId: string;
+};
 
-const ReferenceList = ({ references }: ReferenceListProps) => {
+const ReferenceList = ({ references, selectedTopicId }: ReferenceListProps) => {
+    if (!references) {
+        return;
+    }
+
+    let lengthLabel = "";
+    if (references.length === 0) {
+        return;
+    } else if (references.length === 1) {
+        lengthLabel = "1 reference";
+    } else if (references.length > 1) {
+        lengthLabel = `${references.length} references`;
+    }
     return (
-        <div>
-            {references?.map((reference) => {
+        <div className="max-h-[100vh] overflow-scroll bg-gable-950 p-4 text-neutral-50">
+            <div className="border-b">
+                <h1>{lengthLabel}</h1>
+            </div>
+            {references?.map((reference, idx) => {
+                const titleWithDate = `${reference.document.title} ${
+                    reference.document.publishedAt
+                        ? `(${dtfmt.format(reference.document.publishedAt)})`
+                        : ""
+                }`;
+
                 return (
-                    <div key={reference.id}>
-                        <div>{reference.document.title}</div>
-                        <div>
+                    <div key={reference.id} className="mt-6  py-2 ">
+                        <div className="flex flex-row justify-between">
+                            <div>Reference {idx + 1}</div>
+                            <AddToTopicWizard
+                                topicId={selectedTopicId}
+                                referenceId={reference.id}
+                            />
+                        </div>
+                        <div className="">{titleWithDate}</div>
+                        <div className="my-3 max-h-64 overflow-scroll rounded bg-gable-900 p-4 font-medium">
                             <span className="text-neutral-100">
                                 {reference.preText}
                             </span>
@@ -562,19 +602,83 @@ const ReferenceList = ({ references }: ReferenceListProps) => {
                                 {reference.postText}
                             </span>
                         </div>
-                        <div>Score: {reference.score}</div>
+                        <div>{`Score: ${reference.score?.toFixed(2)}`}</div>
                         <div>
-                            Sentence number:
-                            {reference.sentenceNumber}
-                        </div>
-                        <div>
-                            {reference.document.publishedAt
-                                ? dtfmt.format(reference.document.publishedAt)
-                                : "Not found"}
+                            {`Sentence number: ${reference.sentenceNumber}`}
                         </div>
                     </div>
                 );
             })}
         </div>
     );
+};
+
+type AddToTopicWizardProps = { referenceId: string; topicId: string };
+
+const AddToTopicWizard = ({ referenceId, topicId }: AddToTopicWizardProps) => {
+    const [added, setAdded] = useState(false);
+    const addToTopicToast = "AddToTopicToastId";
+    const trpc = api.useContext();
+    const { mutate: addToTopic, isLoading } =
+        api.notebook.addToTopic.useMutation({
+            onMutate: () => {
+                toast.loading("Loading...", { id: addToTopicToast });
+            },
+            onSuccess: async () => {
+                toast.success("Success!", { id: addToTopicToast });
+                setAdded(true);
+                await trpc.user.invalidate();
+            },
+            onError: (e) => {
+                console.log("ERROR MESSAGE", e);
+                toast.error(`Something went wrong!`, { id: addToTopicToast });
+            },
+        });
+    if (isLoading)
+        return (
+            <div className="flex h-8 w-8 flex-row items-center justify-center">
+                <AiOutlineLoading3Quarters
+                    className=" animate-spin"
+                    size={24}
+                />
+            </div>
+        );
+
+    if (added) {
+        return (
+            <div className="h-8 w-8">
+                <IoIosCheckmarkCircle size={30} />
+            </div>
+        );
+    } else
+        return (
+            <>
+                <div
+                    data-tooltip-id="add-to-topic-button"
+                    data-tooltip-content="Add to topic"
+                    data-tooltip-variant="info"
+                    className="group flex h-8 w-8 flex-row items-center"
+                    onClick={() => {
+                        addToTopic({ referenceId, topicId });
+                    }}
+                >
+                    <button>
+                        <IoIosAddCircleOutline
+                            size={30}
+                            className="text-gable-200  group-hover:hidden"
+                        />
+                        <IoIosAddCircle
+                            size={30}
+                            className="hidden  text-gable-200 group-hover:inline"
+                        />
+                    </button>
+                </div>
+                <Tooltip
+                    place="right"
+                    delayShow={500}
+                    style={{ backgroundColor: "#1c1917" }}
+                    id="add-to-topic-button"
+                />
+            </>
+        );
 };

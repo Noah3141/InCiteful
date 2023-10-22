@@ -7,7 +7,6 @@ import { documents_add } from "~/models/documents_add";
 import { jobs_add } from "~/models/jobs_add";
 import {} from "~/models/documents_remove";
 import { documents_list } from "~/models/documents_list";
-import { SourceType } from "~/models/all_request";
 
 /// Adding a document will involve sending the refernce link to the Python
 export const documentsRouter = createTRPCRouter({
@@ -41,16 +40,18 @@ export const documentsRouter = createTRPCRouter({
                     message: "Please select a file to upload",
                 });
             }
-
-            const file = new Blob([input.file]);
-
+            console.log("Sent");
             // Send document to the backend
             const res = await documents_add({
-                filename: input.filename,
-                file: file,
+                file: {
+                    contents: input.file,
+                    filename: input.filename,
+                    size: input.file.length,
+                },
                 library_id: input.libraryId,
                 user_id: ctx.session.user.id,
             });
+            console.log("Received");
 
             if (!res.success) {
                 throw new TRPCError({
@@ -91,11 +92,14 @@ export const documentsRouter = createTRPCRouter({
     postBatch: protectedProcedure
         .input(
             z.object({
-                batchUrl: z
-                    .string()
-                    .url({ message: "Please enter a valid URL" }),
                 libraryId: z.string(),
-                sourceType: z.nativeEnum(SourceType),
+                files: z.array(
+                    z.object({
+                        contents: z.string(),
+                        filename: z.string(),
+                        size: z.number(),
+                    }),
+                ),
                 notifyByEmail: z.string().nullable(),
             }),
         )
@@ -103,8 +107,7 @@ export const documentsRouter = createTRPCRouter({
             const job_added = await jobs_add({
                 user_id: ctx.session.user.id,
                 library_id: input.libraryId,
-                source_type: input.sourceType,
-                source_location: input.batchUrl,
+                files: input.files,
                 notify_by_email: input.notifyByEmail,
             });
 
