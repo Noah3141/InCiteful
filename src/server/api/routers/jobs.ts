@@ -35,12 +35,13 @@ export const jobsRouter = createTRPCRouter({
                 userId: z.string(),
                 libraryId: z.string(),
                 jobId: z.string(),
+                startedAt: z.date().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
             const endedAt =
                 input.newStatus === ("CANCELLED" || "COMPLETED" || "FAILED")
-                    ? new Date() //todo THIS CAN BE PASSED BY PYTHON TO API TO MUTATE TO INPUT TO HERE, WHICH WILL NEED TO HAPPEN TO GET STARTED & ENDED VS CREATED
+                    ? new Date()
                     : undefined;
 
             const updatedJob: Job = await ctx.db.job.update({
@@ -52,6 +53,7 @@ export const jobsRouter = createTRPCRouter({
                 data: {
                     status: input.newStatus,
                     endedAt: endedAt,
+                    startedAt: input.startedAt,
                 },
             });
 

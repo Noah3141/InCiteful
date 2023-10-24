@@ -117,7 +117,7 @@ const Dashboard = () => {
                         </div>
                     </MiddleColumn>
                     <div className="">
-                        <TopicsReadout
+                        <TopicsSelector
                             {...{
                                 selectedTopicIdx,
                                 setSelectedTopic,
@@ -172,7 +172,7 @@ const LibrarySelector = ({
             </Header>
             <Body>
                 {isLoading ? (
-                    <Loading inline={true} color="primary" className="py-2" />
+                    <Loading inline={true} color="primary" className="py-4" />
                 ) : libraries?.length == 0 ? (
                     <div className="px-4 py-1 text-base">No libraries yet</div>
                 ) : (
@@ -261,7 +261,9 @@ const LibraryReadout = ({
                                     key={job.id}
                                     className="flex flex-row justify-between"
                                 >
-                                    <div>{job.status}</div>
+                                    <div className="font-medium">
+                                        {job.status}
+                                    </div>
                                     <JobStatus status={job.status} />
                                 </div>
                                 <Tooltip
@@ -292,7 +294,7 @@ type TopicsReadoutProps = {
     setSelectedTopic: Dispatch<SetStateAction<number>>;
 };
 
-const TopicsReadout = ({
+const TopicsSelector = ({
     isLoading,
     topics,
     selectedTopicIdx,
@@ -324,7 +326,7 @@ const TopicsReadout = ({
                         <Loading
                             inline={true}
                             color="primary"
-                            className="py-2"
+                            className="py-4"
                         />
                     ) : (
                         topics?.map(

@@ -16,7 +16,7 @@ export default function Index() {
             </Head>
             <RoundTop className="absolute -z-10 w-screen" />
             <main className="mx-auto min-h-screen max-w-4xl px-4 pt-52">
-                <div className="border">
+                <div className="">
                     <div className="mb-4 text-center  text-5xl">InCiteful</div>
                     <div className="text-center  text-4xl text-baltic-950">
                         Citations Made Easy.

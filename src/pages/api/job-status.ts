@@ -11,6 +11,7 @@ export type UpdateJobData = {
     user_id: string;
     library_id: string;
     job_id: string;
+    started_at: number | undefined;
 };
 
 export default function handler(
@@ -38,6 +39,8 @@ export default function handler(
     // Knowing the request was sent by Python, now update our database
     const body = req.body as UpdateJobData;
 
+    const time = body.started_at ? new Date(body.started_at) : undefined;
+
     api.job.updateJob
         .useMutation({
             onError: (e) => {
@@ -55,6 +58,7 @@ export default function handler(
             userId: body.user_id,
             libraryId: body.library_id,
             newStatus: body.new_status,
+            startedAt: time,
         });
 
     res.status(200).json({ message: "Success" });

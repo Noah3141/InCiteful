@@ -99,15 +99,16 @@ model Library {
 }
 
 model Document {
-    id          String      @id @default(cuid())
-    title       String
-    library     Library     @relation(fields: [libraryId], references: [id])
-    libraryId   String
-    createdAt   DateTime    @default(now())
-    publishedAt DateTime?
-    docletCount Int
-    authors     Author[]
-    Reference   Reference[]
+    id                String      @id @default(cuid())
+    title             String
+    library           Library     @relation(fields: [libraryId], references: [id])
+    libraryId         String
+    createdAt         DateTime    @default(now())
+    publishedAt       DateTime?
+    docletCount       Int?
+    publicationSource String
+    authors           Author[]
+    Reference         Reference[]
 }
 
 model Notebook {

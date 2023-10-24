@@ -14,9 +14,9 @@ export type Response = {
     library_id: string;
     msg: string;
     notify_by_email: string | null;
-    num_docs: number;
+    num_files_submitted: number;
     est_duration: string;
-    start_time: string;
+    start_time: number;
     success: boolean;
 };
 

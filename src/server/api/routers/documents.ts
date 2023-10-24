@@ -80,6 +80,7 @@ export const documentsRouter = createTRPCRouter({
                     docletCount: res.num_doclets,
                     id: res.document.doc_id,
                     title: res.document.title,
+                    publicationSource: res.document.pub_source,
                     authors: {
                         connect: authorData,
                     },
@@ -131,10 +132,9 @@ export const documentsRouter = createTRPCRouter({
             const jobAdded: Job = await ctx.db.job.create({
                 data: {
                     status: "PENDING",
-                    documentCount: job_added.num_docs,
+                    documentCount: job_added.num_files_submitted,
                     id: job_added.job_id,
                     // createdAt generated as Now() by Prisma/DB
-                    startedAt: job_added.start_time, //todo IS THE PYTHON ENCODING THIS AS ACTUAL PROCESSING START TIME OR DOES IT JUST NOT DISTINGUISH CREATED VS STARTED
                     userId: ctx.session.user.id,
                     libraryId: job_added.library_id,
                 },

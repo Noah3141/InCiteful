@@ -388,26 +388,27 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
             <div className="mt-8">
                 {data.jobs.length !== 0
                     ? data.jobs.map((job) => {
+                          //
+
+                          const finishedAt = `Finished: 
+                        ${job.endedAt ? dtfmt.format(job.endedAt) : "Not yet"}`;
+                          const startedAt = `Started:
+                        ${
+                            job.startedAt
+                                ? dtfmt.format(job.startedAt)
+                                : "Not yet"
+                        }`;
+                          //
                           return (
-                              <div key={job.id}>
-                                  <div className="flex flex-row justify-between">
+                              <div key={job.id} className="font-medium">
+                                  <div className="flex flex-row justify-start gap-3 font-semibold">
                                       <div>{dtfmt.format(job.createdAt)}</div>
                                       <JobStatus status={job.status} />
+                                      <div>Documents: {job.documentCount}</div>
                                   </div>
                                   <div>{job.message}</div>
-                                  <div>
-                                      Started:
-                                      {job.startedAt
-                                          ? dtfmt.format(job.startedAt)
-                                          : "Not yet"}
-                                  </div>
-                                  <div>
-                                      Finished:
-                                      {job.endedAt
-                                          ? dtfmt.format(job.endedAt)
-                                          : "Not yet"}
-                                  </div>
-                                  <div>Cost:</div>
+                                  <div>{startedAt}</div>
+                                  <div>{finishedAt}</div>
                               </div>
                           );
                       })
