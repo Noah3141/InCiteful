@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { Membership, Role } from "@prisma/client";
+import { Membership, Notification, Role } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
 import {
     getServerSession,
@@ -24,6 +24,7 @@ declare module "next-auth" {
             id: string;
             role: Role;
             membership: Membership;
+            notifications: Notification[];
             // ...other properties
             // role: UserRole;
         };
@@ -32,6 +33,7 @@ declare module "next-auth" {
     interface User {
         role: Role;
         membership: Membership;
+        notifications: Notification[];
         // ...other properties
         // role: UserRole;
     }
@@ -53,6 +55,7 @@ export const authOptions: NextAuthOptions = {
                 membership: user.membership,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 role: user.role,
+                notifications: user.notifications,
             },
         }),
     },

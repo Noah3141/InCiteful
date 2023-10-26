@@ -57,6 +57,14 @@ export const jobsRouter = createTRPCRouter({
                 },
             });
 
+            await ctx.db.notification.create({
+                data: {
+                    type: "JOB_UPDATE",
+                    message: `Your job is now ${input.newStatus}`,
+                    userId: input.userId,
+                },
+            });
+
             return updatedJob;
         }),
 });

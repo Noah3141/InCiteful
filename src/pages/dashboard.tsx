@@ -27,6 +27,7 @@ import {
     IoIosCheckmarkCircle,
     IoIosRefreshCircle,
 } from "react-icons/io";
+import { notify, test } from "~/models/notification";
 
 type QueryState = {
     text: string;
@@ -42,7 +43,7 @@ type QueryDropdowns = {
 /// The page providing the dashboard to run a search against a selected library
 const Dashboard = () => {
     const router = useRouter();
-    const { status } = useSession();
+    const { status, data: session } = useSession();
     const { data: user, isLoading } = api.user.getDashboardData.useQuery();
     const [selectedLibraryIdx, setSelectedLibrary] = useState(0);
     const [selectedTopicIdx, setSelectedTopic] = useState(0);
@@ -61,11 +62,12 @@ const Dashboard = () => {
     });
     // Actual reference list returned by API
     const [references, setReferences] = useState<ReferencesWithDocuments>();
+    notify(session?.user.notifications ?? []);
 
     if (status == "loading")
         return <Loading inline={false} color="secondary" />;
 
-    if (status == "unauthenticated") {
+    if (status == "unauthenticated" || !session) {
         void router.push("//");
         return <Loading inline={false} color="secondary" />;
     }
@@ -598,7 +600,7 @@ const ReferenceList = ({ references, selectedTopicId }: ReferenceListProps) => {
                                 {reference.preText}
                             </span>
                             <span className="text-sushi-400">
-                                {reference.focalText}
+                                {` ${reference.focalText} `}
                             </span>
                             <span className="text-neutral-100">
                                 {reference.postText}
@@ -630,6 +632,7 @@ const AddToTopicWizard = ({ referenceId, topicId }: AddToTopicWizardProps) => {
                 toast.success("Success!", { id: addToTopicToast });
                 setAdded(true);
                 await trpc.user.invalidate();
+                await trpc.notebook.invalidate();
             },
             onError: (e) => {
                 console.log("ERROR MESSAGE", e);

@@ -1,12 +1,22 @@
-import { z } from "zod";
+import { ZodType, z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+    createTRPCRouter,
+    protectedProcedure,
+    publicProcedure,
+} from "~/server/api/trpc";
 
 import { type Document, type Job } from "@prisma/client";
-import { documents_add } from "~/models/documents_add";
+import {
+    DocumentAPI,
+    DocumentSchema,
+    documents_add,
+} from "~/models/documents_add";
 import { jobs_add } from "~/models/jobs_add";
 import {} from "~/models/documents_remove";
 import { documents_list } from "~/models/documents_list";
+import { env } from "~/env.mjs";
+import { createId } from "@paralleldrive/cuid2";
 
 /// Adding a document will involve sending the refernce link to the Python
 export const documentsRouter = createTRPCRouter({
@@ -141,5 +151,69 @@ export const documentsRouter = createTRPCRouter({
             });
 
             return jobAdded;
+        }),
+    insertMany: publicProcedure
+        .input(
+            z.object({
+                libraryId: z.string(),
+                documents: z.array(DocumentSchema),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            for (const document of input.documents) {
+                // Make me objects of name: authorName so that I can take that object[] list and pass it directly to Prisma
+                const authorData = document.authors.map((author) => ({
+                    name: author,
+                }));
+
+                // First, ensure all the authors mentioned in the doc are in the database
+                await ctx.db.author.createMany({
+                    data: authorData,
+                    skipDuplicates: true,
+                });
+
+                // Second, now that they all exist, connect them (put documentId in Author, and vice versa)
+                const created: Document = await ctx.db.document.create({
+                    data: {
+                        libraryId: input.libraryId,
+                        id: document.doc_id,
+                        title: document.title,
+                        publicationSource: document.pub_source,
+                        publishedAt: document.pub_date,
+                        authors: {
+                            connect: authorData,
+                        },
+                    },
+                });
+            }
+
+            //     await ctx.db.document.createMany({
+            //         data: await Promise.all(
+            //             input.documents.map(async (doc): Promise<Document> => {
+            //                 const authorData = doc.authors.map((author) => ({
+            //                     name: author,
+            //                 }));
+
+            //                 // First, ensure all the authors mentioned in the doc are in the database
+            //                 await ctx.db.author.createMany({
+            //                     data: authorData,
+            //                     skipDuplicates: true,
+            //                 });
+
+            //                 return {
+            //                     libraryId: input.libraryId,
+            //                     docletCount: input.docletCount,
+            //                     id: createId(),
+            //                     title: doc.title,
+            //                     publicationSource: doc.pub_source,
+            //                     publishedAt: doc.pub_date,
+            //                     authors: {
+            //                         connect: authorData,
+            //                     },
+            //                 };
+            //             }),
+            //         ),
+            //     });
+            //     return;
         }),
 });

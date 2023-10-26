@@ -6,7 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-import { Membership, Role, type User } from "@prisma/client";
+import { Membership, Notification, Role, type User } from "@prisma/client";
 
 export const usersRouter = createTRPCRouter({
     getSession: protectedProcedure.query(async ({ ctx }) => {
@@ -114,5 +114,28 @@ export const usersRouter = createTRPCRouter({
             });
 
             return data;
+        }),
+
+    pullNotifications: protectedProcedure
+        // .input(z.object({}))
+        .query(async ({ ctx }) => {
+            const notifications: Notification[] =
+                await ctx.db.notification.findMany({
+                    where: { userId: ctx.session.user.id },
+                    orderBy: { createdAt: "asc" },
+                });
+            return notifications;
+        }),
+
+    dismissNotification: protectedProcedure
+        .input(z.object({ notificationId: z.string(), toastId: z.string() })) // Toast Id is passed so that the generic function can turns Notifications into Toasts can pass the ID from within the for loop and update that toast to load for the moments of dismissal
+        .mutation(async ({ ctx, input }) => {
+            const notification: Notification = await ctx.db.notification.update(
+                {
+                    where: { id: input.notificationId },
+                    data: { dismissed: true },
+                },
+            );
+            return notification;
         }),
 });

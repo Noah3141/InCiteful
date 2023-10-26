@@ -27,10 +27,18 @@ export type Response = {
 export type DocumentAPI = {
     authors: string[];
     doc_id: string;
-    pub_date: string;
+    pub_date: number;
     pub_source: string;
     title: string;
 };
+
+export const DocumentSchema = z.object({
+    authors: z.array(z.string()),
+    doc_id: z.string(),
+    pub_date: z.date(),
+    pub_source: z.string(),
+    title: z.string(),
+});
 
 export const documents_add = async (params: Request): Promise<Response> => {
     const res = await fetch(`${PythonPath}/documents/add`, {

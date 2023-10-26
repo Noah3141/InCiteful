@@ -206,6 +206,7 @@ const AddDocumentWizard = ({
     libraryId: string;
     notifyByEmail: string | null;
 }) => {
+    const trpc = api.useContext();
     const [uploadFile, setUploadFile] = useState<FileList | null>(null);
     const [uploadFiles, setUploadFiles] = useState<FileList | null>(null);
     // const [sourceType, sourceTypeDisplay] = parseForType(batchUrl);
@@ -216,8 +217,9 @@ const AddDocumentWizard = ({
             onMutate: () => {
                 toast.loading("Loading...", { id: addDocToast });
             },
-            onSuccess: () => {
+            onSuccess: async () => {
                 toast.success("Success!", { id: addDocToast });
+                await trpc.library.invalidate();
             },
             onError: (e) => {
                 console.log("ERROR MESSAGE", e);

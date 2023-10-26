@@ -2,6 +2,7 @@ import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Button from "~/components/Button";
+import Loading from "~/components/Loading";
 import RoundTop from "~/images/backgrounds/RoundTop";
 
 export default function Index() {
@@ -23,7 +24,9 @@ export default function Index() {
                     </div>
                     <div className=" flex flex-col items-center gap-6 py-64 text-3xl">
                         Try it out!
-                        {status === "authenticated" ? (
+                        {status === "loading" ? (
+                            <Loading color="neutral" inline={false} />
+                        ) : status === "authenticated" ? (
                             <div>
                                 <Button
                                     className="w-36 text-xl"

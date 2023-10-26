@@ -87,7 +87,7 @@ export default class MyDocument extends Document {
                     />
                     <meta name="theme-color" content="#ffffff"></meta>
                 </Head>
-                <body className="h-full min-h-screen  bg-gradient-to-b from-sand-200 to-sand-300 font-semibold text-tango-900">
+                <body className="h-full min-h-screen overscroll-y-none bg-gradient-to-b from-sand-200 to-sand-300 font-semibold text-tango-900">
                     <Main />
                     <NextScript />
                 </body>

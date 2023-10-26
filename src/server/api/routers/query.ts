@@ -32,24 +32,26 @@ export const queryRouter = createTRPCRouter({
             }
 
             const idList: string[] = [];
-            const referenceData = res.references.map((reference) => {
-                const referenceId = createId();
-                idList.push(referenceId);
-                return {
-                    notebookUserId: ctx.session.user.id,
-                    userId: ctx.session.user.id,
-                    documentId: reference.document.doc_id,
+            const referenceData: CreateManyReference[] = res.references.map(
+                (reference): CreateManyReference => {
+                    const referenceId = createId();
+                    idList.push(referenceId);
+                    return {
+                        notebookUserId: ctx.session.user.id,
+                        userId: ctx.session.user.id,
+                        documentId: reference.document.doc_id,
 
-                    focalText: reference.focal_text,
-                    postText: reference.post_text,
-                    preText: reference.pre_text,
+                        focalText: reference.focal_text,
+                        postText: reference.post_text,
+                        preText: reference.pre_text,
 
-                    score: reference.score,
-                    sentenceNumber: parseInt(reference.sentence_num),
-                    pageNumber: reference.page_num,
-                    id: referenceId,
-                };
-            });
+                        score: reference.score,
+                        sentenceNumber: parseInt(reference.sentence_num),
+                        pageNumber: reference.page_num,
+                        id: referenceId,
+                    };
+                },
+            );
             // Convert and create references and pass THAT back to front end
             await ctx.db.reference.createMany({
                 data: referenceData,
@@ -65,3 +67,16 @@ export const queryRouter = createTRPCRouter({
 });
 
 export type ReferencesWithDocuments = (Reference & { document: Document })[];
+
+type CreateManyReference = {
+    notebookUserId: string;
+    userId: string;
+    documentId: string;
+    focalText: string;
+    postText: string;
+    preText: string;
+    score: number;
+    sentenceNumber: number;
+    pageNumber: number;
+    id: string;
+};
