@@ -54,16 +54,13 @@ export const usersRouter = createTRPCRouter({
         const dashboardData = await ctx.db.user.findUnique({
             where: { id: ctx.session.user.id },
             include: {
-                jobs: { orderBy: [{ status: "desc" }, { createdAt: "desc" }] },
+                jobs: { orderBy: [{ status: "asc" }, { createdAt: "desc" }] },
                 libraries: {
                     orderBy: { updatedAt: "desc" },
                     include: {
                         documents: { orderBy: { createdAt: "desc" } },
                         jobs: {
-                            orderBy: [
-                                { status: "desc" },
-                                { createdAt: "desc" },
-                            ],
+                            orderBy: [{ status: "asc" }, { createdAt: "desc" }],
                         },
                     },
                 },

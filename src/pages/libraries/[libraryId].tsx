@@ -222,8 +222,14 @@ const AddDocumentWizard = ({
                 await trpc.library.invalidate();
             },
             onError: (e) => {
-                console.log("ERROR MESSAGE", e);
-                toast.error(`Something went wrong!`, { id: addDocToast });
+                if (e.data?.code == "BAD_REQUEST") {
+                    void toast.error(e.message, { id: addDocToast });
+                } else {
+                    console.log("ERROR MESSAGE", e);
+                    void toast.error(`Something went wrong!`, {
+                        id: addDocToast,
+                    });
+                }
             },
         });
 

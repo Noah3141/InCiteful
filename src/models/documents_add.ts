@@ -32,7 +32,7 @@ export type DocumentAPI = {
     title: string;
 };
 
-export const DocumentSchema = z.object({
+export const ZodDocument = z.object({
     authors: z.array(z.string()),
     doc_id: z.string(),
     pub_date: z.date(),

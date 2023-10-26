@@ -9,7 +9,7 @@ import {
 import { type Document, type Job } from "@prisma/client";
 import {
     DocumentAPI,
-    DocumentSchema,
+    ZodDocument,
     documents_add,
 } from "~/models/documents_add";
 import { jobs_add } from "~/models/jobs_add";
@@ -69,6 +69,18 @@ export const documentsRouter = createTRPCRouter({
                     message: `API returned 'success: false' to create library attempt: "${
                         res.msg ?? "No message provided"
                     }"`,
+                });
+            }
+
+            const alreadyPresent = await ctx.db.document.findFirst({
+                where: { id: res.document.doc_id },
+            });
+
+            if (!!alreadyPresent) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                        "This document is already present in this library!",
                 });
             }
 
@@ -156,7 +168,7 @@ export const documentsRouter = createTRPCRouter({
         .input(
             z.object({
                 libraryId: z.string(),
-                documents: z.array(DocumentSchema),
+                documents: z.array(ZodDocument),
             }),
         )
         .mutation(async ({ ctx, input }) => {

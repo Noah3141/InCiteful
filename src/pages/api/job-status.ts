@@ -1,13 +1,14 @@
-import { type Status } from "@prisma/client";
+import { Document, Job, Status } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { z } from "zod";
 import { env } from "~/env.mjs";
-import { DocumentAPI } from "~/models/documents_add";
-import { api } from "~/utils/api";
+import { DocumentAPI, ZodDocument } from "~/models/documents_add";
+import { db } from "~/server/db";
 
 type ResponseData = {
     message: string;
 };
-export type UpdateJobData = {
+export type UpdateJobRequest = {
     new_status: Status;
     user_id: string;
     library_id: string;
@@ -17,7 +18,18 @@ export type UpdateJobData = {
     num_docs_completed: number;
 };
 
-export default function handler(
+export const ZodUpdateJobRequest = z.object({
+    new_status: z.nativeEnum(Status),
+    user_id: z.string(),
+    library_id: z.string(),
+    job_id: z.string(),
+    start_time: z.number().optional(), // Can be left out of the received JSON and still parse successfully
+    documents: z.array(ZodDocument).nullable(), // Must be sent, with explicit null/undefined
+    num_docs_completed: z.number(),
+});
+
+// HANDLER IS COMPLETED BY USING THE .json() or .send() METHODS ON THE RES OBJECT, otherwise requester gets no response
+export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ResponseData>,
 ) {
@@ -41,92 +53,30 @@ export default function handler(
     }
 
     // Knowing the request was sent by Python, now update our database: Checking the job update needed, adding authors, then adding documents, then updating Prisma's job list
-    const body = req.body as UpdateJobData;
+    const body = req.body as UpdateJobRequest;
 
-    const start_time = new Date();
-    start_time.setSeconds(body.start_time ?? 0); // todo) Check actual conversion
-    const time = body.start_time ? start_time : undefined;
+    try {
+        ZodUpdateJobRequest.parse(body);
+    } catch (e) {
+        res.status(400).json({
+            message: `Received JSON body which failed type validation: ${JSON.stringify(
+                e,
+            )}`,
+        });
+    }
 
-    // todo) find some way to notify an active user. Proabaly store a db row and check it for toasts, run the toast on dashboard, then delete row
     switch (body.new_status) {
         case "CANCELLED":
-            api.job.updateJob
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({
-                    newStatus: body.new_status,
-                    jobId: body.job_id,
-                    libraryId: body.library_id,
-                    userId: body.user_id,
-                    startedAt: time, //? End time is created and understood during .job.updateJob() handler in trpc router
-                });
-            // todo) Post effect to user's notifications
+            await updateJob({ ...body });
+            res.status(201).json({ message: "Success!" });
             break;
         case "RUNNING":
-            api.job.updateJob
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({
-                    newStatus: body.new_status,
-                    jobId: body.job_id,
-                    libraryId: body.library_id,
-                    userId: body.user_id,
-                    startedAt: time,
-                });
+            await updateJob({ ...body });
+            res.status(201).json({ message: "Success!" });
             break;
         case "FAILED":
-            api.job.updateJob
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({
-                    newStatus: body.new_status,
-                    jobId: body.job_id,
-                    libraryId: body.library_id,
-                    userId: body.user_id,
-                    startedAt: time, //? End time is created and understood during .job.updateJob() handler in trpc router
-                });
+            await updateJob({ ...body });
+            res.status(201).json({ message: "Success!" });
             break;
         case "COMPLETED":
             const documents = body.documents?.map((doc) => {
@@ -140,87 +90,93 @@ export default function handler(
             });
 
             if (!documents) {
-                res.status(500).json({
-                    message: `Documents was null during a call to containing STATUS = "COMPLETED"!`,
+                res.status(400).json({
+                    message: `Documents was null during a call to ~/api/job-status containing STATUS = "COMPLETED"!`,
                 });
                 return;
             }
 
-            const newDocuments = api.document.insertMany
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}\nError encountered: ${JSON.stringify(e)}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({ libraryId: body.library_id, documents });
+            for (const document of documents) {
+                // Make me objects of name: authorName so that I can take that object[] list and pass it directly to Prisma
+                const authorData = document.authors.map((author) => ({
+                    name: author,
+                }));
 
-            const updatedJob = api.job.updateJob
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}\nError encountered: ${JSON.stringify(e)}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({
-                    newStatus: body.new_status,
-                    jobId: body.job_id,
-                    libraryId: body.library_id,
-                    userId: body.user_id,
-                    startedAt: time,
+                // First, ensure all the authors mentioned in the doc are in the database
+                await db.author.createMany({
+                    data: authorData,
+                    skipDuplicates: true,
                 });
+
+                // Second, now that they all exist, connect them (put documentId in Author, and vice versa)
+                const createdDocuments: Document = await db.document.create({
+                    data: {
+                        libraryId: body.library_id,
+                        id: document.doc_id,
+                        title: document.title,
+                        publicationSource: document.pub_source,
+                        publishedAt: document.pub_date,
+                        authors: {
+                            connect: authorData,
+                        },
+                    },
+                });
+            }
+            await updateJob({ ...body });
+            res.status(201).json({ message: "Success!" });
             break;
         case "UNKNOWN":
-            api.job.updateJob
-                .useMutation({
-                    onError: (e) => {
-                        res.status(500).json({
-                            message: `NextJS failed to sync frontend DB: ${
-                                e.message
-                            } \nRequest that had been received: ${JSON.stringify(
-                                body,
-                            )}`,
-                        });
-                        return;
-                    },
-                    onSuccess: async () => {
-                        await api.useContext().job.invalidate();
-                        await api.useContext().user.invalidate();
-                    },
-                })
-                .mutate({
-                    newStatus: body.new_status,
-                    jobId: body.job_id,
-                    libraryId: body.library_id,
-                    userId: body.user_id,
-                    startedAt: time, //? End time is created and understood during .job.updateJob() handler in trpc router
-                });
+            await updateJob({ ...body });
+            res.status(201).json({ message: "Success!" });
             break;
         case "PENDING":
+            res.status(201).json({
+                message:
+                    "Status provided was PENDING. Was this intentional? No DB changes made.",
+            });
             break;
         default:
+            res.status(404).json({
+                message:
+                    "Status provided as unknown value which bypassed Zod check. No DB changes made.",
+            });
             break;
     }
 
-    res.status(200).json({ message: "Success" });
+    res.status(404).json({
+        message: "Send a request with the body json defined in ~/api/job-sync",
+    });
 }
+
+const updateJob = async (input: UpdateJobRequest) => {
+    const start_time = new Date();
+    start_time.setSeconds(input.start_time ?? 0); // todo) Check actual conversion
+    const time = input.start_time ? start_time : undefined;
+
+    const endedAt =
+        input.new_status === ("CANCELLED" || "COMPLETED" || "FAILED")
+            ? new Date()
+            : undefined;
+
+    const updatedJob: Job = await db.job.update({
+        where: {
+            id: input.job_id,
+            userId: input.user_id,
+            libraryId: input.library_id,
+        },
+        data: {
+            status: input.new_status,
+            endedAt: endedAt,
+            startedAt: time,
+        },
+    });
+
+    await db.notification.create({
+        data: {
+            jobId: updatedJob.id,
+            type: "JOB_UPDATE",
+            message: `Your job is now ${input.new_status}`,
+            userId: input.user_id,
+        },
+    });
+};

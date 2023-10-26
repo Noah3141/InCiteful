@@ -8,6 +8,7 @@ import {
 
 import { Status, type Job } from "@prisma/client";
 import { jobs_list } from "~/models/jobs_list";
+import { UpdateJobRequest } from "~/pages/api/job-status";
 
 export const jobsRouter = createTRPCRouter({
     checkJob: protectedProcedure

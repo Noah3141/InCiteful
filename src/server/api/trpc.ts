@@ -15,6 +15,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { syncWithPython } from "~/pages/api/sync";
 
 /**
  * 1. CONTEXT
@@ -53,6 +54,8 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  */
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
     const { req, res } = opts;
+
+    await syncWithPython();
 
     // Get the session from the server using the getServerSession wrapper function
     const session = await getServerAuthSession({ req, res });

@@ -1,11 +1,32 @@
 import { Status } from "@prisma/client";
-import { MoonLoader } from "react-spinners";
+import { TailSpin } from "react-loader-spinner";
+
 import { Tooltip } from "react-tooltip";
 import { tooltipStyles } from "~/styles/tooltips";
 
-export const JobStatus = ({ status }: { status: Status }) => {
-    const classes = "h-4 w-4 cursor-default";
+//! GPT generated
+export const toTitleCase = (input: string): string => {
+    // Split the input string into words
+    const words = input.split(" ");
 
+    // Capitalize the first letter of each word and convert the rest to lowercase
+    const titleCaseWords = words.map((word) => {
+        if (word.length > 0) {
+            const firstLetter = word.at(0)?.toUpperCase();
+            const restOfWord = word.slice(1).toLowerCase();
+            return firstLetter + restOfWord;
+        }
+        return word; // Handle empty words gracefully
+    });
+
+    // Join the title case words back into a single string
+    const titleCaseString = titleCaseWords.join(" ");
+
+    return titleCaseString;
+};
+
+export const JobStatus = ({ status }: { status: Status }) => {
+    const classes = "h-6 w-6 cursor-default ";
     const tooltip = (
         <Tooltip
             place="top"
@@ -50,14 +71,19 @@ export const JobStatus = ({ status }: { status: Status }) => {
             );
         case "RUNNING":
             return (
-                <div className={classes}>
-                    <MoonLoader
-                        data-tooltip-id={`status-tooltip`}
-                        data-tooltip-content={`Processing now!`}
-                        data-tooltip-variant="info"
+                <div
+                    className={`flex scale-75 items-center justify-center rounded-full bg-gable-800 text-tango-500 ${classes}`}
+                >
+                    <TailSpin
+                        height="24"
+                        width="24"
                         color="currentColor"
-                        className="text-sushi-500"
-                        speedMultiplier={0.5}
+                        ariaLabel="tail-spin-loading"
+                        radius=".9"
+                        strokeWidth={8}
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                        visible={true}
                     />
                 </div>
             );

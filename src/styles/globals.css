@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    html,
+    body,
+    #__next {
+        @apply h-full overflow-y-scroll overscroll-y-none scroll-smooth;
+    }
+}
+
 @layer components {
     .page-title {
         @apply mb-6 text-4xl;

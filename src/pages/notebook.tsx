@@ -133,7 +133,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
 
     return (
         <div className="max-h-[50vh] overflow-scroll rounded-sm bg-gable-950 text-neutral-50 lg:max-h-[70vh]">
-            <div className=" p-6 text-2xl leading-none">{topic?.name}</div>
+            <div className=" p-6 pb-2 text-2xl leading-none">{topic?.name}</div>
             <div className="flex flex-row gap-4 border-b border-b-gable-900 px-6 pb-2">
                 <div className="font-medium">
                     Created: {topic?.createdAt && dtfmt.format(topic.createdAt)}

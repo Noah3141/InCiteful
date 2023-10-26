@@ -81,6 +81,7 @@ model Notification {
     message   String
     User      User             @relation(fields: [userId], references: [id])
     userId    String
+    jobId     String?
     type      NotificationType
     createdAt DateTime         @default(now())
     dismissed Boolean          @default(false)

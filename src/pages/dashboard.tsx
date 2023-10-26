@@ -11,7 +11,7 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineInfoCircle, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Tooltip } from "react-tooltip";
-import { JobStatus } from "~/components/JobStatus";
+import { JobStatus, toTitleCase } from "~/components/JobStatus";
 import List, { Body, Header } from "~/components/List";
 import Loading from "~/components/Loading";
 import MiddleColumn from "~/components/MiddleColumn";
@@ -28,10 +28,13 @@ import {
     IoIosRefreshCircle,
 } from "react-icons/io";
 import { notify, test } from "~/models/notification";
+import Link from "next/link";
+
+type orderBys = "Score" | "Date" | "Page Number";
 
 type QueryState = {
     text: string;
-    orderBy: "Score" | "Date";
+    orderBy: orderBys;
     topN: number;
 };
 
@@ -85,7 +88,7 @@ const Dashboard = () => {
             <title>Dashboard</title>
             <div className="mx-auto max-w-[1400px] px-3 pt-12">
                 <div className="flex  flex-col gap-3  lg:flex-row">
-                    <div className="flex w-full flex-col  gap-3 lg:h-screen lg:w-[450px]  lg:max-w-xs">
+                    <div className="flex w-full flex-col  gap-3 lg:min-h-screen lg:w-[450px]  lg:max-w-xs">
                         <LibrarySelector
                             {...{
                                 isLoading,
@@ -114,7 +117,12 @@ const Dashboard = () => {
                                 }}
                             />
                             <ReferenceList
-                                {...{ references, selectedTopicId }}
+                                {...{
+                                    references,
+                                    selectedTopicId,
+                                    orderBy: query.orderBy,
+                                    topN: query.topN,
+                                }}
                             />
                         </div>
                     </MiddleColumn>
@@ -219,9 +227,17 @@ const LibraryReadout = ({
     return (
         <List>
             <Header>
-                <div>
+                <div className="">
                     <h1 className="block text-lg">Library:</h1>
-                    <h2 className="text-tango-500">{selectedLibrary?.title}</h2>
+                    <h2 className="font-medium">
+                        <Link
+                            className="text-tango-500 hover:text-tango-600"
+                            href={`/libraries/${selectedLibrary?.id}`}
+                        >
+                            {" "}
+                            {selectedLibrary?.title}
+                        </Link>
+                    </h2>
                 </div>
             </Header>
             <div className="px-4 py-3  font-medium">
@@ -264,7 +280,7 @@ const LibraryReadout = ({
                                     className="flex flex-row justify-between"
                                 >
                                     <div className="font-medium">
-                                        {job.status}
+                                        {toTitleCase(job.status)}
                                     </div>
                                     <JobStatus status={job.status} />
                                 </div>
@@ -425,10 +441,10 @@ const QueryBar = ({
                         }));
                     }}
                     placeholder="Enter a search prompt"
-                    className="w-full rounded-t-sm px-2 py-1 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50"
+                    className="w-full rounded-t px-2 py-1 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50"
                 />
             </div>
-            <div className="flex w-full flex-row divide-x  divide-gable-800 rounded-b-sm bg-gable-700 text-neutral-100">
+            <div className="flex w-full flex-row divide-x  divide-gable-800 rounded-b bg-gable-700 text-neutral-100">
                 <div className="relative w-full">
                     <button
                         onClick={() => {
@@ -443,9 +459,9 @@ const QueryBar = ({
                         <span className="">{query.orderBy}</span>
                     </button>
                     <div
-                        className={`absolute left-1/2 w-32 -translate-x-1/2  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
+                        className={`absolute left-1/2 w-32 -translate-x-1/2 overflow-hidden   rounded border-gable-600  bg-gable-950 font-normal transition-all duration-150 ${
                             queryDropdowns.orderBy
-                                ? "h-16 border shadow-lg shadow-[#3635355b]"
+                                ? "h-[98px] border shadow-lg shadow-[#3635355b]"
                                 : "h-0"
                         }`}
                     >
@@ -458,7 +474,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 Score
                             </div>
@@ -470,9 +486,21 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
                             >
                                 Date
+                            </div>
+                            <div
+                                onClick={() => {
+                                    setQuery((p) => ({
+                                        ...p,
+                                        orderBy: "Page Number",
+                                    }));
+                                    setQueryDropdowns(queryDropdownsClosed);
+                                }}
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                            >
+                                Page Number
                             </div>
                         </div>
                     </div>
@@ -491,7 +519,7 @@ const QueryBar = ({
                         <span className="">{query.topN}</span>
                     </button>
                     <div
-                        className={`absolute left-1/2 w-32  -translate-x-1/2  overflow-hidden rounded-md  border-gable-600 bg-gable-950 transition-all duration-150 ${
+                        className={`absolute left-1/2 w-32  -translate-x-1/2  overflow-hidden rounded  border-gable-600 bg-gable-950 transition-all duration-150 ${
                             queryDropdowns.topN
                                 ? "h-16 border shadow-lg shadow-[#3635355b]"
                                 : "h-0"
@@ -558,12 +586,38 @@ const QueryBar = ({
 type ReferenceListProps = {
     references: ReferencesWithDocuments | undefined;
     selectedTopicId: string;
+    orderBy: orderBys;
+    topN: number;
 };
 
-const ReferenceList = ({ references, selectedTopicId }: ReferenceListProps) => {
+const ReferenceList = ({
+    references,
+    selectedTopicId,
+    orderBy,
+    topN,
+}: ReferenceListProps) => {
     if (!references) {
         return;
     }
+
+    switch (orderBy) {
+        case "Date":
+            references = references.sort(
+                (a, b) =>
+                    (b.document.publishedAt?.getSeconds() ?? 0) -
+                    (a.document.publishedAt?.getSeconds() ?? 0),
+            );
+            break;
+        case "Score":
+            references = references.sort(
+                (a, b) => (b.score ?? 0) - (a.score ?? 0),
+            );
+            break;
+        case "Page Number":
+            references = references.sort((a, b) => a.pageNumber - b.pageNumber);
+    }
+
+    references = references.slice(0, topN);
 
     let lengthLabel = "";
     if (references.length === 0) {
@@ -574,16 +628,24 @@ const ReferenceList = ({ references, selectedTopicId }: ReferenceListProps) => {
         lengthLabel = `${references.length} references`;
     }
     return (
-        <div className="max-h-[100vh] overflow-scroll bg-gable-950 p-4 text-neutral-50">
+        <div className="max-h-[100vh] overflow-scroll bg-gable-950 p-6 text-neutral-50">
             <div className="border-b">
                 <h1>{lengthLabel}</h1>
             </div>
             {references?.map((reference, idx) => {
-                const titleWithDate = `${reference.document.title} ${
-                    reference.document.publishedAt
-                        ? `(${dtfmt.format(reference.document.publishedAt)})`
-                        : ""
-                }`;
+                const titleWithDate = (
+                    <span className="font-normal">
+                        {`${reference.document.title} 
+                        ${
+                            reference.document.publishedAt
+                                ? `(${dtfmt.format(
+                                      reference.document.publishedAt,
+                                  )})`
+                                : "(Date not found)"
+                        }
+                        `}
+                    </span>
+                );
 
                 return (
                     <div key={reference.id} className="mt-6  py-2 ">
@@ -606,9 +668,11 @@ const ReferenceList = ({ references, selectedTopicId }: ReferenceListProps) => {
                                 {reference.postText}
                             </span>
                         </div>
-                        <div>{`Score: ${reference.score?.toFixed(2)}`}</div>
-                        <div>
-                            {`Sentence number: ${reference.sentenceNumber}`}
+                        <div className="font-normal">{`Score: ${reference.score?.toFixed(
+                            2,
+                        )}`}</div>
+                        <div className="font-normal">
+                            {`Page: ${reference.pageNumber}`}
                         </div>
                     </div>
                 );
