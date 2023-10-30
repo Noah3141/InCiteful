@@ -50,27 +50,31 @@ const Libraries = () => {
                 <h1 className="page-title text-neutral-800">Libraries</h1>
                 <AddLibrary />
             </div>
-            <div className="divide-y border-t-2 border-gable-700">
+            <div className="flex flex-col gap-2 px-2">
                 {data.map((library) => {
                     return (
-                        <div
+                        <Link
                             key={library.id}
-                            className="flex flex-row justify-between  border-y-sand-600 border-opacity-20 px-6 py-2 "
+                            className=" "
+                            href={`/libraries/${library.id}`}
                         >
-                            <Link
-                                className="text-2xl hover:text-neutral-700"
-                                href={`/libraries/${library.id}`}
+                            <div
+                                className={`flex flex-col justify-between rounded-[24px] bg-sand-200 px-6 py-2 shadow shadow-sand-300 transition-colors transition-shadow duration-100 hover:bg-sand-100  hover:shadow-neutral-500 md:flex-row `}
                             >
-                                {library.title}
-                            </Link>
-                            <div className="flex flex-row items-center gap-6 font-medium">
-                                <div>
-                                    Last updated:{" "}
-                                    {dtfmt.format(library.updatedAt)}
+                                <div className="w-96 text-2xl">
+                                    {library.title}
                                 </div>
-                                <div>Documents: {library._count.documents}</div>
+                                <div className="flex flex-row items-center gap-6 font-medium">
+                                    <div>
+                                        Last updated:{" "}
+                                        {dtfmt.format(library.updatedAt)}
+                                    </div>
+                                    <div>
+                                        Documents: {library._count.documents}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </Link>
                     );
                 })}
             </div>

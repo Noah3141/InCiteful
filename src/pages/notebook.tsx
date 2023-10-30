@@ -104,7 +104,7 @@ const TopicList = ({ topics, viewedTopic, setViewedTopic }: TopicListProps) => {
                             className={`flex w-full items-center justify-between px-4 py-1 text-left hover:bg-gable-900  ${
                                 viewedTopic?.id === topic.id
                                     ? "text-tango-500 hover:text-tango-500"
-                                    : " hover:text-sushi-400"
+                                    : " hover:text-tango-300"
                             }`}
                             onClick={() => setViewedTopic(topic)}
                         >

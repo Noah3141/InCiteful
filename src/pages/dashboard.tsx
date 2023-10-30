@@ -86,9 +86,9 @@ const Dashboard = () => {
     return (
         <>
             <title>Dashboard</title>
-            <div className="mx-auto max-w-[1400px] px-3 pt-12">
-                <div className="flex  flex-col gap-3  lg:flex-row">
-                    <div className="flex w-full flex-col  gap-3 lg:min-h-screen lg:w-[450px]  lg:max-w-xs">
+            <div className=" px-3 pt-12">
+                <div className="flex  flex-col gap-3  xl:flex-row">
+                    <div className="flex  flex-col  gap-3 ">
                         <LibrarySelector
                             {...{
                                 isLoading,
@@ -100,7 +100,7 @@ const Dashboard = () => {
                         <LibraryReadout {...{ isLoading, selectedLibrary }} />
                     </div>
                     <MiddleColumn>
-                        <div className="relative max-h-[70vh] ">
+                        <div className="relative max-h-[70vh] w-full ">
                             <div className="absolute -z-10 mt-12 flex h-96 w-full flex-row items-end justify-center">
                                 <InCiteful className=" text-sand-300" />
                             </div>
@@ -195,11 +195,13 @@ const LibrarySelector = ({
                                         className={`flex w-full items-center justify-between  border-s-4 px-4 py-2 text-left hover:bg-gable-900  ${
                                             selectedLibraryIdx === idx
                                                 ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
-                                                : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
+                                                : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-neutral-50"
                                         }`}
                                         onClick={() => setSelectedLibrary(idx)}
                                     >
-                                        <div>{library.title}</div>
+                                        <div className="truncate whitespace-pre-wrap">
+                                            {library.title}
+                                        </div>
                                         <div className="self-end whitespace-nowrap ps-2 text-sm text-gable-800">
                                             {dtfmt.format(library.updatedAt)}
                                         </div>
@@ -263,7 +265,7 @@ const LibraryReadout = ({
                     <span>{dtfmt.format(selectedLibrary?.updatedAt)}</span>
                 </h1>
             </div>
-            <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-4">
+            <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-4 ">
                 <h1 className="block text-lg">Jobs</h1>
                 {isLoading ? (
                     <Loading inline={true} color="primary" className="py-2" />
@@ -348,7 +350,7 @@ const TopicsSelector = ({
                 </div>
             </Header>
             <Body>
-                <div className="w-48">
+                <div className="w-64">
                     {isLoading ? (
                         <Loading
                             inline={true}
@@ -372,11 +374,15 @@ const TopicsSelector = ({
                                             className={`w-full border-s-4 px-4 py-2 text-left hover:bg-gable-900 ${
                                                 selectedTopicIdx === idx
                                                     ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
-                                                    : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-sushi-400"
+                                                    : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-neutral-50"
                                             }`}
                                         >
-                                            <div className="">
-                                                {`${topic.name} - ${topic.references.length}`}
+                                            <div className="flex flex-row justify-between">
+                                                {topic.name}{" "}
+                                                <span className="text-gable-800">
+                                                    References:{" "}
+                                                    {topic.references.length}
+                                                </span>
                                             </div>
                                         </button>
                                     </div>
@@ -439,7 +445,7 @@ const QueryBar = ({
 
     return (
         <>
-            <div>
+            <div className="mt-8 xl:mt-0">
                 <input
                     type="text"
                     value={query.text}
@@ -450,10 +456,10 @@ const QueryBar = ({
                         }));
                     }}
                     placeholder="Enter a search prompt"
-                    className="w-full rounded-t px-2 py-1 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50"
+                    className="h-12 w-full rounded-t p-2 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50 xl:h-fit"
                 />
             </div>
-            <div className="flex w-full flex-row divide-x  divide-gable-800 rounded-b bg-gable-700 text-neutral-100">
+            <div className="flex w-full flex-row divide-x  divide-gable-800  bg-gable-700 text-neutral-100">
                 <div className="relative w-full">
                     <button
                         onClick={() => {
@@ -462,7 +468,7 @@ const QueryBar = ({
                                 topN: false,
                             }));
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400"
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50"
                     >
                         <span>Sort by: </span>
                         <span className="">{query.orderBy}</span>
@@ -483,7 +489,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 Score
                             </div>
@@ -495,7 +501,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 Date
                             </div>
@@ -507,7 +513,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 Page Number
                             </div>
@@ -522,7 +528,7 @@ const QueryBar = ({
                                 orderBy: false,
                             }));
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400"
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50"
                     >
                         <span>Top Results: </span>
                         <span className="">{query.topN}</span>
@@ -543,7 +549,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 10
                             </div>
@@ -555,7 +561,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-sushi-400"
+                                className="cursor-pointer px-4 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 25
                             </div>
@@ -582,7 +588,7 @@ const QueryBar = ({
                             });
                         }}
                         disabled={disabled}
-                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-sushi-400 disabled:bg-gable-800 disabled:hover:text-neutral-50"
+                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50 disabled:bg-gable-800 disabled:hover:text-neutral-50"
                     >
                         Search
                     </button>
@@ -637,7 +643,7 @@ const ReferenceList = ({
         lengthLabel = `${references.length} references`;
     }
     return (
-        <div className="max-h-[100vh] overflow-scroll bg-gable-950 p-6 text-neutral-50">
+        <div className="max-h-[60vh] overflow-scroll bg-gable-950 p-6 text-neutral-50 xl:max-h-[100vh]">
             <div className="border-b">
                 <h1>{lengthLabel}</h1>
             </div>

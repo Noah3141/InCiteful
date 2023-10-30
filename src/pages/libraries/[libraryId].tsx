@@ -329,7 +329,7 @@ const AddDocumentWizard = ({
 
     return (
         <div className=" px-4 pb-12 transition-all sm:px-16">
-            <div className=" w-full rounded-xl bg-sand-100 py-6">
+            <div className=" w-full rounded-xl bg-sand-200 py-6 shadow">
                 <div className="px-6 transition-all sm:px-16">
                     <h1 className="text-xl">Add Documents</h1>
                 </div>
@@ -410,6 +410,14 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
 
     // const {mutate: cancelJob, isLoading } = api.job.cancel
 
+    if (data.jobs.length == 0) {
+        return (
+            <div className="border-t border-sand-300 px-4 py-8 transition-all sm:px-16">
+                <h1 className="text-2xl">No Jobs</h1>
+            </div>
+        );
+    }
+
     return (
         <div className="border-t border-sand-300 px-4 py-12 transition-all sm:px-16">
             <h1 className="text-2xl">Jobs</h1>
@@ -421,114 +429,110 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                 <div className="w-36">Finished</div>
             </div>
             <div className="flex flex-col gap-1 ">
-                {data.jobs.length !== 0
-                    ? data.jobs.map((job) => {
-                          //
-                          const cancellable =
-                              job.status == Status.PENDING ||
-                              job.status == Status.RUNNING;
-                          const startedAt = job.startedAt
-                              ? dtfmt.format(job.startedAt)
-                              : "Not yet";
-                          return (
-                              <div
-                                  key={job.id}
-                                  className={`rounded-[15px] bg-sand-200 shadow transition-all hover:bg-sand-100 `}
-                              >
-                                  <div
-                                      onClick={(e) => {
-                                          setListState({
-                                              ...initialList,
-                                              [job.id]: true,
-                                          });
-                                      }}
-                                      className={`flex flex-row gap-3 px-2 py-1 pe-4 font-medium   `}
-                                  >
-                                      <div className="w-5">
-                                          <JobStatus status={job.status} />
-                                      </div>
-                                      <div className="w-40">
-                                          {dtfmt.format(job.createdAt)}
-                                      </div>
-                                      <div className="hidden w-28 sm:block">
-                                          {job.documentCount}
-                                      </div>
-                                      <div className="hidden w-36 md:block">
-                                          {startedAt}
-                                      </div>
-                                      <div className="w-36">
-                                          {job.endedAt
-                                              ? dtfmt.format(job.endedAt)
-                                              : "Not yet"}
-                                      </div>
-                                  </div>
-                                  <div
-                                      className={`font-medium transition-all ${
-                                          listState[job.id]
-                                              ? "h-32 overflow-y-scroll "
-                                              : "h-0 overflow-hidden"
-                                      }`}
-                                  >
-                                      <div className="flex h-full flex-row px-2">
-                                          <div className="w-full ">
-                                              <div className="font-semibold">
-                                                  {toTitleCase(job.status)}
-                                              </div>
-                                              <div>
-                                                  {job.message ?? "No message"}
-                                              </div>
-                                              <div className="sm:hidden">
-                                                  Documents: {job.documentCount}
-                                              </div>
-                                              <div className="md:hidden">
-                                                  Started: {startedAt}
-                                              </div>
-                                              <div></div>
-                                          </div>
-                                          <div className="flex h-full w-40 shrink-0 justify-end pb-4 pe-4">
-                                              {cancellable ? (
-                                                  <Button
-                                                      onClick={() => {
-                                                          toast.error(
-                                                              "Not yet implemented!",
-                                                              {
-                                                                  id: "cancel not implemented",
-                                                              },
-                                                          );
-                                                      }}
-                                                      className=" self-end"
-                                                      small={true}
-                                                      color="secondary"
-                                                      text="Cancel Job"
-                                                  />
-                                              ) : (
-                                                  ""
-                                              )}
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <div
-                                      onClick={() => {
-                                          setListState((p) => ({
-                                              ...p,
-                                              [job.id]: false,
-                                          }));
-                                      }}
-                                      className={`group flex w-full flex-row justify-center rounded-b-[15px] bg-sand-300 transition-all hover:cursor-pointer  hover:bg-sand-400 ${
-                                          listState[job.id]
-                                              ? "h-5 "
-                                              : "h-0 overflow-hidden"
-                                      }`}
-                                  >
-                                      <Arrow
-                                          size={12}
-                                          className="mt-1 text-sand-500 group-hover:text-sand-100"
-                                      />
-                                  </div>
-                              </div>
-                          );
-                      })
-                    : "No jobs"}
+                {data.jobs.map((job) => {
+                    //
+                    const cancellable =
+                        job.status == Status.PENDING ||
+                        job.status == Status.RUNNING;
+                    const startedAt = job.startedAt
+                        ? dtfmt.format(job.startedAt)
+                        : "Not yet";
+                    return (
+                        <div
+                            key={job.id}
+                            className={`rounded-[15px] bg-sand-200 shadow transition-all hover:bg-sand-100 `}
+                        >
+                            <div
+                                onClick={(e) => {
+                                    setListState({
+                                        ...initialList,
+                                        [job.id]: true,
+                                    });
+                                }}
+                                className={`flex flex-row gap-3 px-2 py-1 pe-4 font-medium   `}
+                            >
+                                <div className="w-5">
+                                    <JobStatus status={job.status} />
+                                </div>
+                                <div className="w-40">
+                                    {dtfmt.format(job.createdAt)}
+                                </div>
+                                <div className="hidden w-28 sm:block">
+                                    {job.documentCount}
+                                </div>
+                                <div className="hidden w-36 md:block">
+                                    {startedAt}
+                                </div>
+                                <div className="w-36">
+                                    {job.endedAt
+                                        ? dtfmt.format(job.endedAt)
+                                        : "Not yet"}
+                                </div>
+                            </div>
+                            <div
+                                className={`font-medium transition-all ${
+                                    listState[job.id]
+                                        ? "h-32 overflow-y-scroll "
+                                        : "h-0 overflow-hidden"
+                                }`}
+                            >
+                                <div className="flex h-full flex-row px-2">
+                                    <div className="w-full ">
+                                        <div className="font-semibold">
+                                            {toTitleCase(job.status)}
+                                        </div>
+                                        <div>{job.message ?? "No message"}</div>
+                                        <div className="sm:hidden">
+                                            Documents: {job.documentCount}
+                                        </div>
+                                        <div className="md:hidden">
+                                            Started: {startedAt}
+                                        </div>
+                                        <div></div>
+                                    </div>
+                                    <div className="flex h-full w-40 shrink-0 justify-end pb-4 pe-4">
+                                        {cancellable ? (
+                                            <Button
+                                                onClick={() => {
+                                                    toast.error(
+                                                        "Not yet implemented!",
+                                                        {
+                                                            id: "cancel not implemented",
+                                                        },
+                                                    );
+                                                }}
+                                                className=" self-end"
+                                                small={true}
+                                                color="secondary"
+                                                text="Cancel Job"
+                                            />
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                onClick={() => {
+                                    setListState((p) => ({
+                                        ...p,
+                                        [job.id]: false,
+                                    }));
+                                }}
+                                className={`group flex w-full flex-row justify-center rounded-b-[15px] bg-sand-300 transition-all hover:cursor-pointer  hover:bg-sand-400 ${
+                                    listState[job.id]
+                                        ? "h-5 "
+                                        : "h-0 overflow-hidden"
+                                }`}
+                            >
+                                <Arrow
+                                    size={12}
+                                    className="mt-1 text-sand-500 group-hover:text-sand-100"
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
