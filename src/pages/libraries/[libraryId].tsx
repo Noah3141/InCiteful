@@ -13,12 +13,13 @@ import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
-import { type Document } from "@prisma/client";
+import { Status, type Document } from "@prisma/client";
 import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
-import { JobStatus } from "~/components/JobStatus";
+import { JobStatus, toTitleCase } from "~/components/JobStatus";
 import { SourceType } from "~/models/all_request";
 import { FileAPI } from "~/models/documents_add";
+import Arrow from "~/images/icons/Arrow";
 //
 
 const LibraryPage = () => {
@@ -33,9 +34,8 @@ const LibraryPage = () => {
     if (isLoading) {
         return (
             <Hall title="...">
-                <div className="flex h-16 flex-row items-center justify-between px-16">
-                    <h1 className="page-title"> </h1>
-                    <DeleteLibrary libraryId={pathId} />
+                <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
+                    <h1 className="page-title"></h1>
                 </div>
                 <Loading inline={false} color="secondary" />
             </Hall>
@@ -45,8 +45,8 @@ const LibraryPage = () => {
     if (!data?.documents && !!data?.library.title) {
         return (
             <Hall title={data.library.title}>
-                <div className="flex h-16 flex-row items-center justify-between px-16">
-                    <h1 className="page-title"> </h1>
+                <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
+                    <h1 className="page-title"></h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
                 <AddDocumentWizard
@@ -63,7 +63,7 @@ const LibraryPage = () => {
     } else
         return (
             <Hall title={data.library.title}>
-                <div className="flex h-16 flex-row items-center justify-between px-16">
+                <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
                     <h1 className="page-title">{data?.library.title}</h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
@@ -79,30 +79,35 @@ const LibraryPage = () => {
 
 const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
-        <div className="border-y border-sand-300 px-16  py-6">
+        <div className="border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
             <div>
-                <h1 className=" text-xl">
+                <h1 className=" text-2xl">
                     Documents{documents.length > 0 && `: ${documents.length}`}
                 </h1>
             </div>
-            <div className="mt-8 flex max-h-96 flex-col overflow-y-scroll">
+            <div className="mt-4 flex max-h-96 flex-col overflow-y-scroll">
                 {documents.length !== 0
                     ? documents.map((document: Document) => {
                           //
                           const publishedAt = document.publishedAt ? (
                               <div>{dtfmt.format(document.publishedAt)}</div>
                           ) : (
-                              <div></div>
+                              <div>Publish date not found</div>
                           );
                           return (
                               <div key={document.id} className="py-3">
-                                  <div>{document.title}</div>
+                                  <div className="text-xl  ">
+                                      {document.title}
+                                      <span className="ps-2 font-medium">
+                                          ({document.publicationSource})
+                                      </span>
+                                  </div>
                                   <div className="font-medium">
                                       <div>
                                           Added:{" "}
                                           {dtfmt.format(document.createdAt)}
                                       </div>
-                                      {publishedAt}
+                                      <div>{publishedAt}</div>
                                   </div>
                               </div>
                           );
@@ -323,100 +328,203 @@ const AddDocumentWizard = ({
     const multiFileInput = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="w-full py-6">
-            <div className="px-16">
-                <h1 className="text-xl">Add Documents</h1>
-            </div>
-            <div className="mt-8 flex flex-col gap-3">
-                <div className="flex  h-full items-center justify-between border-sand-300 px-16">
-                    <input
-                        ref={singleFileInput}
-                        className="hidden"
-                        onChange={(e) => {
-                            setUploadFile(e.target.files);
-                        }}
-                        type="file"
-                        placeholder="Upload a single file"
-                    />
-                    <div>
-                        <Button
-                            text="Select a single file"
-                            color="neutral"
-                            className="bg"
-                            onClick={(e) => singleFileInput?.current?.click()}
-                        />
-                        <span className="ps-3">
-                            {singleFileInput.current?.files?.item(0)?.name}
-                        </span>
-                    </div>
-                    <Button
-                        disabled={!uploadFile || singleLoading}
-                        onClick={upload}
-                        className=""
-                        color="secondary"
-                        text="Upload File"
-                    ></Button>
+        <div className=" px-4 pb-12 transition-all sm:px-16">
+            <div className=" w-full rounded-xl bg-sand-100 py-6">
+                <div className="px-6 transition-all sm:px-16">
+                    <h1 className="text-xl">Add Documents</h1>
                 </div>
-                <div className="mt-6 flex h-full flex-col items-start justify-between gap-3 border-sand-300 px-16 lg:mt-0 lg:flex-row lg:items-center">
-                    <div>
+                <div className="mt-4 flex flex-col gap-3">
+                    <div className="flex  h-full items-center justify-between  px-6 transition-all sm:px-16">
                         <input
+                            ref={singleFileInput}
                             className="hidden"
-                            type="file"
-                            multiple
-                            ref={multiFileInput}
                             onChange={(e) => {
-                                setUploadFiles(e.target.files);
+                                setUploadFile(e.target.files);
                             }}
-                            placeholder="Provide a link to a folder of files"
+                            type="file"
+                            placeholder="Upload a single file"
                         />
+                        <div>
+                            <Button
+                                text="Select a single file"
+                                color="neutral"
+                                className="bg"
+                                onClick={(e) =>
+                                    singleFileInput?.current?.click()
+                                }
+                            />
+                            <span className="ps-3">
+                                {singleFileInput.current?.files?.item(0)?.name}
+                            </span>
+                        </div>
                         <Button
-                            text="Submit multiple files"
-                            color="neutral"
-                            className="bg"
-                            onClick={(e) => multiFileInput?.current?.click()}
-                        />
+                            disabled={!uploadFile || singleLoading}
+                            onClick={upload}
+                            className=""
+                            color="secondary"
+                            text="Upload File"
+                        ></Button>
                     </div>
-                    <Button
-                        disabled={!uploadFiles || multiLoading}
-                        onClick={uploadMany}
-                        className=" "
-                        color="secondary"
-                        text="Create Job"
-                    ></Button>
+                    <div className=" flex h-full  items-start justify-between gap-3 border-sand-300 px-6 transition-all  sm:flex-row sm:items-center sm:px-16">
+                        <div>
+                            <input
+                                className="hidden"
+                                type="file"
+                                multiple
+                                ref={multiFileInput}
+                                onChange={(e) => {
+                                    setUploadFiles(e.target.files);
+                                }}
+                                placeholder="Provide a link to a folder of files"
+                            />
+                            <Button
+                                text="Submit multiple files"
+                                color="neutral"
+                                className="bg"
+                                onClick={(e) =>
+                                    multiFileInput?.current?.click()
+                                }
+                            />
+                        </div>
+                        <Button
+                            disabled={!uploadFiles || multiLoading}
+                            onClick={uploadMany}
+                            className=" "
+                            color="secondary"
+                            text="Create Job"
+                        ></Button>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
+type JobListState = Record<string, boolean>;
 const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
+    const initialList: JobListState = {};
+    data.jobs.forEach((job) => {
+        initialList[job.id] = false;
+    });
+    const [listState, setListState] = useState<JobListState>(initialList);
+
+    // const {mutate: cancelJob, isLoading } = api.job.cancel
+
     return (
-        <div className="border-t border-sand-300 px-16 py-6">
-            <h1 className="text-xl">Jobs</h1>
-            <div className="mt-8">
+        <div className="border-t border-sand-300 px-4 py-12 transition-all sm:px-16">
+            <h1 className="text-2xl">Jobs</h1>
+            <div className=" mb-1 mt-4 flex flex-row gap-3  px-2 py-1 pe-4  ">
+                <div className="w-5"></div>
+                <div className="w-40">Created</div>
+                <div className="hidden w-28 sm:block">Documents</div>
+                <div className="hidden w-36 md:block">Started</div>
+                <div className="w-36">Finished</div>
+            </div>
+            <div className="flex flex-col gap-1 ">
                 {data.jobs.length !== 0
                     ? data.jobs.map((job) => {
                           //
-
-                          const finishedAt = `Finished: 
-                        ${job.endedAt ? dtfmt.format(job.endedAt) : "Not yet"}`;
-                          const startedAt = `Started:
-                        ${
-                            job.startedAt
-                                ? dtfmt.format(job.startedAt)
-                                : "Not yet"
-                        }`;
-                          //
+                          const cancellable =
+                              job.status == Status.PENDING ||
+                              job.status == Status.RUNNING;
+                          const startedAt = job.startedAt
+                              ? dtfmt.format(job.startedAt)
+                              : "Not yet";
                           return (
-                              <div key={job.id} className="font-medium">
-                                  <div className="flex flex-row justify-start gap-3 font-semibold">
-                                      <div>{dtfmt.format(job.createdAt)}</div>
-                                      <JobStatus status={job.status} />
-                                      <div>Documents: {job.documentCount}</div>
+                              <div
+                                  key={job.id}
+                                  className={`rounded-[15px] bg-sand-200 shadow transition-all hover:bg-sand-100 `}
+                              >
+                                  <div
+                                      onClick={(e) => {
+                                          setListState({
+                                              ...initialList,
+                                              [job.id]: true,
+                                          });
+                                      }}
+                                      className={`flex flex-row gap-3 px-2 py-1 pe-4 font-medium   `}
+                                  >
+                                      <div className="w-5">
+                                          <JobStatus status={job.status} />
+                                      </div>
+                                      <div className="w-40">
+                                          {dtfmt.format(job.createdAt)}
+                                      </div>
+                                      <div className="hidden w-28 sm:block">
+                                          {job.documentCount}
+                                      </div>
+                                      <div className="hidden w-36 md:block">
+                                          {startedAt}
+                                      </div>
+                                      <div className="w-36">
+                                          {job.endedAt
+                                              ? dtfmt.format(job.endedAt)
+                                              : "Not yet"}
+                                      </div>
                                   </div>
-                                  <div>{job.message}</div>
-                                  <div>{startedAt}</div>
-                                  <div>{finishedAt}</div>
+                                  <div
+                                      className={`font-medium transition-all ${
+                                          listState[job.id]
+                                              ? "h-32 overflow-y-scroll "
+                                              : "h-0 overflow-hidden"
+                                      }`}
+                                  >
+                                      <div className="flex h-full flex-row px-2">
+                                          <div className="w-full ">
+                                              <div className="font-semibold">
+                                                  {toTitleCase(job.status)}
+                                              </div>
+                                              <div>
+                                                  {job.message ?? "No message"}
+                                              </div>
+                                              <div className="sm:hidden">
+                                                  Documents: {job.documentCount}
+                                              </div>
+                                              <div className="md:hidden">
+                                                  Started: {startedAt}
+                                              </div>
+                                              <div></div>
+                                          </div>
+                                          <div className="flex h-full w-40 shrink-0 justify-end pb-4 pe-4">
+                                              {cancellable ? (
+                                                  <Button
+                                                      onClick={() => {
+                                                          toast.error(
+                                                              "Not yet implemented!",
+                                                              {
+                                                                  id: "cancel not implemented",
+                                                              },
+                                                          );
+                                                      }}
+                                                      className=" self-end"
+                                                      small={true}
+                                                      color="secondary"
+                                                      text="Cancel Job"
+                                                  />
+                                              ) : (
+                                                  ""
+                                              )}
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div
+                                      onClick={() => {
+                                          setListState((p) => ({
+                                              ...p,
+                                              [job.id]: false,
+                                          }));
+                                      }}
+                                      className={`group flex w-full flex-row justify-center rounded-b-[15px] bg-sand-300 transition-all hover:cursor-pointer  hover:bg-sand-400 ${
+                                          listState[job.id]
+                                              ? "h-5 "
+                                              : "h-0 overflow-hidden"
+                                      }`}
+                                  >
+                                      <Arrow
+                                          size={12}
+                                          className="mt-1 text-sand-500 group-hover:text-sand-100"
+                                      />
+                                  </div>
                               </div>
                           );
                       })

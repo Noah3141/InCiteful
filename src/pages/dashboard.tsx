@@ -175,6 +175,7 @@ const LibrarySelector = ({
                         style={{
                             ...tooltipStyles,
                             translate: "0px -5px",
+                            zIndex: 40,
                         }}
                         id="dashboard-libraries-info"
                     />
@@ -231,12 +232,20 @@ const LibraryReadout = ({
                     <h1 className="block text-lg">Library:</h1>
                     <h2 className="font-medium">
                         <Link
-                            className="text-tango-500 hover:text-tango-600"
+                            data-tooltip-id={"go-to-library"}
+                            data-tooltip-content={`Go to library`}
+                            data-tooltip-variant="info"
+                            className="text-xl text-tango-500 hover:text-tango-600"
                             href={`/libraries/${selectedLibrary?.id}`}
                         >
-                            {" "}
                             {selectedLibrary?.title}
                         </Link>
+                        <Tooltip
+                            place="left"
+                            delayShow={100}
+                            style={tooltipStyles}
+                            id={"go-to-library"}
+                        />
                     </h2>
                 </div>
             </Header>

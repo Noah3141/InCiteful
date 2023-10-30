@@ -24,18 +24,21 @@ const Button = ({
 }: Props) => {
     const colorClasses =
         color == "primary"
-            ? ` rounded  text-tango-500 border-4 border-tango-500
+            ? // PRIMARY CLASSES
+              ` rounded  text-tango-500 border-4 border-tango-500
             hover:bg-tango-500 hover:text-sand-100`
             : color == "secondary"
-            ? `text-sushi-600 border border-sushi-600 rounded-lg 
+            ? // SECONDARY CLASSES
+              `text-sushi-600 border border-sushi-600 rounded-lg 
             ${
                 loading
                     ? ""
-                    : " hover:bg-sushi-500 hover:border-sushi-500 hover:text-sand-50"
+                    : " enabled:hover:bg-sushi-500 enabled:hover:border-sushi-500 enabled:hover:text-sand-50"
             }
-            disabled:opacity-70 hover:disabled:bg-sand-200 hover:disabled:text-sushi-600 hover:disabled:border-sushi-600 disabled:cursor-default`
+            disabled:opacity-50 disabled:hover:bg-opacity-0 disabled:cursor-default`
             : color == "neutral"
-            ? `bg-neutral-700 rounded-sm text-neutral-100 rounded
+            ? // NEUTRAL CLASSES
+              `bg-neutral-700 rounded-sm text-neutral-100 rounded
             hover:bg-neutral-800 hover:text-neutral-100`
             : null;
     const sizeClasses = small ? "py-1 px-4 w-fit" : "py-3 px-6 w-fit";
@@ -50,11 +53,11 @@ const Button = ({
     return (
         <button
             {...props}
-            className={`relative w-fit cursor-pointer  ${className} ${sizeClasses} ${colorClasses}`}
+            className={`relative w-fit cursor-pointer whitespace-nowrap  ${className} ${sizeClasses} ${colorClasses}`}
         >
             {loading ? (
                 <Loading
-                    className="absolute -right-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 "
+                    className="absolute  -right-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 "
                     color={loaderColor}
                     inline={true}
                 />

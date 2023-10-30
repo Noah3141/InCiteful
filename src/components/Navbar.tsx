@@ -2,14 +2,12 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import React, { useState } from "react";
 import Loading from "./Loading";
 import Link from "next/link";
-import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import InCiteful from "~/images/logos/InCiteful";
 import { GiHamburgerMenu } from "react-icons/gi";
 
 const Navbar = () => {
     const { data: session, status } = useSession();
-    const { data: user, isLoading } = api.user.getSession.useQuery();
     const router = useRouter();
 
     const mobileSize = `lg:hidden`;
@@ -68,7 +66,7 @@ const Navbar = () => {
                 </div>
             </>
         );
-    if (status == "unauthenticated" || (!user && !isLoading))
+    if (status == "unauthenticated")
         return (
             <>
                 <div
@@ -207,7 +205,7 @@ const Navbar = () => {
                         >
                             Account
                         </Link>
-                        {user?.role === "Admin" ? (
+                        {session?.user.role === "Admin" ? (
                             <Link
                                 onClick={() => {
                                     setMobileExpanded(false);
@@ -223,7 +221,7 @@ const Navbar = () => {
                     </div>
                     <div className="flex flex-row items-center gap-6">
                         <span className="cursor-default truncate whitespace-nowrap text-2xl text-tango-500">
-                            {user?.name}
+                            {session?.user.name}
                         </span>
                         <button
                             onClick={() => {
@@ -308,7 +306,7 @@ const Navbar = () => {
 
                         <div className="flex flex-row-reverse items-center justify-end gap-6">
                             <span className="cursor-default truncate whitespace-nowrap text-2xl text-tango-500">
-                                {user?.name}
+                                {session?.user.name}
                             </span>
                             <button
                                 onClick={() => {
@@ -320,7 +318,7 @@ const Navbar = () => {
                                 Sign Out
                             </button>
                         </div>
-                        {user?.role === "Admin" ? (
+                        {session?.user.role === "Admin" ? (
                             <Link
                                 onClick={() => {
                                     setMobileExpanded(false);

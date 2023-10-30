@@ -132,8 +132,8 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
     }
 
     return (
-        <div className="max-h-[50vh] overflow-scroll rounded-sm bg-gable-950 text-neutral-50 lg:max-h-[70vh]">
-            <div className=" p-6 pb-2 text-2xl leading-none">{topic?.name}</div>
+        <div className="max-h-[60vh] overflow-scroll rounded-sm bg-gable-950 text-neutral-50 lg:max-h-[70vh]">
+            <div className=" p-6 pb-2 text-3xl leading-none">{topic?.name}</div>
             <div className="flex flex-row gap-4 border-b border-b-gable-900 px-6 pb-2">
                 <div className="font-medium">
                     Created: {topic?.createdAt && dtfmt.format(topic.createdAt)}
@@ -148,7 +148,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-12 p-6">
+            <div className="flex flex-col  divide-y divide-gable-800">
                 {topic?.references.length !== 0
                     ? topic?.references.map((reference) => {
                           const articlePublished = reference.document
@@ -160,7 +160,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                           return (
                               <div
                                   key={reference.id}
-                                  className="flex flex-col justify-between gap-6 md:flex-row"
+                                  className="flex flex-col justify-between gap-6 p-6 py-12 md:flex-row"
                               >
                                   <div className="w-full">
                                       <h1 className="">
@@ -182,9 +182,12 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                                               reference={reference}
                                           />
                                       </div>
-                                      <div>{referenceAdded}</div>
-                                      <div>
-                                          Article Published: {articlePublished}
+                                      <div className="font-medium">
+                                          <div>{referenceAdded}</div>
+                                          <div>
+                                              Article Published:{" "}
+                                              {articlePublished}
+                                          </div>
                                       </div>
                                   </div>
                               </div>

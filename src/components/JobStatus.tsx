@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { Status } from "@prisma/client";
 import { TailSpin } from "react-loader-spinner";
 
@@ -27,19 +28,15 @@ export const toTitleCase = (input: string): string => {
 
 export const JobStatus = ({ status }: { status: Status }) => {
     const classes = "h-6 w-6 cursor-default ";
+    const id = createId();
     const tooltip = (
-        <Tooltip
-            place="top"
-            delayShow={500}
-            style={tooltipStyles}
-            id="status-tooltip"
-        />
+        <Tooltip place="top" delayShow={500} style={tooltipStyles} id={id} />
     );
     switch (status) {
         case "COMPLETED":
             return (
                 <div
-                    data-tooltip-id={`status-tooltip`}
+                    data-tooltip-id={id}
                     data-tooltip-content={`Completed!`}
                     data-tooltip-variant="info"
                     className={classes}
@@ -50,7 +47,7 @@ export const JobStatus = ({ status }: { status: Status }) => {
         case "FAILED":
             return (
                 <div
-                    data-tooltip-id={`status-tooltip`}
+                    data-tooltip-id={id}
                     data-tooltip-content={`Failed!`}
                     data-tooltip-variant="info"
                     className={classes}
@@ -61,7 +58,7 @@ export const JobStatus = ({ status }: { status: Status }) => {
         case "PENDING":
             return (
                 <div
-                    data-tooltip-id={`status-tooltip`}
+                    data-tooltip-id={id}
                     data-tooltip-content={`In queue!`}
                     data-tooltip-variant="info"
                     className={classes}
@@ -71,26 +68,32 @@ export const JobStatus = ({ status }: { status: Status }) => {
             );
         case "RUNNING":
             return (
-                <div
-                    className={`flex scale-75 items-center justify-center rounded-full bg-gable-800 text-tango-500 ${classes}`}
-                >
-                    <TailSpin
-                        height="24"
-                        width="24"
-                        color="currentColor"
-                        ariaLabel="tail-spin-loading"
-                        radius=".9"
-                        strokeWidth={8}
-                        wrapperStyle={{}}
-                        wrapperClass=""
-                        visible={true}
-                    />
+                <div>
+                    <div
+                        className={`flex scale-75 items-center justify-center rounded-full text-tango-500 ${classes}`}
+                        data-tooltip-id={id}
+                        data-tooltip-content={`Running!`}
+                        data-tooltip-variant="info"
+                    >
+                        <TailSpin
+                            height="24"
+                            width="24"
+                            color="currentColor"
+                            ariaLabel="tail-spin-loading"
+                            radius=".9"
+                            strokeWidth={8}
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                            visible={true}
+                        />
+                    </div>
+                    {tooltip}
                 </div>
             );
         case "CANCELLED":
             return (
                 <div
-                    data-tooltip-id={`status-tooltip`}
+                    data-tooltip-id={id}
                     data-tooltip-content={`Cancelled!`}
                     data-tooltip-variant="info"
                     className={classes}
@@ -101,7 +104,7 @@ export const JobStatus = ({ status }: { status: Status }) => {
         case "UNKNOWN":
             return (
                 <div
-                    data-tooltip-id={`status-tooltip`}
+                    data-tooltip-id={id}
                     data-tooltip-content={`Unknown!`}
                     data-tooltip-variant="info"
                     className={classes}

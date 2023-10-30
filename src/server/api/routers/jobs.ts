@@ -68,4 +68,29 @@ export const jobsRouter = createTRPCRouter({
 
             return updatedJob;
         }),
+
+    cancel: protectedProcedure
+        .input(
+            z.object({
+                libraryId: z.string(),
+                jobId: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            // const res = await job_
+
+            const cancelled = await ctx.db.job.update({
+                data: {
+                    status: "CANCELLED",
+                    endedAt: new Date(),
+                },
+                where: {
+                    id: input.jobId,
+                    libraryId: input.libraryId,
+                    userId: ctx.session?.user.id,
+                },
+            });
+
+            return cancelled;
+        }),
 });
