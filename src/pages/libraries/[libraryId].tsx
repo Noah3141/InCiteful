@@ -64,7 +64,9 @@ const LibraryPage = () => {
         return (
             <Hall title={data.library.title}>
                 <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
-                    <h1 className="page-title">{data?.library.title}</h1>
+                    <h1 className="page-title max-w-full truncate">
+                        {data?.library.title}
+                    </h1>
                     <DeleteLibrary libraryId={pathId} />
                 </div>
                 <AddDocumentWizard

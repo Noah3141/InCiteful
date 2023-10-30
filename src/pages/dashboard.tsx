@@ -86,7 +86,7 @@ const Dashboard = () => {
     return (
         <>
             <title>Dashboard</title>
-            <div className=" px-3 pt-12">
+            <div className=" px-3 pt-12 transition-all md:px-12 xl:px-6">
                 <div className="flex  flex-col gap-3  xl:flex-row">
                     <div className="flex  flex-col  gap-3 ">
                         <LibrarySelector
@@ -100,7 +100,7 @@ const Dashboard = () => {
                         <LibraryReadout {...{ isLoading, selectedLibrary }} />
                     </div>
                     <MiddleColumn>
-                        <div className="relative max-h-[70vh] w-full ">
+                        <div className="relative w-full pb-12">
                             <div className="absolute -z-10 mt-12 flex h-96 w-full flex-row items-end justify-center">
                                 <InCiteful className=" text-sand-300" />
                             </div>
@@ -113,6 +113,7 @@ const Dashboard = () => {
                                     queryDropdownsClosed,
                                     selectedLibrary,
                                     setSelectedLibrary,
+                                    references,
                                     setReferences,
                                 }}
                             />
@@ -199,7 +200,7 @@ const LibrarySelector = ({
                                         }`}
                                         onClick={() => setSelectedLibrary(idx)}
                                     >
-                                        <div className="truncate whitespace-pre-wrap">
+                                        <div className="max-w-sm truncate whitespace-pre-wrap">
                                             {library.title}
                                         </div>
                                         <div className="self-end whitespace-nowrap ps-2 text-sm text-gable-800">
@@ -232,18 +233,20 @@ const LibraryReadout = ({
             <Header>
                 <div className="">
                     <h1 className="block text-lg">Library:</h1>
-                    <h2 className="font-medium">
+                    <h2
+                        data-tooltip-id={"go-to-library"}
+                        data-tooltip-content={`Go to library`}
+                        data-tooltip-variant="info"
+                        className="max-w-sm truncate  font-medium text-tango-500 hover:text-tango-600"
+                    >
                         <Link
-                            data-tooltip-id={"go-to-library"}
-                            data-tooltip-content={`Go to library`}
-                            data-tooltip-variant="info"
-                            className="text-xl text-tango-500 hover:text-tango-600"
+                            className="  whitespace-pre-wrap text-xl "
                             href={`/libraries/${selectedLibrary?.id}`}
                         >
                             {selectedLibrary?.title}
                         </Link>
                         <Tooltip
-                            place="left"
+                            place="right"
                             delayShow={100}
                             style={tooltipStyles}
                             id={"go-to-library"}
@@ -350,7 +353,7 @@ const TopicsSelector = ({
                 </div>
             </Header>
             <Body>
-                <div className="w-64">
+                <div className="xl:w-64">
                     {isLoading ? (
                         <Loading
                             inline={true}
@@ -404,6 +407,7 @@ type QueryBarProps = {
     queryDropdownsClosed: QueryDropdowns;
     setSelectedLibrary: Dispatch<SetStateAction<number>>;
     selectedLibrary: (Library & { documents: Document[] }) | undefined;
+    references: ReferencesWithDocuments | undefined;
     setReferences: Dispatch<
         SetStateAction<ReferencesWithDocuments | undefined>
     >;
@@ -417,6 +421,7 @@ const QueryBar = ({
     queryDropdownsClosed,
     setSelectedLibrary,
     selectedLibrary,
+    references,
     setReferences,
 }: QueryBarProps) => {
     const queryToast = "QueryToastID";
@@ -459,7 +464,11 @@ const QueryBar = ({
                     className="h-12 w-full rounded-t p-2 outline-none hover:cursor-pointer hover:bg-sand-50 hover:ring-tango-500 focus:bg-neutral-50 xl:h-fit"
                 />
             </div>
-            <div className="flex w-full flex-row divide-x  divide-gable-800  bg-gable-700 text-neutral-100">
+            <div
+                className={`flex w-full flex-row divide-x divide-gable-800  bg-gable-700 text-neutral-100 ${
+                    references?.length ?? 0 > 0 ? "" : "rounded-b-lg"
+                }`}
+            >
                 <div className="relative w-full">
                     <button
                         onClick={() => {
@@ -468,7 +477,9 @@ const QueryBar = ({
                                 topN: false,
                             }));
                         }}
-                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50"
+                        className={`w-full rounded-lg px-2 py-1 hover:bg-gable-600 hover:text-neutral-50 ${
+                            references?.length ?? 0 > 0 ? "" : "rounded-b-lg"
+                        }`}
                     >
                         <span>Sort by: </span>
                         <span className="">{query.orderBy}</span>
@@ -489,7 +500,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
+                                className="cursor-pointer  px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 Score
                             </div>
@@ -501,7 +512,7 @@ const QueryBar = ({
                                     }));
                                     setQueryDropdowns(queryDropdownsClosed);
                                 }}
-                                className="cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
+                                className="rounded--lg cursor-pointer px-3 py-1 hover:bg-gable-900 hover:text-neutral-50"
                             >
                                 Date
                             </div>
@@ -588,7 +599,9 @@ const QueryBar = ({
                             });
                         }}
                         disabled={disabled}
-                        className="w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50 disabled:bg-gable-800 disabled:hover:text-neutral-50"
+                        className={`w-full px-2 py-1 hover:bg-gable-600 hover:text-neutral-50 disabled:bg-gable-800 disabled:hover:text-neutral-50 ${
+                            references?.length ?? 0 > 0 ? "" : "rounded-b-lg"
+                        }`}
                     >
                         Search
                     </button>
@@ -643,7 +656,7 @@ const ReferenceList = ({
         lengthLabel = `${references.length} references`;
     }
     return (
-        <div className="max-h-[60vh] overflow-scroll bg-gable-950 p-6 text-neutral-50 xl:max-h-[100vh]">
+        <div className="max-h-[60vh] overflow-scroll rounded-b-lg bg-gable-950 p-6 text-neutral-50 xl:max-h-[100vh]">
             <div className="border-b">
                 <h1>{lengthLabel}</h1>
             </div>
