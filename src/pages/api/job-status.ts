@@ -18,15 +18,17 @@ export type UpdateJobRequest = {
     num_docs_completed: number;
 };
 
-export const ZodUpdateJobRequest = z.object({
-    new_status: z.nativeEnum(Status),
-    user_id: z.string(),
-    library_id: z.string(),
-    job_id: z.string(),
-    start_time: z.number().optional(), // Can be left out of the received JSON and still parse successfully
-    documents: z.array(ZodDocument).nullable(), // Must be sent, with explicit null/undefined
-    num_docs_completed: z.number(),
-}).strict();
+export const ZodUpdateJobRequest = z
+    .object({
+        new_status: z.nativeEnum(Status),
+        user_id: z.string(),
+        library_id: z.string(),
+        job_id: z.string(),
+        start_time: z.number().optional(), // Can be left out of the received JSON and still parse successfully
+        documents: z.array(ZodDocument).nullable(), // Must be sent, with explicit null/undefined
+        num_docs_completed: z.number(),
+    })
+    .strict();
 
 // HANDLER IS COMPLETED BY USING THE .json() or .send() METHODS ON THE RES OBJECT, otherwise requester gets no response
 export default async function handler(
@@ -80,12 +82,12 @@ export default async function handler(
             break;
         case "COMPLETED":
             const documents = body.documents?.map((doc) => {
-                const publishedAt = new Date();
-                publishedAt.setSeconds(doc.pub_date); // todo) Check actual conversion
-                const time = publishedAt;
+                // const publishedAt = new Date();
+                // publishedAt.setSeconds(); // todo) Check actual conversion
+                // const time = publishedAt;
                 return {
                     ...doc,
-                    pub_date: time,
+                    pub_date: doc.pub_date,
                 };
             });
 
