@@ -8,37 +8,40 @@ export type Request = {
     file: FileAPI;
 };
 // Wherever imported, marked with -API to indicate that it is a subordinate model of a Request, not the probably intended DB model
-export type FileAPI = {
-    contents: string;
-    filename: string;
-    size: number;
-};
+export type FileAPI = z.infer<typeof ZodFile>;
+export type Response = z.infer<typeof ResponseSchema>;
+export type DocumentAPI = z.infer<typeof ZodDocument>;
 
-export type Response = {
-    added_file: string;
-    document: DocumentAPI;
-    library_id: string;
-    user_id: string;
-    msg?: string;
-    num_doclets: number;
-    success: boolean;
-};
-
-export type DocumentAPI = {
-    authors: string[];
-    doc_id: string;
-    pub_date: number;
-    pub_source: string;
-    title: string;
-};
+const ZodFile = z.object({
+    contents: z.string(),
+    filename: z.string(),
+    size: z.number(),
+});
 
 export const ZodDocument = z.object({
     authors: z.array(z.string()),
     doc_id: z.string(),
-    pub_date: z.date(),
+    pub_date: z.string(), // todo NUMBER??
     pub_source: z.string(),
     title: z.string(),
 });
+
+const ResponseSchema = z
+    .object({
+        /// Filename
+        added_file: z.string(),
+        document: ZodDocument,
+        library_id: z.string(),
+        user_id: z.string(),
+        msg: z.string().optional(),
+        num_doclets: z.number(),
+        success: z.boolean(),
+        file: z.object({
+            filename: z.string(),
+            size: z.number(),
+        }),
+    })
+    .strict();
 
 export const documents_add = async (params: Request): Promise<Response> => {
     const res = await fetch(`${PythonPath}/documents/add`, {
@@ -49,12 +52,8 @@ export const documents_add = async (params: Request): Promise<Response> => {
         body: JSON.stringify(params),
     });
 
-    try {
-        const document_added = (await res.json()) as Response;
-        log(document_added, "documents/add");
-        return document_added;
-    } catch (error) {
-        log(res, "Failed to parse JSON, from this response:");
-        throw new Error("Document add fail");
-    }
+    const document_added = (await res.json()) as Response;
+    log(document_added, "documents/add");
+    ResponseSchema.parse(document_added);
+    return document_added;
 };

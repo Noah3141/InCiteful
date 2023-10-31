@@ -1,5 +1,6 @@
+import { z } from "zod";
 import { JsonHeaders, log, PythonPath } from "./all_request";
-import { type DocumentAPI } from "./documents_add";
+import { ZodDocument, type DocumentAPI } from "./documents_add";
 
 export type Request = {
     user_id: string;
@@ -7,24 +8,28 @@ export type Request = {
     query: string;
 };
 
-export type Response = {
-    user_id: string;
-    library_id: string;
-    msg?: string;
-    references: ReferenceAPI[];
-    success: boolean;
-};
+export type ReferenceAPI = z.infer<typeof ZodReference>;
+export type Response = z.infer<typeof ResponseSchema>;
 
-export type ReferenceAPI = {
-    doc_id: string;
-    document: DocumentAPI;
-    pre_text: string;
-    focal_text: string;
-    post_text: string;
-    page_num: number;
-    score: number;
-    sentence_num: string;
-};
+const ZodReference = z
+    .object({
+        doc_id: z.string(),
+        document: ZodDocument,
+        pre_text: z.string(),
+        focal_text: z.string(),
+        post_text: z.string(),
+        page_num: z.number(),
+        score: z.number(),
+        sentence_num: z.string(),
+    })
+    .strict();
+const ResponseSchema = z.object({
+    user_id: z.string(),
+    library_id: z.string(),
+    msg: z.string().optional(),
+    references: z.array(ZodReference),
+    success: z.boolean(),
+});
 
 export const query = async (params: Request): Promise<Response> => {
     const res = await fetch(`${PythonPath}/query`, {
@@ -34,12 +39,7 @@ export const query = async (params: Request): Promise<Response> => {
         body: JSON.stringify(params),
     });
 
-    try {
-        const query_res = (await res.json()) as Response;
-        log(query_res, "/query");
-        return query_res;
-    } catch (error) {
-        log(res, "/query response before json");
-        throw new Error("Failed to parse data above as JSON");
-    }
+    const query_res = (await res.json()) as Response;
+    log(res, "/query response before json");
+    return query_res;
 };

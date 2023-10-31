@@ -50,7 +50,6 @@ export const documentsRouter = createTRPCRouter({
                     message: "Please select a file to upload",
                 });
             }
-            console.log("Sent");
             // Send document to the backend
             const res = await documents_add({
                 file: {
@@ -61,7 +60,6 @@ export const documentsRouter = createTRPCRouter({
                 library_id: input.libraryId,
                 user_id: ctx.session.user.id,
             });
-            console.log("Received");
 
             if (!res.success) {
                 throw new TRPCError({
@@ -185,6 +183,8 @@ export const documentsRouter = createTRPCRouter({
                     skipDuplicates: true,
                 });
 
+                // const publicationDate = new Date();
+                // publicationDate.setMilliseconds(document.pub_date);
                 // Second, now that they all exist, connect them (put documentId in Author, and vice versa)
                 const created: Document = await ctx.db.document.create({
                     data: {

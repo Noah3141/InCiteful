@@ -22,7 +22,7 @@ export const libraries_create = async (params: Request): Promise<Response> => {
     });
 
     const library_created = (await res.json()) as Response;
-
     log(library_created, "libraries/create");
+
     return library_created;
 };

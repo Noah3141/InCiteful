@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { JsonHeaders, log, PythonPath } from "./all_request";
 import { type FileAPI } from "./documents_add";
 
@@ -8,17 +9,22 @@ export type Request = {
     notify_by_email: string | null;
 };
 
-export type Response = {
-    user_id: string;
-    job_id: string;
-    library_id: string;
-    msg: string;
-    notify_by_email: string | null;
-    num_files_submitted: number;
-    est_duration: string;
-    start_time: number;
-    success: boolean;
-};
+type Response = z.infer<typeof ResponseSchema>;
+const ResponseSchema = z
+    .object({
+        user_id: z.string(),
+        job_id: z.string(),
+        files: z.array(z.string()),
+        library_id: z.string(),
+        msg: z.string().optional(),
+        notify_by_email: z.string().nullable(),
+        num_files_submitted: z.number(),
+        est_duration: z.number(),
+        start_time: z.number(),
+        created_time: z.number(),
+        success: z.boolean(),
+    })
+    .strict();
 
 //todo) This is now supposed to be a formData with many files
 
@@ -32,7 +38,7 @@ export const jobs_add = async (params: Request): Promise<Response> => {
     });
 
     const addedJob = (await res.json()) as Response;
-
     log(addedJob, "jobs/add");
+    ResponseSchema.parse(addedJob);
     return addedJob;
 };

@@ -10,7 +10,7 @@ type ResponseData = {
     message: string;
 };
 
-export default async function handler(
+export default function handler(
     req: NextApiRequest,
     res: NextApiResponse<ResponseData>,
 ) {
@@ -33,16 +33,16 @@ export default async function handler(
         return;
     }
 
-    await syncWithPython();
+    // await syncWithPython();
 
     res.status(200).json({ message: "Success" });
     return;
 }
 
-export const syncWithPython = async () => {
-    // Sync Jobs
-    const pythonsJobs = await jobs_list({ user_id: "" }); // TODO
-    // Sync Documents
+// export const syncWithPython = async () => {
+//     // Sync Jobs
+//     // const pythonsJobs = await jobs_list({ user_id: "" }); // TODO
+//     // Sync Documents
 
-    return;
-};
+//     return;
+// };

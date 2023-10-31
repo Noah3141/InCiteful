@@ -131,7 +131,7 @@ const Admin = () => {
                                             className={`border-x transition-all duration-300 ${
                                                 menu.jobs
                                                     ? "h-96 overflow-y-scroll"
-                                                    : "h-0"
+                                                    : "h-0 overflow-hidden"
                                             }`}
                                         >
                                             <ol

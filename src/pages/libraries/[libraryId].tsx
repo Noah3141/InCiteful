@@ -227,6 +227,7 @@ const AddDocumentWizard = ({
             onSuccess: async () => {
                 toast.success("Success!", { id: addDocToast });
                 await trpc.library.invalidate();
+                await trpc.job.invalidate();
             },
             onError: (e) => {
                 if (e.data?.code == "BAD_REQUEST") {

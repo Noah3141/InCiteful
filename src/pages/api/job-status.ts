@@ -26,7 +26,7 @@ export const ZodUpdateJobRequest = z.object({
     start_time: z.number().optional(), // Can be left out of the received JSON and still parse successfully
     documents: z.array(ZodDocument).nullable(), // Must be sent, with explicit null/undefined
     num_docs_completed: z.number(),
-});
+}).strict();
 
 // HANDLER IS COMPLETED BY USING THE .json() or .send() METHODS ON THE RES OBJECT, otherwise requester gets no response
 export default async function handler(
