@@ -148,6 +148,14 @@ const Admin = () => {
                                                                 {job.status}
                                                             </div>
                                                             <div>
+                                                                Job ID: {job.id}
+                                                            </div>
+                                                            <div>
+                                                                Library ID:{" "}
+                                                                {job.libraryId}
+                                                            </div>
+
+                                                            <div>
                                                                 Started at{" "}
                                                                 {dtfmt.format(
                                                                     job.startedAt ??
