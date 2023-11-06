@@ -378,7 +378,7 @@ const AddDocumentWizard = ({
     // Create a reference to the hidden file input element
     const singleFileInput = useRef<HTMLInputElement>(null);
     const multiFileInput = useRef<HTMLInputElement>(null);
-
+    const fileName = singleFileInput.current?.files?.item(0)?.name;
     return (
         <div className=" px-4 pb-12 transition-all sm:px-16">
             <div className=" w-full rounded-xl bg-sand-200 py-6 shadow">
@@ -386,28 +386,32 @@ const AddDocumentWizard = ({
                     <h1 className="text-xl">Add Documents</h1>
                 </div>
                 <div className="mt-4 flex flex-col gap-3">
-                    <div className="flex  h-full items-center justify-between  px-6 transition-all sm:px-16">
-                        <input
-                            ref={singleFileInput}
-                            className="hidden"
-                            onChange={(e) => {
-                                setUploadFile(e.target.files);
-                            }}
-                            type="file"
-                            placeholder="Upload a single file"
-                        />
+                    <div className="flex  h-full items-center justify-between  overflow-hidden px-6 transition-all sm:px-16">
                         <div>
-                            <Button
-                                text="Select a single file"
-                                color="neutral"
-                                className="bg"
-                                onClick={(e) =>
-                                    singleFileInput?.current?.click()
-                                }
+                            <input
+                                name="Hidden file input button"
+                                ref={singleFileInput}
+                                className="hidden"
+                                onChange={(e) => {
+                                    setUploadFile(e.target.files);
+                                }}
+                                type="file"
+                                placeholder="Upload a single file"
                             />
-                            <span className="ps-3">
-                                {singleFileInput.current?.files?.item(0)?.name}
-                            </span>
+                            <div className="flex flex-col md:flex-row md:items-center">
+                                <Button
+                                    name="Shown file input button"
+                                    text="Select a single file"
+                                    color="neutral"
+                                    className="me-3"
+                                    onClick={(e) =>
+                                        singleFileInput?.current?.click()
+                                    }
+                                />
+                                <div className="w-48 truncate lg:w-64">
+                                    {fileName}
+                                </div>
+                            </div>
                         </div>
                         <Button
                             disabled={!uploadFile || singleLoading}
