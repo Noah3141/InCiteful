@@ -92,6 +92,7 @@ export const documentsRouter = createTRPCRouter({
             // Make me objects of name: authorName so that I can take that object[] list and pass it directly to Prisma
             const authorData = res.document.authors.map((author) => ({
                 name: author,
+                id: createId(),
             }));
 
             // First, ensure all the authors mentioned in the doc are in the database
@@ -182,6 +183,7 @@ export const documentsRouter = createTRPCRouter({
                 // Make me objects of name: authorName so that I can take that object[] list and pass it directly to Prisma
                 const authorData = document.authors.map((author) => ({
                     name: author,
+                    id: createId(),
                 }));
 
                 // First, ensure all the authors mentioned in the doc are in the database

@@ -169,14 +169,15 @@ model Reference {
     /// Page at which quote is found
     pageNumber     Int
     addedAt        DateTime @default(now())
-    document       Document @relation(fields: [documentId], references: [id])
+    document       Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
     documentId     String
     authors        Author[]
-    APA            String?
+    // APA            String?
 }
 
 model Author {
-    name        String     @id
+    id          String     @id @default(cuid())
+    name        String
     Reference   Reference? @relation(fields: [referenceId], references: [id])
     referenceId String?
     Document    Document[]

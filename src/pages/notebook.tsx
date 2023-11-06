@@ -222,7 +222,7 @@ const AddTopic = ({}: AddTopicProps) => {
         onSuccess: async () => {
             toast.success("Success!", { id: createTopicId, duration: 2000 });
             toast.dismiss("topicModal");
-            await trpc.notebook.invalidate();
+            await trpc.invalidate();
         },
     });
     const [titleInput, setTitleInput] = useState("");
