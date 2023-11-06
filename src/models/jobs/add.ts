@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { JsonHeaders, log, PythonPath } from "./all_request";
-import { type FileAPI } from "./documents_add";
+import { JsonHeaders, log, PythonPath } from "../all_requests";
+import { type FileAPI } from "../documents/add";
 
 export type Request = {
     user_id: string;
@@ -9,7 +9,7 @@ export type Request = {
     notify_by_email: string | null;
 };
 
-type Response = z.infer<typeof ResponseSchema>;
+export type Response = z.infer<typeof ResponseSchema>;
 const ResponseSchema = z
     .object({
         user_id: z.string(),
@@ -37,8 +37,8 @@ export const jobs_add = async (params: Request): Promise<Response> => {
         body: JSON.stringify(params),
     });
 
-    const addedJob = (await res.json()) as Response;
-    log(addedJob, "jobs/add");
-    ResponseSchema.parse(addedJob);
+    const json = (await res.json()) as Response;
+    log(json, "jobs/add");
+    const addedJob: Response = ResponseSchema.parse(json);
     return addedJob;
 };

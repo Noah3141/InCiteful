@@ -27,7 +27,7 @@ export const toTitleCase = (input: string): string => {
 };
 
 export const JobStatus = ({ status }: { status: Status }) => {
-    const classes = "h-6 w-6 cursor-default ";
+    const classes = "h-6 w-6 cursor-default";
     const id = createId();
     const tooltip = (
         <Tooltip place="top" delayShow={500} style={tooltipStyles} id={id} />

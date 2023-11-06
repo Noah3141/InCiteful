@@ -7,13 +7,17 @@ import {
 } from "~/server/api/trpc";
 
 import { Status, type Job } from "@prisma/client";
-import { jobs_list } from "~/models/jobs_list";
+import { jobs_list, type Response as JobsListRes } from "~/models/jobs/list";
+import {
+    jobs_cancel,
+    type Response as CancelJobRes,
+} from "~/models/jobs/cancel";
 
 export const jobsRouter = createTRPCRouter({
     checkJob: protectedProcedure
         .input(z.object({ jobId: z.string() }))
         .query(async ({ ctx, input }) => {
-            const jobsList = await jobs_list({
+            const jobsList: JobsListRes = await jobs_list({
                 user_id: ctx.session.user.id,
             });
 
@@ -76,9 +80,24 @@ export const jobsRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            // const res = await job_
+            const res: CancelJobRes = await jobs_cancel({
+                job_id: input.jobId,
+                library_id: input.libraryId,
+                user_id: ctx.session.user.id,
+            });
 
-            const cancelled = await ctx.db.job.update({
+            if (!res.success) {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: `API returned 'success: false' to create library attempt: "${
+                        res.msg ?? "No message provided"
+                    }"`,
+                });
+            }
+
+            // todo) How do we want this to error
+
+            const cancelled: Job = await ctx.db.job.update({
                 data: {
                     status: "CANCELLED",
                     endedAt: new Date(),

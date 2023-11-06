@@ -7,7 +7,12 @@ import React, {
     useState,
 } from "react";
 import toast from "react-hot-toast";
-import { IoIosRemoveCircle, IoIosRemoveCircleOutline } from "react-icons/io";
+import {
+    IoIosRemoveCircle,
+    IoIosRemoveCircleOutline,
+    IoMdRemoveCircle,
+    IoMdRemoveCircleOutline,
+} from "react-icons/io";
 import { Tooltip } from "react-tooltip";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
@@ -17,8 +22,8 @@ import { Status, type Document } from "@prisma/client";
 import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
 import { JobStatus, toTitleCase } from "~/components/JobStatus";
-import { SourceType } from "~/models/all_request";
-import { FileAPI } from "~/models/documents_add";
+import { SourceType } from "~/models/all_requests";
+import { FileAPI } from "~/models/documents/add";
 import Arrow from "~/images/icons/Arrow";
 //
 
@@ -80,6 +85,28 @@ const LibraryPage = () => {
 };
 
 const DocumentList = ({ documents }: { documents: Document[] }) => {
+    const trpc = api.useContext();
+    const removeDocumentToast = "removeDocumentToastId";
+    const { mutate: removeDocument, isLoading } =
+        api.document.remove.useMutation({
+            onMutate: () => {
+                toast.loading("Removing document...", {
+                    id: removeDocumentToast,
+                });
+            },
+            onSuccess: async () => {
+                toast.success("Document removed from library!", {
+                    id: removeDocumentToast,
+                });
+                await trpc.document.invalidate();
+            },
+            onError: () => {
+                toast.error("Something went wrong!", {
+                    id: removeDocumentToast,
+                });
+            },
+        });
+
     return (
         <div className="border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
             <div>
@@ -98,11 +125,31 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
                           );
                           return (
                               <div key={document.id} className="py-3">
-                                  <div className="text-xl  ">
-                                      {document.title}
-                                      <span className="ps-2 font-medium">
-                                          ({document.publicationSource})
-                                      </span>
+                                  <div className="flex flex-row">
+                                      <div className="w-11/12 text-xl ">
+                                          {document.title}
+                                          <span className="ps-2 font-medium">
+                                              ({document.publicationSource})
+                                          </span>
+                                      </div>
+                                      <div
+                                          onClick={() => {
+                                              removeDocument({
+                                                  documentId: document.id,
+                                                  libraryId: document.libraryId,
+                                              });
+                                          }}
+                                          className="group w-4 px-2"
+                                      >
+                                          <IoMdRemoveCircleOutline
+                                              className="inline group-hover:hidden"
+                                              size={24}
+                                          />
+                                          <IoMdRemoveCircle
+                                              className="hidden group-hover:inline"
+                                              size={24}
+                                          />
+                                      </div>
                                   </div>
                                   <div className="font-medium">
                                       <div>
@@ -225,7 +272,7 @@ const AddDocumentWizard = ({
                 toast.loading("Loading...", { id: addDocToast });
             },
             onSuccess: async () => {
-                toast.success("Success!", { id: addDocToast });
+                toast.success("Document added!", { id: addDocToast });
                 await trpc.library.invalidate();
                 await trpc.job.invalidate();
             },
@@ -248,7 +295,9 @@ const AddDocumentWizard = ({
                 toast.loading("Loading...", { id: addBatchToast });
             },
             onSuccess: () => {
-                toast.success("Success!", { id: addBatchToast });
+                toast.success("Documents received! Check status in jobs.", {
+                    id: addBatchToast,
+                });
             },
             onError: () => {
                 toast.error(`Something went wrong!`, { id: addBatchToast });
@@ -405,13 +454,34 @@ const AddDocumentWizard = ({
 
 type JobListState = Record<string, boolean>;
 const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
+    const trpc = api.useContext();
     const initialList: JobListState = {};
     data.jobs.forEach((job) => {
         initialList[job.id] = false;
     });
     const [listState, setListState] = useState<JobListState>(initialList);
 
-    // const {mutate: cancelJob, isLoading } = api.job.cancel
+    const cancelJobToast = "CancelJobToastId";
+    const { mutate: cancelJob, isLoading: jobCancelLoading } =
+        api.job.cancel.useMutation({
+            onMutate: () => {
+                toast.loading("Loading...", { id: cancelJobToast });
+            },
+            onSuccess: async () => {
+                toast.success("Document added!", { id: cancelJobToast });
+                await trpc.job.invalidate();
+            },
+            onError: (e) => {
+                if (e.data?.code == "BAD_REQUEST") {
+                    void toast.error(e.message, { id: cancelJobToast });
+                } else {
+                    console.log("ERROR MESSAGE", e);
+                    void toast.error(`Something went wrong!`, {
+                        id: cancelJobToast,
+                    });
+                }
+            },
+        });
 
     if (data.jobs.length == 0) {
         return (
@@ -432,7 +502,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                 <div className="w-36">Finished</div>
             </div>
             <div className="flex flex-col gap-1 ">
-                {data.jobs.map((job) => {
+                {data.jobs.map((job, i, list) => {
                     //
                     const cancellable =
                         job.status == Status.PENDING ||
@@ -440,10 +510,21 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                     const startedAt = job.startedAt
                         ? dtfmt.format(job.startedAt)
                         : "Not yet";
+
+                    const rowMarginClasses =
+                        i === 0
+                            ? "mb-1"
+                            : i === list.length - 1
+                            ? "mt-1"
+                            : "my-1";
                     return (
                         <div
                             key={job.id}
-                            className={`rounded-[15px] bg-sand-200 shadow transition-all hover:bg-sand-100 `}
+                            className={`rounded-[15px] bg-sand-200 shadow transition-all ease-in-out hover:bg-sand-100  ${
+                                listState[job.id]
+                                    ? `${rowMarginClasses} shadow-md`
+                                    : ""
+                            }`}
                         >
                             <div
                                 onClick={(e) => {
@@ -452,7 +533,11 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                         [job.id]: true,
                                     });
                                 }}
-                                className={`flex flex-row gap-3 px-2 py-1 pe-4 font-medium   `}
+                                className={`flex  flex-row gap-3 px-2 py-1 pe-4 font-medium  ${
+                                    listState[job.id]
+                                        ? "cursor-default"
+                                        : "cursor-pointer"
+                                }`}
                             >
                                 <div className="w-5">
                                     <JobStatus status={job.status} />
@@ -473,7 +558,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                 </div>
                             </div>
                             <div
-                                className={`font-medium transition-all ${
+                                className={`cursor-default font-medium transition-all ${
                                     listState[job.id]
                                         ? "h-32 overflow-y-scroll "
                                         : "h-0 overflow-hidden"
@@ -497,12 +582,11 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                         {cancellable ? (
                                             <Button
                                                 onClick={() => {
-                                                    toast.error(
-                                                        "Not yet implemented!",
-                                                        {
-                                                            id: "cancel not implemented",
-                                                        },
-                                                    );
+                                                    cancelJob({
+                                                        jobId: job.id,
+                                                        libraryId:
+                                                            job.libraryId,
+                                                    });
                                                 }}
                                                 className=" self-end"
                                                 small={true}
@@ -522,9 +606,9 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                         [job.id]: false,
                                     }));
                                 }}
-                                className={`group flex w-full flex-row justify-center rounded-b-[15px] bg-sand-300 transition-all hover:cursor-pointer  hover:bg-sand-400 ${
+                                className={`group flex w-full flex-row items-center justify-center rounded-b-[15px] bg-sand-300 transition-all hover:cursor-pointer  hover:bg-sand-400 ${
                                     listState[job.id]
-                                        ? "h-5 "
+                                        ? "h-10 sm:h-6"
                                         : "h-0 overflow-hidden"
                                 }`}
                             >

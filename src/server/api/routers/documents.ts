@@ -11,12 +11,15 @@ import {
     DocumentAPI,
     ZodDocument,
     documents_add,
-} from "~/models/documents_add";
-import { jobs_add } from "~/models/jobs_add";
-import {} from "~/models/documents_remove";
-import { documents_list } from "~/models/documents_list";
+} from "~/models/documents/add";
+import { jobs_add } from "~/models/jobs/add";
+import { documents_remove } from "~/models/documents/remove";
+import { documents_list } from "~/models/documents/list";
 import { env } from "~/env.mjs";
 import { createId } from "@paralleldrive/cuid2";
+
+import { Response as DocumentAddResponse } from "~/models/documents/add";
+import { Response as JobAddResponse } from "~/models/jobs/add";
 
 /// Adding a document will involve sending the refernce link to the Python
 export const documentsRouter = createTRPCRouter({
@@ -70,9 +73,13 @@ export const documentsRouter = createTRPCRouter({
                 });
             }
 
-            const alreadyPresent = await ctx.db.document.findFirst({
-                where: { id: res.document.doc_id },
-            });
+            const alreadyPresent: Document | null =
+                await ctx.db.document.findFirst({
+                    where: {
+                        id: res.document.doc_id,
+                        libraryId: input.libraryId,
+                    },
+                });
 
             if (!!alreadyPresent) {
                 throw new TRPCError({
@@ -125,7 +132,7 @@ export const documentsRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const job_added = await jobs_add({
+            const job_added: JobAddResponse = await jobs_add({
                 user_id: ctx.session.user.id,
                 library_id: input.libraryId,
                 files: input.files,
@@ -228,5 +235,37 @@ export const documentsRouter = createTRPCRouter({
             //         ),
             //     });
             //     return;
+        }),
+
+    remove: protectedProcedure
+        .input(
+            z.object({
+                libraryId: z.string(),
+                documentId: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const res = await documents_remove({
+                document_id: input.documentId,
+                library_id: input.libraryId,
+                user_id: ctx.session.user.id,
+            });
+
+            if (!res.success) {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: `API returned 'success: false' to create library attempt: "${
+                        res.msg ?? "No message provided"
+                    }"`,
+                });
+            }
+
+            const removed: Document = await ctx.db.document.delete({
+                where: {
+                    id: input.documentId,
+                    libraryId: input.libraryId,
+                },
+            });
+            return removed;
         }),
 });

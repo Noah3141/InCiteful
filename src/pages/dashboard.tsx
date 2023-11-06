@@ -86,9 +86,9 @@ const Dashboard = () => {
     return (
         <>
             <title>Dashboard</title>
-            <div className=" px-3 pt-12 transition-all md:px-12 xl:px-6">
+            <div className=" px-1 pt-12 transition-all md:px-6 xl:px-6">
                 <div className="flex  flex-col gap-3  xl:flex-row">
-                    <div className="flex  flex-col  gap-3 ">
+                    <div className="flex shrink-0 flex-col  gap-3 ">
                         <LibrarySelector
                             {...{
                                 isLoading,
@@ -127,7 +127,7 @@ const Dashboard = () => {
                             />
                         </div>
                     </MiddleColumn>
-                    <div className="">
+                    <div className="shrink-0">
                         <TopicsSelector
                             {...{
                                 selectedTopicIdx,
@@ -254,16 +254,16 @@ const LibraryReadout = ({
                     </h2>
                 </div>
             </Header>
-            <div className="px-4 py-3  font-medium">
-                <h1 className="flex flex-row justify-between">
-                    <span> Documents: </span>
+            <div className="px-4 py-3 font-medium">
+                <h1 className="flex flex-row justify-between gap-3">
+                    <span>Documents: </span>
                     <span>{selectedLibrary?.documents.length}</span>
                 </h1>
-                <h1 className="flex flex-row justify-between">
+                <h1 className="flex flex-row justify-between gap-3">
                     <span>Created at: </span>
                     <span>{dtfmt.format(selectedLibrary?.createdAt)}</span>
                 </h1>
-                <h1 className="flex flex-row justify-between">
+                <h1 className="flex flex-row justify-between gap-3">
                     <span>Last updated: </span>
                     <span>{dtfmt.format(selectedLibrary?.updatedAt)}</span>
                 </h1>
@@ -296,7 +296,9 @@ const LibraryReadout = ({
                                     <div className="font-medium">
                                         {toTitleCase(job.status)}
                                     </div>
-                                    <JobStatus status={job.status} />
+                                    <div>
+                                        <JobStatus status={job.status} />
+                                    </div>
                                 </div>
                                 <Tooltip
                                     place="bottom"
@@ -656,14 +658,15 @@ const ReferenceList = ({
         lengthLabel = `${references.length} references`;
     }
     return (
-        <div className="max-h-[60vh] overflow-scroll rounded-b-lg bg-gable-950 p-6 text-neutral-50 xl:max-h-[100vh]">
+        <div className="max-h-[60vh] overflow-scroll rounded-b-lg bg-gable-950 p-2 text-neutral-50 md:p-6 xl:max-h-[100vh]">
             <div className="border-b">
                 <h1>{lengthLabel}</h1>
             </div>
-            {references?.map((reference, idx) => {
-                const titleWithDate = (
-                    <span className="font-normal">
-                        {`${reference.document.title} 
+            <div className="flex flex-col gap-12  pt-6">
+                {references?.map((reference, idx) => {
+                    const titleWithDate = (
+                        <span className="font-normal">
+                            {`${reference.document.title} 
                         ${
                             reference.document.publishedAt
                                 ? `(${dtfmt.format(
@@ -672,39 +675,43 @@ const ReferenceList = ({
                                 : "(Date not found)"
                         }
                         `}
-                    </span>
-                );
+                        </span>
+                    );
 
-                return (
-                    <div key={reference.id} className="mt-6  py-2 ">
-                        <div className="flex flex-row justify-between">
-                            <div>Reference {idx + 1}</div>
-                            <AddToTopicWizard
-                                topicId={selectedTopicId}
-                                referenceId={reference.id}
-                            />
+                    return (
+                        <div
+                            key={reference.id}
+                            className="cursor-default rounded-lg border border-gable-900  p-6 transition-all hover:shadow-lg  hover:shadow-neutral-900"
+                        >
+                            <div className="flex flex-row justify-between">
+                                <div>Reference {idx + 1}</div>
+                                <AddToTopicWizard
+                                    topicId={selectedTopicId}
+                                    referenceId={reference.id}
+                                />
+                            </div>
+                            <div className="">{titleWithDate}</div>
+                            <div className="my-3 max-h-64 overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
+                                <span className="text-neutral-100">
+                                    {reference.preText}
+                                </span>
+                                <span className="text-sushi-400">
+                                    {` ${reference.focalText} `}
+                                </span>
+                                <span className="text-neutral-100">
+                                    {reference.postText}
+                                </span>
+                            </div>
+                            <div className="font-normal">{`Score: ${reference.score?.toFixed(
+                                2,
+                            )}`}</div>
+                            <div className="font-normal">
+                                {`Page: ${reference.pageNumber}`}
+                            </div>
                         </div>
-                        <div className="">{titleWithDate}</div>
-                        <div className="my-3 max-h-64 overflow-scroll rounded bg-gable-900 p-4 font-medium">
-                            <span className="text-neutral-100">
-                                {reference.preText}
-                            </span>
-                            <span className="text-sushi-400">
-                                {` ${reference.focalText} `}
-                            </span>
-                            <span className="text-neutral-100">
-                                {reference.postText}
-                            </span>
-                        </div>
-                        <div className="font-normal">{`Score: ${reference.score?.toFixed(
-                            2,
-                        )}`}</div>
-                        <div className="font-normal">
-                            {`Page: ${reference.pageNumber}`}
-                        </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 };

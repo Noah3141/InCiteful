@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { JsonHeaders, log, PythonPath } from "./all_request";
-import { DocumentAPI, ZodDocument } from "./documents_add";
+import { JsonHeaders, log, PythonPath } from "../all_requests";
+import { DocumentAPI, ZodDocument } from "./add";
 
 export type Request = {
     user_id: string;

@@ -1,5 +1,5 @@
 import { Status } from "@prisma/client";
-import { JsonHeaders, log, PythonPath } from "./all_request";
+import { JsonHeaders, log, PythonPath } from "../all_requests";
 import { z } from "zod";
 
 export type Request = {
@@ -39,8 +39,7 @@ export const jobs_list = async (params: Request) => {
         body: JSON.stringify(params),
     });
 
-    const jobsList = (await res.json()) as Response;
+    const jobsList: Response = ResponseSchema.parse(await res.json());
     log(jobsList, "jobs/list");
-    ResponseSchema.parse(jobsList);
     return jobsList;
 };

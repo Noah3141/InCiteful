@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { FileFormHeaders, JsonHeaders, log, PythonPath } from "./all_request";
+import { FileFormHeaders, JsonHeaders, log, PythonPath } from "../all_requests";
 import { z } from "zod";
 
 export type Request = {
@@ -52,8 +52,7 @@ export const documents_add = async (params: Request): Promise<Response> => {
         body: JSON.stringify(params),
     });
 
-    const document_added = (await res.json()) as Response;
+    const document_added: Response = ResponseSchema.parse(await res.json());
     log(document_added, "documents/add");
-    ResponseSchema.parse(document_added);
     return document_added;
 };

@@ -1,8 +1,8 @@
 import { type Status } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env.mjs";
-import { DocumentAPI } from "~/models/documents_add";
-import { jobs_list } from "~/models/jobs_list";
+import { DocumentAPI } from "~/models/documents/add";
+import { jobs_list } from "~/models/jobs/list";
 import { db } from "~/server/db";
 import { api } from "~/utils/api";
 

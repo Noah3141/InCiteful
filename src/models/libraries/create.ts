@@ -1,4 +1,4 @@
-import { JsonHeaders, log, PythonPath } from "./all_request";
+import { JsonHeaders, log, PythonPath } from "../all_requests";
 
 export type Request = {
     user_id: string;

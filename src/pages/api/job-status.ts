@@ -2,7 +2,7 @@ import { Document, Job, Status } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 import { env } from "~/env.mjs";
-import { DocumentAPI, ZodDocument } from "~/models/documents_add";
+import { DocumentAPI, ZodDocument } from "~/models/documents/add";
 import { db } from "~/server/db";
 
 type ResponseData = {

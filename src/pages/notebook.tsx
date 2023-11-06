@@ -62,7 +62,7 @@ const Notebook = () => {
     return (
         <>
             <title>Notebook</title>
-            <div className="mx-auto max-w-[1600px] px-3 pt-12">
+            <div className="mx-auto max-w-[1600px] px-1 pt-12 transition-all sm:px-6">
                 <div className="flex flex-col gap-3 lg:flex-row ">
                     <List>
                         <Header className="flex flex-row items-center justify-between border-b border-b-gable-900 p-2 lg:w-60">
@@ -132,9 +132,9 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
     }
 
     return (
-        <div className="max-h-[60vh] overflow-scroll rounded-lg bg-gable-950 text-neutral-50 lg:max-h-[70vh]">
-            <div className=" p-6 pb-2 text-3xl leading-none">{topic?.name}</div>
-            <div className="flex flex-row gap-4 border-b border-b-gable-900 px-6 pb-2">
+        <div className="max-h-[60vh] overflow-scroll rounded-lg bg-gable-950 p-2 text-neutral-50  transition-all sm:p-6 lg:max-h-[70vh]">
+            <div className=" p-3 pb-2 text-3xl leading-none">{topic?.name}</div>
+            <div className="flex flex-row gap-4  px-3 pb-2">
                 <div className="font-medium">
                     Created: {topic?.createdAt && dtfmt.format(topic.createdAt)}
                 </div>
@@ -148,7 +148,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col  divide-y divide-gable-800">
+            <div className="flex flex-col gap-12">
                 {topic?.references.length !== 0
                     ? topic?.references.map((reference) => {
                           const articlePublished = reference.document
@@ -160,14 +160,14 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                           return (
                               <div
                                   key={reference.id}
-                                  className="flex flex-col justify-between gap-6 p-6 py-12 md:flex-row"
+                                  className="flex cursor-default flex-col justify-between rounded-lg border border-gable-900 p-6 transition-all hover:shadow-lg hover:shadow-neutral-900 md:flex-row"
                               >
                                   <div className="w-full">
                                       <h1 className="">
                                           {reference.document.title}
                                       </h1>
                                       <div className="my-3 flex w-full flex-col gap-6 lg:flex-row">
-                                          <div className="max-h-64 w-full overflow-scroll rounded bg-gable-900 p-4 font-medium">
+                                          <div className="max-h-64 w-full overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
                                               <span className="text-neutral-50">
                                                   {reference.preText}
                                               </span>
@@ -416,11 +416,18 @@ const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
             onError: (e) => {
                 if (e.data?.code == "BAD_REQUEST") {
                     toast.error(e.message, { id: updateTopicNotesToast });
-                } else {
-                    toast.error("Something went wrong", {
+                    return;
+                }
+                if (e.message.includes("too long for column")) {
+                    toast.error("This note is too long to save!", {
                         id: updateTopicNotesToast,
                     });
+                    return;
                 }
+                toast.error("Something went wrong", {
+                    id: updateTopicNotesToast,
+                });
+                return;
             },
             onSuccess: async () => {
                 toast.success("Success!", {
@@ -468,22 +475,25 @@ const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
 };
 
 const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
+    const trpc = api.useContext();
     const [notesField, setNotesField] = useState(reference.notes ?? "");
     const updateReferenceNotesToast = "updateReferenceNotesToastId";
-    const trpc = api.useContext();
     const { mutate: updateReferenceNote, isLoading } =
         api.notebook.updateReferenceNotes.useMutation({
             onMutate: () => {
                 toast.loading("Saving...", { id: updateReferenceNotesToast });
             },
             onError: (e) => {
+                console.log(e);
                 if (e.data?.code == "BAD_REQUEST") {
                     toast.error(e.message, { id: updateReferenceNotesToast });
-                } else {
-                    toast.error("Something went wrong", {
-                        id: updateReferenceNotesToast,
-                    });
+                    return;
                 }
+
+                toast.error("Something went wrong", {
+                    id: updateReferenceNotesToast,
+                });
+                return;
             },
             onSuccess: async () => {
                 toast.success("Success!", {
@@ -499,7 +509,7 @@ const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
                 onChange={(e) => {
                     setNotesField(e.target.value);
                 }}
-                className="h-full w-full rounded bg-neutral-50 p-2 font-medium text-neutral-950 caret-neutral-950 outline-none ring-tango-500  hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
+                className="h-full w-full overscroll-contain rounded bg-neutral-50 p-2 font-medium text-neutral-950 caret-neutral-950 outline-none ring-tango-500  hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
             ></textarea>
             <Button
                 onClick={() => {

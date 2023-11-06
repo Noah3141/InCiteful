@@ -59,7 +59,7 @@ const Libraries = () => {
                             href={`/libraries/${library.id}`}
                         >
                             <div
-                                className={`flex flex-col justify-between rounded-[24px] bg-sand-200 px-6 py-2 shadow shadow-sand-300 transition-all duration-100 hover:bg-sand-100  hover:shadow-neutral-500 md:flex-row `}
+                                className={`flex flex-col justify-between rounded-[24px] bg-sand-200 px-6 py-2 shadow shadow-sand-300 transition-all duration-300 hover:bg-sand-100  hover:shadow-neutral-500 md:flex-row `}
                             >
                                 <div className="w-96 truncate whitespace-pre-wrap text-2xl">
                                     {library.title}

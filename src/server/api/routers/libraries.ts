@@ -8,7 +8,7 @@ import {
 
 import { type Library, type Job, type Document } from "@prisma/client";
 
-import { libraries_create } from "~/models/libraries_create";
+import { libraries_create } from "~/models/libraries/create";
 
 export const librariesRouter = createTRPCRouter({
     createEmpty: protectedProcedure
