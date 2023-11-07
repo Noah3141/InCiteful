@@ -101,6 +101,7 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
                     id: removeDocumentToast,
                 });
                 await trpc.document.invalidate();
+                await trpc.library.invalidate();
             },
             onError: () => {
                 toast.error("Something went wrong!", {

@@ -67,7 +67,7 @@ export const documentsRouter = createTRPCRouter({
             if (!res.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: `API returned 'success: false' to create library attempt: "${
+                    message: `API returned 'success: false' to post one attempt: "${
                         res.error ?? "No message provided"
                     }"`,
                 });
@@ -150,7 +150,7 @@ export const documentsRouter = createTRPCRouter({
             if (!job_added.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: `API returned 'success: false' to create library attempt: "${
+                    message: `API returned 'success: false' to post batch attempt: "${
                         job_added.error ?? "No message provided"
                     }"`,
                 });
@@ -255,7 +255,7 @@ export const documentsRouter = createTRPCRouter({
             if (!res.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: `API returned 'success: false' to create library attempt: "${
+                    message: `API returned 'success: false' to remove document attempt: "${
                         res.error ?? "No message provided"
                     }"`,
                 });

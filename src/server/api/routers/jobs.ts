@@ -89,7 +89,7 @@ export const jobsRouter = createTRPCRouter({
             if (!res.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: `API returned 'success: false' to create library attempt: "${
+                    message: `API returned 'success: false' to cancel job attempt: "${
                         res.error ?? "No message provided"
                     }"`,
                 });
