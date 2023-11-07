@@ -56,7 +56,11 @@ export const librariesRouter = createTRPCRouter({
             // If the Python says something went wrong, undo our work to keep in sync
             if (!res.success) {
                 await ctx.db.library.delete({
-                    where: { id: created.id, title: created.title },
+                    where: {
+                        id: created.id,
+                        title: created.title,
+                        userId: ctx.session.user.id,
+                    },
                 });
                 throw new TRPCError({
                     code: "CONFLICT",

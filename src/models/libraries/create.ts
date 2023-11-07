@@ -6,16 +6,12 @@ export type Request = {
     library_id: string;
 };
 
-export type Response = {
-    library_id: string;
-    success: boolean;
-    msg?: string;
-    error?: string;
-};
+export type Response = z.infer<typeof ResponseSchema>;
 
 const ResponseSchema = z
     .object({
         library_id: z.string(),
+        user_id: z.string(),
         success: z.boolean(),
         msg: z.string().optional(),
         error: z.string().optional(),
