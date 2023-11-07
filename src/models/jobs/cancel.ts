@@ -13,6 +13,7 @@ const ResponseSchema = z
     .object({
         success: z.boolean(),
         msg: z.string().optional(),
+        error: z.string().optional(),
         cancelled: z.boolean(),
         job_id: z.string(),
         library_id: z.string(),

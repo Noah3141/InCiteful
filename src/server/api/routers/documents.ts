@@ -68,7 +68,7 @@ export const documentsRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: "${
-                        res.msg ?? "No message provided"
+                        res.error ?? "No message provided"
                     }"`,
                 });
             }
@@ -105,7 +105,6 @@ export const documentsRouter = createTRPCRouter({
             const created: Document = await ctx.db.document.create({
                 data: {
                     libraryId: res.library_id,
-                    docletCount: res.num_doclets,
                     id: res.document.doc_id,
                     title: res.document.title,
                     publicationSource: res.document.pub_source,
@@ -152,7 +151,7 @@ export const documentsRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: "${
-                        job_added.msg ?? "No message provided"
+                        job_added.error ?? "No message provided"
                     }"`,
                 });
             }
@@ -257,7 +256,7 @@ export const documentsRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: "${
-                        res.msg ?? "No message provided"
+                        res.error ?? "No message provided"
                     }"`,
                 });
             }

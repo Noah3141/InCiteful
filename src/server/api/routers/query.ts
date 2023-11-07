@@ -19,7 +19,7 @@ export const queryRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to query: "${
-                        res.msg ?? "No message provided"
+                        res.error ?? "No message provided"
                     }"`,
                 });
             }

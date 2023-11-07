@@ -27,6 +27,7 @@ const ResponseSchema = z.object({
     user_id: z.string(),
     library_id: z.string(),
     msg: z.string().optional(),
+    error: z.string().optional(),
     references: z.array(ZodReference),
     success: z.boolean(),
 });

@@ -11,6 +11,7 @@ export type Response = {
     library_name: string;
     success: boolean;
     msg?: string;
+    error?: string;
 };
 
 export const libraries_create = async (params: Request): Promise<Response> => {

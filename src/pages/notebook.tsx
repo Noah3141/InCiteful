@@ -149,51 +149,52 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
             </div>
 
             <div className="flex flex-col gap-12">
-                {topic?.references.length !== 0
-                    ? topic?.references.map((reference) => {
-                          const articlePublished = reference.document
-                              .publishedAt
-                              ? dtfmt.format(reference.document.publishedAt)
-                              : "Not found";
-                          const referenceAdded = `Reference Added:
+                {topic?.references.length !== 0 ? (
+                    topic?.references.map((reference) => {
+                        const articlePublished = reference.document.publishedAt
+                            ? dtfmt.format(reference.document.publishedAt)
+                            : "Not found";
+                        const referenceAdded = `Reference Added:
                 ${dtfmt.format(reference.addedAt)}`;
-                          return (
-                              <div
-                                  key={reference.id}
-                                  className="flex cursor-default flex-col justify-between rounded-lg border border-gable-900 p-6 transition-all hover:shadow-lg hover:shadow-neutral-900 md:flex-row"
-                              >
-                                  <div className="w-full">
-                                      <h1 className="">
-                                          {reference.document.title}
-                                      </h1>
-                                      <div className="my-3 flex w-full flex-col gap-6 lg:flex-row">
-                                          <div className="max-h-64 w-full overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
-                                              <span className="text-neutral-50">
-                                                  {reference.preText}
-                                              </span>
-                                              <span className="text-sushi-400">
-                                                  {` ${reference.focalText} `}
-                                              </span>
-                                              <span className="text-neutral-50">
-                                                  {reference.postText}
-                                              </span>
-                                          </div>
-                                          <ReferenceNoteWizard
-                                              reference={reference}
-                                          />
-                                      </div>
-                                      <div className="font-medium">
-                                          <div>{referenceAdded}</div>
-                                          <div>
-                                              Article Published:{" "}
-                                              {articlePublished}
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          );
-                      })
-                    : "No references yet"}
+                        return (
+                            <div
+                                key={reference.id}
+                                className="flex cursor-default flex-col justify-between rounded-lg border border-gable-900 p-6 transition-all hover:shadow-lg hover:shadow-neutral-900 md:flex-row"
+                            >
+                                <div className="w-full">
+                                    <h1 className="">
+                                        {reference.document.title}
+                                    </h1>
+                                    <div className="my-3 flex w-full flex-col gap-6 lg:flex-row">
+                                        <div className="max-h-64 w-full overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
+                                            <span className="text-neutral-50">
+                                                {reference.preText}
+                                            </span>
+                                            <span className="text-sushi-400">
+                                                {` ${reference.focalText} `}
+                                            </span>
+                                            <span className="text-neutral-50">
+                                                {reference.postText}
+                                            </span>
+                                        </div>
+                                        <ReferenceNoteWizard
+                                            reference={reference}
+                                        />
+                                    </div>
+                                    <div className="font-medium">
+                                        <div>{referenceAdded}</div>
+                                        <div>
+                                            Article Published:{" "}
+                                            {articlePublished}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <span className="p-3">No references yet</span>
+                )}
             </div>
         </div>
     );

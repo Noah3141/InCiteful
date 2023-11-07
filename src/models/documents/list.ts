@@ -20,6 +20,7 @@ const ResponseSchema = z
         documents_list: z.array(ZodDocument),
         library_id: z.string(),
         msg: z.string().optional(),
+        error: z.string().optional(),
         success: z.boolean(),
         user_id: z.string(),
     })

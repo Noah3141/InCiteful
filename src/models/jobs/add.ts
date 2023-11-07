@@ -17,6 +17,7 @@ const ResponseSchema = z
         files: z.array(z.string()),
         library_id: z.string(),
         msg: z.string().optional(),
+        error: z.string().optional(),
         notify_by_email: z.string().nullable(),
         num_files_submitted: z.number(),
         est_duration: z.number(),

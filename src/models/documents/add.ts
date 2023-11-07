@@ -33,8 +33,8 @@ const ResponseSchema = z
         document: ZodDocument,
         library_id: z.string(),
         user_id: z.string(),
-        msg: z.string().optional(),
-        num_doclets: z.number(),
+        msg: z.string(),
+        error: z.string().optional(),
         success: z.boolean(),
         file: z.object({
             filename: z.string(),
@@ -52,7 +52,15 @@ export const documents_add = async (params: Request): Promise<Response> => {
         body: JSON.stringify(params),
     });
 
-    const document_added: Response = ResponseSchema.parse(await res.json());
-    log(document_added, "documents/add");
-    return document_added;
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const json = await res.clone().json();
+        log(json, "documents/add");
+        const document_added: Response = ResponseSchema.parse(json);
+        return document_added;
+    } catch (error) {
+        const text = await res.text();
+        log(text, "documents/add (JSON failed)");
+        throw new Error();
+    }
 };

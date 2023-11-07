@@ -21,6 +21,7 @@ const ZodJob = z.object({
     took_time: z.number(),
     notificaton_requested: z.string().optional(),
     msg: z.string().optional(),
+    error: z.string().optional(),
 });
 
 const ResponseSchema = z

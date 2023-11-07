@@ -62,7 +62,7 @@ export const librariesRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "CONFLICT",
                     message: `API returned 'success: false' to create library attempt: "${
-                        res.msg ?? "No message provided"
+                        res.error ?? "No message provided"
                     }"`,
                 });
             }
