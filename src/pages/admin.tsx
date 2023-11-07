@@ -2,6 +2,7 @@ import { Membership, Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import Button from "~/components/Button";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
@@ -95,8 +96,15 @@ const Admin = () => {
                                             <h1 className="mt-3 text-xl">
                                                 Jobs - {user._count.jobs}
                                             </h1>
-                                            <button
-                                                className="pb-3"
+                                            <Button
+                                                small={true}
+                                                color="neutral"
+                                                text={
+                                                    menu.jobs
+                                                        ? "Hide"
+                                                        : "Expand"
+                                                }
+                                                className="mb-3"
                                                 onClick={() => {
                                                     setDataUnfolded(
                                                         (prevMap) => {
@@ -122,9 +130,7 @@ const Admin = () => {
                                                         },
                                                     );
                                                 }}
-                                            >
-                                                {menu.jobs ? "Hide" : "Expand"}
-                                            </button>
+                                            ></Button>
                                         </div>
 
                                         <div
@@ -192,8 +198,15 @@ const Admin = () => {
                                                 Sessions -{" "}
                                                 {user._count.sessions}
                                             </h1>
-                                            <button
-                                                className="pb-3"
+                                            <Button
+                                                text={
+                                                    menu.sessions
+                                                        ? "Hide"
+                                                        : "Expand"
+                                                }
+                                                small={true}
+                                                color="neutral"
+                                                className="mb-3"
                                                 onClick={() => {
                                                     setDataUnfolded(
                                                         (prevMap) => {
@@ -220,11 +233,7 @@ const Admin = () => {
                                                         },
                                                     );
                                                 }}
-                                            >
-                                                {menu.sessions
-                                                    ? "Hide"
-                                                    : "Expand"}
-                                            </button>
+                                            ></Button>
                                         </div>
 
                                         <div
@@ -268,8 +277,15 @@ const Admin = () => {
                                                 Accounts -{" "}
                                                 {user._count.accounts}
                                             </h1>
-                                            <button
-                                                className="pb-3"
+                                            <Button
+                                                text={
+                                                    menu.accounts
+                                                        ? "Hide"
+                                                        : "Expand"
+                                                }
+                                                color="neutral"
+                                                small={true}
+                                                className="mb-3"
                                                 onClick={() => {
                                                     setDataUnfolded(
                                                         (prevMap) => {
@@ -296,11 +312,7 @@ const Admin = () => {
                                                         },
                                                     );
                                                 }}
-                                            >
-                                                {menu.accounts
-                                                    ? "Hide"
-                                                    : "Expand"}
-                                            </button>
+                                            ></Button>
                                         </div>
 
                                         <div
@@ -358,8 +370,15 @@ const Admin = () => {
                                                 Libraries -{" "}
                                                 {user._count.libraries}
                                             </h1>
-                                            <button
-                                                className="pb-3"
+                                            <Button
+                                                text={
+                                                    menu.libraries
+                                                        ? "Hide"
+                                                        : "Expand"
+                                                }
+                                                color="neutral"
+                                                small={true}
+                                                className="mb-3"
                                                 onClick={() => {
                                                     setDataUnfolded(
                                                         (prevMap) => {
@@ -386,11 +405,7 @@ const Admin = () => {
                                                         },
                                                     );
                                                 }}
-                                            >
-                                                {menu.libraries
-                                                    ? "Hide"
-                                                    : "Expand"}
-                                            </button>
+                                            ></Button>
                                         </div>
 
                                         <div
