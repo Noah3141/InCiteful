@@ -30,6 +30,7 @@ const ResponseSchema = z
     .object({
         /// Filename
         added_file: z.string(),
+        endpoint: z.string(),
         document: ZodDocument,
         library_id: z.string(),
         user_id: z.string(),

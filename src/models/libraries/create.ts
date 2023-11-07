@@ -12,6 +12,7 @@ const ResponseSchema = z
     .object({
         library_id: z.string(),
         user_id: z.string(),
+        endpoint: z.string(),
         success: z.boolean(),
         msg: z.string().optional(),
         error: z.string().optional(),

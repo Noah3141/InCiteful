@@ -19,6 +19,7 @@ const ResponseSchema = z
     .object({
         documents_list: z.array(ZodDocument),
         library_id: z.string(),
+        endpoint: z.string(),
         msg: z.string().optional(),
         error: z.string().optional(),
         success: z.boolean(),

@@ -15,6 +15,7 @@ const ResponseSchema = z
         msg: z.string().optional(),
         error: z.string().optional(),
         cancelled: z.boolean(),
+        endpoint: z.string(),
         job_id: z.string(),
         library_id: z.string(),
         user_id: z.string(),

@@ -13,6 +13,7 @@ const ResponseSchema = z.object({
     library_id: z.string(),
     user_id: z.string(),
     msg: z.string().optional(),
+    endpoint: z.string(),
     error: z.string().optional(),
     success: z.boolean(),
 });
