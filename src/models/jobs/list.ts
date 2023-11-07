@@ -15,6 +15,7 @@ const ZodJob = z.object({
     num_docs: z.number(),
     source_type: z.string(),
     source_location: z.string(),
+    endpoint: z.string(),
     status: z.nativeEnum(Status),
     start_time: z.string(),
     finish_time: z.string(),
