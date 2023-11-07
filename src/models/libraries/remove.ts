@@ -6,32 +6,26 @@ export type Request = {
     library_id: string;
 };
 
-export type Response = {
-    library_id: string;
-    success: boolean;
-    msg?: string;
-    error?: string;
-};
+export type Response = z.infer<typeof ResponseSchema>;
 
 const ResponseSchema = z
     .object({
         library_id: z.string(),
-        success: z.boolean(),
         msg: z.string().optional(),
         error: z.string().optional(),
     })
     .strict();
 
-export const libraries_create = async (params: Request): Promise<Response> => {
-    const res = await fetch(`${PythonPath}/libraries/create`, {
+export const libraries_remove = async (params: Request): Promise<Response> => {
+    const res = await fetch(`${PythonPath}/libraries/remove`, {
         method: "POST",
         mode: "cors",
         headers: JsonHeaders,
         body: JSON.stringify(params),
     });
 
-    const library_created: Response = ResponseSchema.parse(await res.json());
-    log(library_created, "libraries/create");
+    const library_removed: Response = ResponseSchema.parse(await res.json());
+    log(library_removed, "libraries/remove");
 
-    return library_created;
+    return library_removed;
 };

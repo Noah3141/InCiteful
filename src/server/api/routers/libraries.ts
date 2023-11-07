@@ -50,7 +50,6 @@ export const librariesRouter = createTRPCRouter({
             // Alert the Python
             const res = await libraries_create({
                 library_id: created.id,
-                library_name: created.title,
                 user_id: ctx.session.user.id,
             });
 
