@@ -1,4 +1,4 @@
-import { Membership, Role } from "@prisma/client";
+import { Document, Library, Membership, Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -13,6 +13,7 @@ type Menu = {
     jobs: boolean;
     sessions: boolean;
     accounts: boolean;
+    documents: boolean;
 };
 
 type AdminSearchParams = {
@@ -40,6 +41,7 @@ const Admin = () => {
         jobs: false,
         accounts: false,
         sessions: false,
+        documents: false,
     };
     data?.map((user) => {
         const v: Menu = { ...defaultMenu };
@@ -71,7 +73,7 @@ const Admin = () => {
 
     if (session.user.role === "Admin")
         return (
-            <Hall title="Admin Panel">
+            <div className="min-h-[200vh] p-6">
                 <h1 className="page-title px-2">Admin</h1>
                 {isLoading ? (
                     <Loading color="neutral" inline={false} />
@@ -134,9 +136,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`border-x transition-all duration-300 ${
+                                            className={`rounded-lg border-x transition-all duration-300 ${
                                                 menu.jobs
-                                                    ? "h-96 overflow-y-scroll"
+                                                    ? "h-96 overflow-y-scroll border"
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -237,9 +239,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`border-x transition-all duration-300 ${
+                                            className={`rounded-lg border-x transition-all duration-300 ${
                                                 menu.sessions
-                                                    ? "h-96 overflow-y-scroll"
+                                                    ? "h-96 overflow-y-scroll border"
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -316,9 +318,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`border-x transition-all duration-300 ${
+                                            className={`rounded-lg border-x transition-all duration-300 ${
                                                 menu.accounts
-                                                    ? "h-96 overflow-y-scroll"
+                                                    ? "h-96 overflow-y-scroll border"
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -409,9 +411,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`border-x transition-all duration-300 ${
+                                            className={`rounded-lg border-x  transition-all duration-300 ${
                                                 menu.libraries
-                                                    ? "h-96 overflow-y-scroll"
+                                                    ? `h-[80vh] overflow-y-scroll scroll-smooth border shadow-lg`
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -420,37 +422,14 @@ const Admin = () => {
                                                 className="divide-y bg-sand-300"
                                             >
                                                 {user.libraries.map(
-                                                    (library) => {
+                                                    (library, i) => {
                                                         return (
-                                                            <li
-                                                                key={library.id}
-                                                                className="flex flex-col px-2 py-6  "
-                                                            >
-                                                                <span>
-                                                                    Library ID:{" "}
-                                                                    {library.id}
-                                                                </span>
-                                                                <span>
-                                                                    Title:{" "}
-                                                                    {
-                                                                        library.title
-                                                                    }
-                                                                </span>
-                                                                <span>
-                                                                    Created:{" "}
-                                                                    {dtfmt.format(
-                                                                        library.createdAt,
-                                                                    )}
-                                                                </span>
-                                                                <span>
-                                                                    Documents:{" "}
-                                                                    {
-                                                                        library
-                                                                            ._count
-                                                                            .documents
-                                                                    }
-                                                                </span>
-                                                            </li>
+                                                            <LibraryReadout
+                                                                key={i}
+                                                                library={
+                                                                    library
+                                                                }
+                                                            />
                                                         );
                                                     },
                                                 )}
@@ -462,8 +441,101 @@ const Admin = () => {
                         })}
                     </div>
                 )}
-            </Hall>
+            </div>
         );
 };
 
 export default Admin;
+
+type LibraryPlus = {
+    id: string;
+    title: string;
+    createdAt: Date;
+} & {
+    documents: {
+        id: string;
+        title: string;
+        libraryId: string;
+        jobId: string | null;
+        createdAt: Date;
+        publishedAt: Date | null;
+        docletCount: number | null;
+        publicationSource: string;
+    }[];
+    _count: {
+        User: number;
+        documents: number;
+        jobs: number;
+    };
+};
+
+const LibraryReadout = ({ library }: { library: LibraryPlus }) => {
+    const [documentExpanded, setDocumentExpanded] = useState(false);
+
+    return (
+        <li key={library.id} className="flex flex-col p-2 sm:p-6 ">
+            <span className="text-2xl">Library ID: {library.id}</span>
+            <span>Title: {library.title}</span>
+            <span>Created: {dtfmt.format(library.createdAt)}</span>
+            <div>
+                <Button
+                    className="my-3"
+                    small={true}
+                    color="secondary"
+                    text={`Documents: ${library._count.documents}`}
+                    onClick={() => {
+                        setDocumentExpanded((p) => !p);
+                    }}
+                ></Button>
+                <div
+                    className={`divide-y divide-gable-700 scroll-smooth rounded-lg bg-gable-900 text-sand-50 shadow-inner shadow-gable-950 ring-baltic-600 transition-all   hover:ring-2  ${
+                        documentExpanded
+                            ? "h-96 overflow-scroll overscroll-contain sm:p-5"
+                            : "h-0 overflow-hidden sm:px-5 sm:py-0"
+                    }`}
+                >
+                    {library.documents.map((document, i) => {
+                        return (
+                            <>
+                                <DocumentReadout
+                                    key={i}
+                                    document={document}
+                                    i={i}
+                                />
+                            </>
+                        );
+                    })}
+                </div>
+            </div>
+        </li>
+    );
+};
+
+const DocumentReadout = ({
+    document,
+    i,
+}: {
+    document: Document;
+    i: number;
+}) => {
+    const docId = `Document ID: ${document.id}`;
+    const docTitle = `Title: ${document.title}`;
+    const docJobId = `Doc Job ID: ${document.jobId}`;
+    const docPubSource = `Publication Source: ${document.publicationSource}`;
+    const docLibraryId = `Library ID: ${document.libraryId}`;
+    const docPublishedAt = `Published: ${
+        document.publishedAt ? dtfmt.format(document.publishedAt) : "null"
+    }`;
+    return (
+        <>
+            <div key={i} className="mb-3 p-3 font-medium">
+                <div className="font-semibold">{docId}</div>
+                <div>{docTitle}</div>
+                <div>{docJobId}</div>
+                <div>{docPubSource}</div>
+                <div>{docLibraryId}</div>
+                <div>{docPublishedAt}</div>
+            </div>
+        </>
+    );
+};
