@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 import { type Topic } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 export const notebooksRouter = createTRPCRouter({
     createTopic: protectedProcedure
@@ -92,6 +93,13 @@ export const notebooksRouter = createTRPCRouter({
     updateTopicNotes: protectedProcedure
         .input(z.object({ topicId: z.string(), notes: z.string() }))
         .mutation(async ({ ctx, input }) => {
+            if (input.notes.length > 50_000) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Note field is too long!",
+                });
+            }
+
             return await ctx.db.topic.update({
                 where: { id: input.topicId },
                 data: {
@@ -103,6 +111,13 @@ export const notebooksRouter = createTRPCRouter({
     updateReferenceNotes: protectedProcedure
         .input(z.object({ referenceId: z.string(), notes: z.string() }))
         .mutation(async ({ ctx, input }) => {
+            if (input.notes.length > 50_000) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Note field is too long!",
+                });
+            }
+
             return await ctx.db.reference.update({
                 where: { id: input.referenceId },
                 data: {

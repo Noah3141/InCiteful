@@ -141,7 +141,7 @@ model Topic {
     id             String      @id @default(cuid())
     name           String
     /// Notes for this topic
-    notes          String?
+    notes          String?     @db.Text
     references     Reference[]
     notebook       Notebook    @relation(fields: [notebookUserId], references: [userId])
     notebookUserId String
@@ -156,7 +156,7 @@ model Reference {
     topic          Topic?   @relation(fields: [topicId], references: [id], onDelete: Cascade)
     topicId        String?
     /// The notes a user has written and entered for this reference
-    notes          String?  @db.MediumText
+    notes          String?  @db.Text
     userId         String
     user           User     @relation(fields: [userId], references: [id])
     notebook       Notebook @relation(fields: [notebookUserId], references: [userId])

@@ -419,12 +419,6 @@ const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
                     toast.error(e.message, { id: updateTopicNotesToast });
                     return;
                 }
-                if (e.message.includes("too long for column")) {
-                    toast.error("This note is too long to save!", {
-                        id: updateTopicNotesToast,
-                    });
-                    return;
-                }
                 toast.error("Something went wrong", {
                     id: updateTopicNotesToast,
                 });
@@ -490,7 +484,6 @@ const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
                     toast.error(e.message, { id: updateReferenceNotesToast });
                     return;
                 }
-
                 toast.error("Something went wrong", {
                     id: updateReferenceNotesToast,
                 });

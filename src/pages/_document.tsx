@@ -4,7 +4,12 @@ export default class MyDocument extends Document {
         return (
             <Html>
                 <Head>
-                    <meta name="theme-color" content="#ffffff" />
+                    <meta name="theme-color" content="#1a2b35" />
+                    <meta
+                        name="description"
+                        content="A modern approach to citations"
+                    />
+                    <meta name="image" content="~/images/logos/favicon.png" />
                     <link
                         rel="icon"
                         type="image/png"
