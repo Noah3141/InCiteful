@@ -3,10 +3,136 @@
 @tailwind utilities;
 
 @layer base {
-    html,
-    body,
+    html {
+        @apply h-full overflow-y-hidden;
+    }
+    body {
+        @apply h-full overflow-y-hidden;
+    }
     #__next {
-        @apply h-full overflow-y-scroll overscroll-y-none scroll-smooth;
+        @apply h-full overflow-y-auto scroll-smooth;
+    }
+
+    /* Best idea is: 600 for track, 500 for activethumb, 400 for hoverthumb, 300 for thumb
+    /* 
+    SAND SCROLLER 
+    */
+    /* Customize the color of the track (the background of the scrollbar) */
+    .sand-scroller::-webkit-scrollbar {
+        background-color: #f5e6d600;
+        width: 12px;
+    }
+
+    /* Customize the width of the scrollbar track */
+    .sand-scroller::-webkit-scrollbar-track {
+        background-color: #e2b88d;
+        width: 40px;
+        border: 1px solid rgb(32, 28, 44);
+        border-radius: 6px;
+        border: 4px solid transparent;
+        background-clip: content-box;
+    }
+
+    /* Customize the color and width of the scrollbar thumb (the draggable part) */
+    .sand-scroller::-webkit-scrollbar-thumb {
+        margin: 1px;
+        background-color: #eed2b9;
+        border-radius: 6px;
+        width: 8px;
+    }
+
+    /* Customize the appearance of the scrollbar when it's in a hovered state */
+    .sand-scroller::-webkit-scrollbar-thumb:hover {
+        background-color: #d4a575;
+    }
+
+    /* Customize the scrollbar thumb when it's being dragged */
+    .sand-scroller::-webkit-scrollbar-thumb:active {
+        background-color: #c39465;
+    }
+
+    /* 
+    GABLE SCROLLER 
+    */
+    /* Customize the color of the track (the background of the scrollbar) */
+    .gable-scroller::-webkit-scrollbar {
+        background-color: #f5e6d600;
+        width: 12px;
+    }
+
+    /* Customize the width of the scrollbar track */
+    .gable-scroller::-webkit-scrollbar-track {
+        background-color: #274354;
+        width: 40px;
+        border: 1px solid rgb(32, 28, 44);
+        border-radius: 6px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+
+    /* Customize the color and width of the scrollbar thumb (the draggable part) */
+    .gable-scroller::-webkit-scrollbar-thumb {
+        margin: 1px;
+        background-color: #39697b;
+        border-radius: 6px;
+        width: 8px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+
+    /* Customize the appearance of the scrollbar when it's in a hovered state */
+    .gable-scroller::-webkit-scrollbar-thumb:hover {
+        background-color: #316477;
+    }
+
+    /* Customize the scrollbar thumb when it's being dragged */
+    .gable-scroller::-webkit-scrollbar-thumb:active {
+        background-color: #29596a;
+    }
+
+    /* 
+    BALTIC SCROLLER 
+    */
+    /* Customize the color of the track (the background of the scrollbar) */
+    .baltic-scroller::-webkit-scrollbar {
+        background-color: #f5e6d600;
+        width: 12px;
+    }
+
+    /* Customize the width of the scrollbar track */
+    .baltic-scroller::-webkit-scrollbar-track {
+        background-color: #5c5574;
+        width: 40px;
+        border: 1px solid rgb(32, 28, 44);
+        border-radius: 6px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+
+    /* Customize the color and width of the scrollbar thumb (the draggable part) */
+    .baltic-scroller::-webkit-scrollbar-thumb {
+        margin: 1px;
+        background-color: #b7b2c7;
+        border-radius: 6px;
+        width: 8px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+
+    /* Customize the appearance of the scrollbar when it's in a hovered state */
+    .baltic-scroller::-webkit-scrollbar-thumb:hover {
+        background-color: #8f89a7;
+    }
+
+    /* Customize the scrollbar thumb when it's being dragged */
+    .baltic-scroller::-webkit-scrollbar-thumb:active {
+        background-color: #716a8d;
+    }
+
+    .baltic-scroller::-webkit-scrollbar-corner {
+        background-color: #4f060600;
+        border: none;
+        outline: none;
     }
 }
 

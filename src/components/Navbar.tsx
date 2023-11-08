@@ -42,9 +42,9 @@ const Navbar = () => {
                 </div>
 
                 <div
-                    className={`flex flex-col bg-gable-950 p-5 text-tango-500 transition-[height] duration-300 ease-in-out ${
+                    className={`gable-scroller flex flex-col bg-gable-950 p-5 text-tango-500 transition-[height] duration-300 ease-in-out ${
                         mobileExpanded
-                            ? "h-[320px] overflow-scroll"
+                            ? "h-[320px] overflow-y-auto"
                             : "h-20 overflow-hidden"
                     }    ${mobileSize}`}
                 >
@@ -235,9 +235,9 @@ const Navbar = () => {
                     </div>
                 </div>
                 <div
-                    className={`flex flex-col bg-gable-950 text-tango-500 transition-[height] duration-300 ease-in-out ${
+                    className={`gable-scroller flex flex-col bg-gable-950 text-tango-500 transition-[height] duration-300 ease-in-out ${
                         mobileExpanded
-                            ? "h-[400px] overflow-scroll"
+                            ? "h-[400px] overflow-y-auto"
                             : "h-20 overflow-hidden"
                     }    ${mobileSize}`}
                 >

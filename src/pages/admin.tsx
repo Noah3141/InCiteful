@@ -137,9 +137,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`rounded-lg border-x transition-all duration-300 ${
+                                            className={`sand-scroller rounded-lg border-x transition-all duration-300 ${
                                                 menu.sessions
-                                                    ? "h-96 overflow-y-scroll border"
+                                                    ? "h-96 overflow-y-auto border"
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -216,9 +216,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`rounded-lg border-x transition-all duration-300 ${
+                                            className={`sand-scroller rounded-lg border-x transition-all duration-300 ${
                                                 menu.accounts
-                                                    ? "h-96 overflow-y-scroll border"
+                                                    ? "h-96 overflow-y-auto border"
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -309,9 +309,9 @@ const Admin = () => {
                                         </div>
 
                                         <div
-                                            className={`rounded-lg border-x  transition-all duration-300 ${
+                                            className={`sand-scroller rounded-lg  border-x transition-all duration-300 ${
                                                 menu.libraries
-                                                    ? `h-[80vh] overflow-y-scroll scroll-smooth border shadow-lg`
+                                                    ? `h-[80vh] overflow-y-auto scroll-smooth border shadow-lg`
                                                     : "h-0 overflow-hidden"
                                             }`}
                                         >
@@ -411,9 +411,9 @@ const LibraryReadout = ({
                     />
                 )}
                 <div
-                    className={` overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
+                    className={` gable-scroller overflow-hidden scroll-smooth  rounded-lg text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
                         documentExpanded
-                            ? "h-[600px] overflow-scroll overscroll-contain "
+                            ? "h-[600px] overflow-y-auto overscroll-contain "
                             : "h-0 overflow-hidden"
                     }`}
                 >
@@ -439,9 +439,9 @@ const LibraryReadout = ({
                     }}
                 />
                 <div
-                    className={` overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
+                    className={` gable-scroller overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
                         jobsExpanded
-                            ? "h-[600px] overflow-scroll overscroll-contain "
+                            ? "h-[600px] overflow-y-auto overscroll-contain "
                             : "h-0 overflow-hidden"
                     }`}
                 >

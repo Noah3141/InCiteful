@@ -75,6 +75,7 @@ const LibraryPage = () => {
                 />
                 <JobWizard data={data} />
                 <DocumentList documents={data.documents} />
+                <div className="h-16"></div>
             </Hall>
         );
 };
@@ -341,7 +342,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                                                 link: e.target.value,
                                             }));
                                         }}
-                                        className="w-full rounded-md bg-baltic-800 px-2 py-1 text-baltic-50 caret-baltic-50 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
+                                        className="w-full rounded-md bg-baltic-800 px-2 py-1 text-baltic-50 caret-tango-500 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
                                         type="url"
                                         name=""
                                         id=""
@@ -357,7 +358,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                                                 notes: e.target.value,
                                             }));
                                         }}
-                                        className="w-96 rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
+                                        className="baltic-scroller h-40 w-[450px] resize-none overflow-y-auto  rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
                                         id=""
                                     ></textarea>
                                 </div>
@@ -438,9 +439,9 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             </div>
 
             <div
-                className={` px-3 font-medium transition-all  ${
+                className={`sand-scroller px-3 font-medium transition-all  ${
                     expanded
-                        ? ` overflow-y-scroll ${
+                        ? ` overflow-y-auto ${
                               document.notes ? "h-60" : "h-28" // expanded with notes vs without
                           } `
                         : "h-0 overflow-hidden"
@@ -914,7 +915,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                 <div className="hidden w-36 md:block">Started</div>
                 <div className="w-36">Finished</div>
             </div>
-            <div className="flex max-h-96 flex-col gap-1 overflow-scroll px-3 py-2">
+            <div className="sand-scroller flex max-h-[548px] flex-col gap-1 overflow-y-auto px-3 py-2">
                 {data.jobs.map((job, i, list) => {
                     //
                     const cancellable =
@@ -971,9 +972,9 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                 </div>
                             </div>
                             <div
-                                className={`cursor-default font-medium transition-all ${
+                                className={`sand-scroller cursor-default font-medium transition-all ${
                                     listState[job.id]
-                                        ? "h-32 overflow-y-scroll "
+                                        ? "h-32 overflow-y-auto "
                                         : "h-0 overflow-hidden"
                                 }`}
                             >

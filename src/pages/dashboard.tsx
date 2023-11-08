@@ -272,7 +272,7 @@ const LibraryReadout = ({
                     </span>
                 </h1>
             </div>
-            <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-4 ">
+            <div className="gable-scroller max-h-60 overflow-y-auto overflow-x-hidden border-t border-t-gable-800 p-4 ">
                 <h1 className="block text-lg">Jobs</h1>
                 {isLoading ? (
                     <Loading inline={true} color="primary" className="py-2" />
@@ -662,7 +662,7 @@ const ReferenceList = ({
         lengthLabel = `${references.length} references`;
     }
     return (
-        <div className="max-h-[60vh] overflow-scroll rounded-b-lg bg-gable-950 p-2 text-neutral-50 md:p-6 xl:max-h-[100vh]">
+        <div className="gable-scroller max-h-[60vh] overflow-y-auto rounded-b-lg bg-gable-950 p-2 text-neutral-50 md:p-6 xl:max-h-[100vh]">
             <div className="border-b">
                 <h1>{lengthLabel}</h1>
             </div>
@@ -695,7 +695,7 @@ const ReferenceList = ({
                                 />
                             </div>
                             <div className="">{titleWithDate}</div>
-                            <div className="my-3 max-h-64 overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
+                            <div className="gable-scroller my-3 max-h-64 overflow-y-auto overscroll-contain rounded bg-gable-900 p-4 font-medium">
                                 <span className="text-neutral-100">
                                     {reference.preText}
                                 </span>

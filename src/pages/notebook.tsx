@@ -132,7 +132,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
     }
 
     return (
-        <div className="max-h-[60vh] overflow-scroll rounded-lg bg-gable-950 p-2 text-neutral-50  transition-all sm:p-6 lg:max-h-[70vh]">
+        <div className="gable-scroller max-h-[60vh] overflow-y-auto rounded-lg bg-gable-950 p-2 text-neutral-50  transition-all sm:p-6 lg:max-h-[70vh]">
             <div className=" p-3 pb-2 text-3xl leading-none">{topic?.name}</div>
             <div className="flex flex-row gap-4  px-3 pb-2">
                 <div className="font-medium">
@@ -166,7 +166,7 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
                                         {reference.document.title}
                                     </h1>
                                     <div className="my-3 flex w-full flex-col gap-6 lg:flex-row">
-                                        <div className="max-h-64 w-full overflow-scroll overscroll-contain rounded bg-gable-900 p-4 font-medium">
+                                        <div className="gable-scroller max-h-64 w-full overflow-y-auto overscroll-contain rounded bg-gable-900 p-4 font-medium">
                                             <span className="text-neutral-50">
                                                 {reference.preText}
                                             </span>

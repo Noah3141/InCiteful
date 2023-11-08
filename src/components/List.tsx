@@ -19,7 +19,7 @@ export const Header = ({
 }) => {
     return (
         <div
-            className={`flex  flex-row items-center justify-between border-b border-b-gable-900 p-4  ${className}`}
+            className={`flex flex-row items-center justify-between border-b border-b-gable-900 p-4  ${className}`}
         >
             {children}
         </div>
@@ -34,7 +34,7 @@ export const Body = ({
 }) => {
     return (
         <div
-            className={`max-h-96 overflow-x-clip overflow-y-scroll text-ellipsis rounded-b-lg text-lg font-medium ${className}`}
+            className={`gable-scroller max-h-96 overflow-y-auto overflow-x-clip text-ellipsis rounded-b-lg text-lg font-medium ${className}`}
         >
             {children}
         </div>
