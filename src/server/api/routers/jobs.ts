@@ -87,6 +87,26 @@ export const jobsRouter = createTRPCRouter({
                 user_id: ctx.session.user.id,
             });
 
+            if (res.msg == "No job with that job_id is active") {
+                await ctx.db.job.update({
+                    data: {
+                        status: "FAILED",
+                        message:
+                            "Something went wrong with this job before it was cancelled.",
+                    },
+                    where: {
+                        id: input.jobId,
+                        libraryId: input.libraryId,
+                        userId: ctx.session?.user.id,
+                    },
+                });
+
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Mis-sync!",
+                });
+            }
+
             if (!res.success) {
                 throw new TRPCError({
                     code: "CONFLICT",
@@ -113,89 +133,86 @@ export const jobsRouter = createTRPCRouter({
             return cancelled;
         }),
 
-    generateTestJob: protectedProcedure.mutation(async ({ ctx }) => {
-        const random = randomInt(0, 3);
-        const library = await ctx.db.library.findFirst({
-            where: { userId: ctx.session.user.id },
-        });
-        if (!library) {
-            throw new TRPCError({ code: "NOT_FOUND" });
-        }
-        switch (random) {
-            case 0:
-                const createdJob1: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.CANCELLED,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob1;
-            case 1:
-                const createdJob2: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.COMPLETED,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob2;
-            case 2:
-                const createdJob3: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.FAILED,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob3;
-            case 3:
-                const createdJob4: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.PENDING,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob4;
-            case 4:
-                const createdJob5: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.RUNNING,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob5;
-            case 5:
-                const createdJob6: Job = await ctx.db.job.create({
-                    data: {
-                        status: Status.UNKNOWN,
-                        documentCount: randomInt(1, 30),
-                        message:
-                            "Created by random job function in admin panel",
-                        libraryId: library?.id,
-                        userId: ctx.session.user.id,
-                    },
-                });
-                return createdJob6;
-        }
+    generateTestJob: protectedProcedure
+        .input(z.object({ libraryId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const random = randomInt(0, 5);
 
-        throw new TRPCError({ code: "NOT_IMPLEMENTED" });
-    }),
+            switch (random) {
+                case 0:
+                    const createdJob1: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.CANCELLED,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob1;
+                case 1:
+                    const createdJob2: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.COMPLETED,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob2;
+                case 2:
+                    const createdJob3: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.FAILED,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob3;
+                case 3:
+                    const createdJob4: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.PENDING,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob4;
+                case 4:
+                    const createdJob5: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.RUNNING,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob5;
+                case 5:
+                    const createdJob6: Job = await ctx.db.job.create({
+                        data: {
+                            status: Status.UNKNOWN,
+                            documentCount: randomInt(1, 30),
+                            message:
+                                "Created by random job function in admin panel",
+                            libraryId: input.libraryId,
+                            userId: ctx.session.user.id,
+                        },
+                    });
+                    return createdJob6;
+            }
+
+            throw new TRPCError({ code: "NOT_IMPLEMENTED" });
+        }),
 });

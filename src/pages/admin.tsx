@@ -1,4 +1,4 @@
-import { Document, Library, Membership, Role } from "@prisma/client";
+import { Document, Job, Library, Membership, Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -10,7 +10,6 @@ import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
 
 type Menu = {
     libraries: boolean;
-    jobs: boolean;
     sessions: boolean;
     accounts: boolean;
     documents: boolean;
@@ -36,14 +35,8 @@ const Admin = () => {
 
     const map = new Map<string, Menu>();
 
-    const generateJobToast = "GenerateJobToastId";
-    const { mutate: generateJob } = api.job.generateTestJob.useMutation({
-        ...defaultOpts(generateJobToast),
-    });
-
     const defaultMenu: Menu = {
         libraries: false,
-        jobs: false,
         accounts: false,
         sessions: false,
         documents: false,
@@ -98,118 +91,7 @@ const Admin = () => {
                                     <div>
                                         Created: {dtfmt.format(user.createdAt)}
                                     </div>
-                                    {user.id === session.user.id && (
-                                        <Button
-                                            onClick={() => {
-                                                generateJob();
-                                            }}
-                                            className="mt-3"
-                                            small
-                                            color="neutral"
-                                            text="Generate Random Prisma Job (UI only)"
-                                        />
-                                    )}
-                                    <div>
-                                        <div>
-                                            <h1 className="mt-3 text-xl">
-                                                Jobs - {user._count.jobs}{" "}
-                                            </h1>
-                                            <Button
-                                                small={true}
-                                                color="neutral"
-                                                text={
-                                                    menu.jobs
-                                                        ? "Hide"
-                                                        : "Expand"
-                                                }
-                                                className="mb-3"
-                                                onClick={() => {
-                                                    setDataUnfolded(
-                                                        (prevMap) => {
-                                                            const menu =
-                                                                prevMap.get(
-                                                                    user.id,
-                                                                ) ??
-                                                                defaultMenu;
-                                                            const updatedMenu =
-                                                                {
-                                                                    ...menu,
-                                                                    jobs: !menu.jobs,
-                                                                };
-                                                            const newMap =
-                                                                new Map(
-                                                                    prevMap,
-                                                                );
-                                                            newMap.set(
-                                                                user.id,
-                                                                updatedMenu,
-                                                            );
-                                                            return newMap;
-                                                        },
-                                                    );
-                                                }}
-                                            ></Button>
-                                        </div>
 
-                                        <div
-                                            className={`rounded-lg border-x transition-all duration-300 ${
-                                                menu.jobs
-                                                    ? "h-96 overflow-y-scroll border"
-                                                    : "h-0 overflow-hidden"
-                                            }`}
-                                        >
-                                            <ol
-                                                type="1"
-                                                className="divide-y bg-sand-300"
-                                            >
-                                                {user.jobs.map((job) => {
-                                                    return (
-                                                        <li
-                                                            key={job.id}
-                                                            className="px-2 py-6"
-                                                        >
-                                                            <div>
-                                                                {job.status}
-                                                            </div>
-                                                            <div>
-                                                                Job ID: {job.id}
-                                                            </div>
-                                                            <div>
-                                                                Library ID:{" "}
-                                                                {job.libraryId}
-                                                            </div>
-
-                                                            <div>
-                                                                Started at{" "}
-                                                                {dtfmt.format(
-                                                                    job.startedAt ??
-                                                                        undefined,
-                                                                )}
-                                                            </div>
-
-                                                            <div>
-                                                                Finished at{" "}
-                                                                {dtfmt.format(
-                                                                    job.endedAt ??
-                                                                        undefined,
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                Message:{" "}
-                                                                {job.message}
-                                                            </div>
-                                                            <div>
-                                                                Document count:{" "}
-                                                                {
-                                                                    job.documentCount
-                                                                }
-                                                            </div>
-                                                        </li>
-                                                    );
-                                                })}
-                                            </ol>
-                                        </div>
-                                    </div>
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
@@ -441,6 +323,13 @@ const Admin = () => {
                                                     (library, i) => {
                                                         return (
                                                             <LibraryReadout
+                                                                sessionId={
+                                                                    session.user
+                                                                        .id
+                                                                }
+                                                                userId={
+                                                                    library.userId
+                                                                }
                                                                 key={i}
                                                                 library={
                                                                     library
@@ -469,6 +358,7 @@ type LibraryPlus = {
     createdAt: Date;
 } & {
     documents: Document[];
+    jobs: Job[];
     _count: {
         User: number;
         documents: number;
@@ -476,15 +366,30 @@ type LibraryPlus = {
     };
 };
 
-const LibraryReadout = ({ library }: { library: LibraryPlus }) => {
+const LibraryReadout = ({
+    library,
+    userId,
+    sessionId,
+}: {
+    library: LibraryPlus;
+    userId: string;
+    sessionId: string;
+}) => {
     const [documentExpanded, setDocumentExpanded] = useState(false);
+
+    const generateJobToast = "GenerateJobToastId";
+    const { mutate: generateJob } = api.job.generateTestJob.useMutation({
+        ...defaultOpts(generateJobToast),
+    });
+
+    const [jobsExpanded, setJobsExpanded] = useState(false);
 
     return (
         <li key={library.id} className="flex flex-col p-2 sm:p-6 ">
             <span className="text-2xl">Library ID: {library.id}</span>
             <span>Title: {library.title}</span>
             <span>Created: {dtfmt.format(library.createdAt)}</span>
-            <div>
+            <div className="">
                 <Button
                     className="my-3"
                     small={true}
@@ -493,7 +398,18 @@ const LibraryReadout = ({ library }: { library: LibraryPlus }) => {
                     onClick={() => {
                         setDocumentExpanded((p) => !p);
                     }}
-                ></Button>
+                />
+                {userId === sessionId && (
+                    <Button
+                        onClick={() => {
+                            generateJob({ libraryId: library.id });
+                        }}
+                        className=" ms-3"
+                        small
+                        color="neutral"
+                        text="Generate Random Prisma Job (UI only)"
+                    />
+                )}
                 <div
                     className={` overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
                         documentExpanded
@@ -509,6 +425,30 @@ const LibraryReadout = ({ library }: { library: LibraryPlus }) => {
                                     document={document}
                                     i={i}
                                 />
+                            </>
+                        );
+                    })}
+                </div>
+                <Button
+                    className="my-3"
+                    small={true}
+                    color="secondary"
+                    text={`Jobs: ${library._count.jobs}`}
+                    onClick={() => {
+                        setJobsExpanded((p) => !p);
+                    }}
+                />
+                <div
+                    className={` overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
+                        jobsExpanded
+                            ? "h-[600px] overflow-scroll overscroll-contain "
+                            : "h-0 overflow-hidden"
+                    }`}
+                >
+                    {library.jobs.map((job, i) => {
+                        return (
+                            <>
+                                <JobReadout key={i} job={job} i={i} />
                             </>
                         );
                     })}
@@ -572,6 +512,50 @@ const DocumentReadout = ({
                 <div className="flex flex-row py-1">
                     <span className="w-40">Notes: </span>
                     <span>{docNotes}</span>
+                </div>
+            </div>
+        </>
+    );
+};
+
+const JobReadout = ({ job, i }: { job: Job; i: number }) => {
+    return (
+        <>
+            <div
+                key={i}
+                className="flex flex-col divide-y divide-baltic-950 p-8  font-medium  odd:bg-gable-900 even:bg-gable-950"
+            >
+                <div className="flex flex-row py-1 font-semibold">
+                    <span className="w-40 ">Job ID: </span>
+                    <span>{job.id}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Message: </span>
+                    <span>{job.message}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Status: </span>
+                    <span>{job.status}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Document count: </span>
+                    <span>{job.documentCount}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Created: </span>
+                    <span>{dtfmt.format(job.createdAt)}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Started: </span>
+                    <span>
+                        {job.startedAt ? dtfmt.format(job.startedAt) : "null"}
+                    </span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40 ">Finished: </span>
+                    <span>
+                        {job.endedAt ? dtfmt.format(job.endedAt) : "null"}
+                    </span>
                 </div>
             </div>
         </>

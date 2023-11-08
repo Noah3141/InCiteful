@@ -87,11 +87,11 @@ export const usersRouter = createTRPCRouter({
             const data = await ctx.db.user.findMany({
                 include: {
                     _count: true,
-                    jobs: true,
                     libraries: {
                         include: {
                             _count: true,
                             documents: true,
+                            jobs: true,
                         },
                     },
                     sessions: true,

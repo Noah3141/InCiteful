@@ -880,10 +880,10 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                 toast.loading("Loading...", { id: cancelJobToast });
             },
             onSuccess: async () => {
-                toast.success("Document added!", { id: cancelJobToast });
-                await trpc.job.invalidate();
+                toast.success("Job cancelled!", { id: cancelJobToast });
+                await trpc.library.invalidate();
             },
-            onError: (e) => {
+            onError: async (e) => {
                 if (e.data?.code == "BAD_REQUEST") {
                     void toast.error(e.message, { id: cancelJobToast });
                 } else {
@@ -892,6 +892,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                         id: cancelJobToast,
                     });
                 }
+                await trpc.library.invalidate();
             },
         });
 
@@ -913,7 +914,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                 <div className="hidden w-36 md:block">Started</div>
                 <div className="w-36">Finished</div>
             </div>
-            <div className="flex flex-col gap-1 ">
+            <div className="flex max-h-96 flex-col gap-1 overflow-scroll px-3 py-2">
                 {data.jobs.map((job, i, list) => {
                     //
                     const cancellable =
