@@ -25,7 +25,7 @@ const HoverEdit = ({
                         hover:cursor-pointer after:hover:scale-100 group-hover:inline
                     `}
                 >
-                    <div className="flex h-8 w-8 flex-row items-center justify-center ">
+                    <div className="mb-1 flex h-8 w-8 flex-row items-center justify-center ">
                         <VscEdit className="relative z-20" />
                     </div>
                 </div>

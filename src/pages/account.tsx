@@ -117,7 +117,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
         <div className="">
             {/* Rows */}
             <div className="flex flex-col gap-6  py-12">
-                <div className="flex flex-col  gap-3 text-2xl lg:flex-row lg:items-center">
+                <div className="flex flex-col items-start gap-3 text-2xl  sm:flex-row sm:items-center">
                     <span>Username:</span>
                     <span className="font-medium">
                         {editting.name ? (
@@ -133,7 +133,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                             );
                                         }}
                                         className={`
-                                        w-full  max-w-md rounded-md  bg-neutral-50  px-3 text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
+                                        w-full  max-w-md rounded-md  bg-neutral-50 px-3   text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
                                         hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0
                                         `}
                                         type="text"
@@ -144,7 +144,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                         onClick={() => {
                                             setEditting(closedEdits);
                                         }}
-                                        className="me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
+                                        className=" me-2 translate-x-1 cursor-pointer rounded-sm p-[3px]"
                                     />
                                 </div>
                             </>
@@ -161,7 +161,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                 }}
                                 className="pe-10"
                             >
-                                <span className="cursor-default text-2xl">
+                                <span className="cursor-default rounded-lg px-2 py-1 text-2xl  ">
                                     {form.name}
                                 </span>
                             </HoverEdit>
@@ -169,7 +169,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                     </span>
                 </div>
                 <div>
-                    <div className="flex flex-col gap-3 text-2xl lg:flex-row  lg:items-center">
+                    <div className="flex flex-col items-start gap-3 text-2xl sm:flex-row sm:items-center">
                         <span>Email:</span>
                         <span className="font-medium">
                             {editting.email ? (
