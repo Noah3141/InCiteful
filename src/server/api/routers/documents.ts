@@ -43,6 +43,8 @@ export const documentsRouter = createTRPCRouter({
                 filename: z.string(),
                 libraryId: z.string(),
                 file: z.string().optional(),
+                notes: z.string().optional(),
+                link: z.string().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -51,6 +53,12 @@ export const documentsRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "Please select a file to upload",
+                });
+            }
+            if (!z.string().url().optional().safeParse(input.link).success) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Please enter a valid URL!",
                 });
             }
             // Send document to the backend
@@ -108,6 +116,8 @@ export const documentsRouter = createTRPCRouter({
                     id: res.document.doc_id,
                     title: res.document.title,
                     publicationSource: res.document.pub_source,
+                    link: input.link,
+                    notes: input.notes,
                     authors: {
                         connect: authorData,
                     },
@@ -275,10 +285,21 @@ export const documentsRouter = createTRPCRouter({
             z.object({
                 libraryId: z.string(),
                 documentId: z.string(),
-                link: z.string().optional(),
+                link: z.string().optional().nullable(),
+                notes: z.string().optional().nullable(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
+            if (
+                !z.string().url().optional().nullable().safeParse(input.link)
+                    .success
+            ) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Please enter a valid URL!",
+                });
+            }
+
             const updated: Document = await ctx.db.document.update({
                 where: {
                     id: input.documentId,
@@ -286,6 +307,7 @@ export const documentsRouter = createTRPCRouter({
                 },
                 data: {
                     link: input.link,
+                    notes: input.notes,
                 },
             });
             return updated;

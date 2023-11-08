@@ -11,7 +11,7 @@ const Hall = ({ children, className = "", title }: Props) => {
         <>
             <title>{title ?? "InCiteful"}</title>
             <div
-                className={`mx-auto h-full min-h-screen max-w-4xl pt-12 ${className}`}
+                className={`mx-auto  h-full min-h-screen max-w-4xl pt-12 ${className}`}
             >
                 {children}
             </div>

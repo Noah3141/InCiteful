@@ -29,7 +29,7 @@ const Button = ({
             hover:bg-tango-500 hover:text-sand-100`
             : color == "secondary"
             ? // SECONDARY CLASSES
-              `text-sushi-600 border border-sushi-600 rounded-lg 
+              `text-sushi-600 border-2 border-sushi-600 rounded-lg 
             ${
                 loading
                     ? ""
@@ -38,8 +38,8 @@ const Button = ({
             disabled:opacity-50 disabled:hover:bg-opacity-0 disabled:cursor-default`
             : color == "neutral"
             ? // NEUTRAL CLASSES
-              `bg-baltic-700 rounded-sm text-neutral-100 rounded-md
-            hover:bg-baltic-800 hover:text-neutral-100`
+              `bg-baltic-700  text-neutral-100 rounded-lg
+            hover:bg-baltic-800 hover:text-neutral-50`
             : null;
     const sizeClasses = small ? "py-1 px-4 w-fit" : "py-3 px-6 w-fit";
     const loaderColor =

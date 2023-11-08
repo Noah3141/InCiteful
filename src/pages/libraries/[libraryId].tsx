@@ -8,15 +8,18 @@ import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
-import { Status, type Document } from "@prisma/client";
+import { Status, type Document, Library } from "@prisma/client";
 import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
 import { JobStatus, toTitleCase } from "~/components/JobStatus";
 import { type FileAPI } from "~/models/documents/add";
 import Arrow from "~/images/icons/Arrow";
 import Link from "next/link";
-import { BiEditAlt } from "react-icons/bi";
+import { BiEditAlt, BiSolidCheckCircle } from "react-icons/bi";
+import { IoCloseCircle } from "react-icons/io5";
 import { thinTooltipStyles } from "~/styles/tooltips";
+import { TRPCClientError } from "@trpc/client";
+import HoverEdit from "~/components/HoverEdit";
 //
 
 const LibraryPage = () => {
@@ -30,7 +33,7 @@ const LibraryPage = () => {
 
     if (isLoading) {
         return (
-            <Hall title="...">
+            <Hall className="text-sand-950" title="...">
                 <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
                     <h1 className="page-title"></h1>
                 </div>
@@ -41,7 +44,7 @@ const LibraryPage = () => {
 
     if (!data?.documents && !!data?.library.title) {
         return (
-            <Hall title={data.library.title}>
+            <Hall className="text-sand-950" title={data.library.title}>
                 <div className="flex h-16 flex-row items-center justify-between px-4 sm:px-16">
                     <h1 className="page-title"></h1>
                     <DeleteLibrary libraryId={pathId} />
@@ -59,11 +62,9 @@ const LibraryPage = () => {
         toast.error("No library found here!");
     } else
         return (
-            <Hall title={data.library.title}>
+            <Hall className="text-sand-950" title={data.library.title}>
                 <div className="flex  flex-row items-start justify-between px-4  sm:px-16">
-                    <h1 className="page-title max-w-full overflow-x-clip overflow-y-visible text-ellipsis">
-                        {data?.library.title}
-                    </h1>
+                    <LibraryTitle library={data.library} />
                     <div className="pt-2">
                         <DeleteLibrary libraryId={pathId} />
                     </div>
@@ -78,15 +79,96 @@ const LibraryPage = () => {
         );
 };
 
+function LibraryTitle({ library }: { library: Library }) {
+    const trpc = api.useContext();
+    const [titleForm, setTitleForm] = useState(library.title);
+    const [titleEditting, setTitleEditting] = useState(false);
+    const updateLibraryTitleToast = "UpdateLibraryTitleToastID";
+    const { mutate: updateLibraryTitle, isLoading: titleUpdating } =
+        api.library.updateTitle.useMutation({
+            onMutate: () => {
+                toast.loading("Updating title...", {
+                    id: updateLibraryTitleToast,
+                });
+            },
+            onSuccess: async () => {
+                toast.success("Title updated!", {
+                    id: updateLibraryTitleToast,
+                });
+                await trpc.library.invalidate();
+                setTitleEditting(false);
+            },
+            onError: (e) => {
+                if (e.data?.code == "BAD_REQUEST") {
+                    toast.error(e.message, {
+                        id: updateLibraryTitleToast,
+                    });
+                    return;
+                }
+                toast.error("Something went wrong!", {
+                    id: updateLibraryTitleToast,
+                });
+            },
+        });
+
+    if (titleEditting) {
+        return (
+            <div className="mb-6 flex flex-row gap-3">
+                <input
+                    type="text"
+                    value={titleForm}
+                    onChange={(e) => {
+                        setTitleForm(e.target.value);
+                    }}
+                    className="w-full rounded-lg bg-sand-50 px-2 py-2 outline-none selection:bg-sand-200"
+                />
+                <div
+                    onClick={() => {
+                        updateLibraryTitle({
+                            libraryId: library.id,
+                            title: titleForm,
+                        });
+                    }}
+                    className="grid items-center justify-center text-sand-950 hover:cursor-pointer hover:text-sand-900"
+                >
+                    <BiSolidCheckCircle size={24} />
+                </div>
+                <div
+                    onClick={() => {
+                        setTitleForm(library.title);
+                        setTitleEditting(false);
+                    }}
+                    className="grid items-center justify-center text-sand-950 hover:cursor-pointer hover:text-sand-900"
+                >
+                    <IoCloseCircle size={24} />
+                </div>
+            </div>
+        );
+    } else
+        return (
+            <HoverEdit
+                editEvent={() => {
+                    setTitleEditting(true);
+                }}
+                cursorHover
+                iconClasses="-translate-y-6"
+            >
+                <h1 className="page-title max-w-full overflow-x-clip overflow-y-visible text-ellipsis">
+                    {library.title}
+                </h1>
+            </HoverEdit>
+        );
+}
+
 const DocumentList = ({ documents }: { documents: Document[] }) => {
     return (
-        <div className="border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
-            <div>
+        <div className="mb-36 border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
+            <div className="flex flex-row items-center">
                 <h1 className=" text-2xl">
                     Documents{documents.length > 0 && `: ${documents.length}`}
                 </h1>
             </div>
-            <div className="mt-4 flex max-h-96 flex-col ">
+            <div className="mt-4 flex max-h-96 flex-col gap-1 ">
                 {documents.length !== 0
                     ? documents.map((document: Document, i) => (
                           <DocumentRow key={i} i={i} document={document} />
@@ -101,6 +183,7 @@ export default LibraryPage;
 
 type DocumentUpdateForm = {
     link: string;
+    notes: string;
 };
 
 function DocumentRow({ document, i }: { document: Document; i: number }) {
@@ -127,19 +210,35 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             },
         });
 
+    const [expanded, setExpanded] = useState(false);
     const [editting, setEditting] = useState(false);
 
     const [docUpdateForm, setDocUpdateForm] = useState<DocumentUpdateForm>({
         link: document.link ?? "",
+        notes: document.notes ?? "",
     });
 
     const documentUpdateToast = "DocumentUpdateToastId";
     const { mutate: submitDocForm, isLoading: docFormUpdating } =
         api.document.updateForm.useMutation({
-            ...defaultOpts(documentUpdateToast),
+            onMutate: () => {
+                toast.loading("Updating document...", {
+                    id: documentUpdateToast,
+                });
+            },
+            onError: (e) => {
+                if (e.data?.code == "BAD_REQUEST") {
+                    void toast.error(e.message, { id: documentUpdateToast });
+                    return;
+                }
+                toast.error("Something went wrong!", {
+                    id: documentUpdateToast,
+                });
+            },
             onSuccess: async () => {
                 toast.success("Document updated!", { id: documentUpdateToast });
                 await trpc.library.invalidate();
+                await trpc.document.invalidate();
             },
         });
 
@@ -161,32 +260,38 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
         <span className="">{document.title}</span>
     );
 
-    const publishedAt = document.publishedAt ? (
-        <div>{dtfmt.format(document.publishedAt)}</div>
-    ) : (
-        <div>Publish date not found</div>
-    );
-
     return (
-        <div key={document.id} className="group/row py-3 transition-all">
-            <div className="flex flex-row">
-                <div className="w-11/12 text-xl ">
-                    {title}
-                    <span className="ps-2 font-medium">
-                        ({document.publicationSource})
-                    </span>
+        <div
+            key={document.id}
+            className={`group/row ${
+                expanded ? "my-1" : "cursor-pointer"
+            } rounded-[20px] bg-sand-200 shadow-md transition-all  hover:bg-sand-100 `}
+        >
+            <div
+                onClick={() => {
+                    setExpanded(true);
+                }}
+                className="flex flex-row justify-between px-3 py-1"
+            >
+                <div className="flex flex-row items-center">
+                    <div>
+                        <span>{title}</span>
+                        <span className="ps-2 font-medium">
+                            ({document.publicationSource})
+                        </span>
+                    </div>
                 </div>
                 <div
                     id={`clickEdit-${i}`}
-                    className={` group
-                        relative ms-2 grid h-8 w-8 items-center justify-center   
-                        
+                    className={` group relative z-20 
+                        ms-2 grid h-8 w-8 shrink-0 items-center justify-center   
+                    
                         ${
                             editting
                                 ? "after:bg-baltic-700"
-                                : "after:scale-0 after:bg-gable-800 after:opacity-25 hover:after:scale-100"
+                                : "after:scale-0 after:bg-baltic-800 after:opacity-25 hover:after:scale-100"
                         }
-                        after:absolute after:left-0 after:top-0 after:-z-10 after:h-8 after:w-8  after:rounded-full   after:transition-all 
+                        after:absolute after:left-0 after:top-0 after:z-0 after:h-8 after:w-8  after:rounded-full   after:transition-all 
 
                     `}
                 >
@@ -194,12 +299,12 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                         className={`transition-opacity ${
                             editting
                                 ? "opacity-100 duration-0"
-                                : " opacity-0 duration-150 group-hover/row:opacity-100"
+                                : " duration-150 group-hover/row:opacity-100 group-focus:opacity-100 sm:opacity-0"
                         }`}
                     >
                         <BiEditAlt
-                            className={`transition-colors    ${
-                                editting ? "text-sand-50 " : "text-neutral-900 "
+                            className={`relative z-30 transition-colors   ${
+                                editting ? "text-baltic-50 " : "text-sand-950 "
                             }`}
                             size={24}
                         />
@@ -209,6 +314,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                             borderRadius: "8px",
                             background: "rgb(245 230 214)",
                             boxShadow: " 0px 10px 15px rgb(0,0,0,.15)",
+                            maxWidth: "95vw",
                         }}
                         border={"1px solid rgb(65 60 80)"}
                         openOnClick
@@ -223,10 +329,10 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                         }}
                         className=""
                     >
-                        <div className="flex flex-col gap-3 divide-y  divide-baltic-800 text-baltic-950 ">
-                            <div>
+                        <div className="flex flex-col gap-3 divide-y divide-baltic-800  pt-2 text-baltic-950 ">
+                            <div className="flex flex-col gap-1">
                                 <div className="flex flex-row  items-center gap-2 ">
-                                    <span>Link:</span>
+                                    <span className="w-10">Link:</span>
                                     <input
                                         value={docUpdateForm.link}
                                         onChange={(e) => {
@@ -235,19 +341,44 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                                                 link: e.target.value,
                                             }));
                                         }}
-                                        className="rounded-md bg-baltic-800 px-2 py-1 text-baltic-200 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
-                                        type="text"
+                                        className="w-full rounded-md bg-baltic-800 px-2 py-1 text-baltic-50 caret-baltic-50 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
+                                        type="url"
                                         name=""
                                         id=""
                                     />
                                 </div>
+                                <div className="flex flex-row justify-between gap-1">
+                                    <span className="w-10">Notes: </span>
+                                    <textarea
+                                        value={docUpdateForm.notes}
+                                        onChange={(e) => {
+                                            setDocUpdateForm((p) => ({
+                                                ...p,
+                                                notes: e.target.value,
+                                            }));
+                                        }}
+                                        className="w-96 rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
+                                        id=""
+                                    ></textarea>
+                                </div>
                                 <div className="mt-2 flex flex-row justify-end">
                                     <Button
                                         onClick={() => {
+                                            const link =
+                                                docUpdateForm.link !== ""
+                                                    ? docUpdateForm.link
+                                                    : null;
+
+                                            const notes =
+                                                docUpdateForm.notes !== ""
+                                                    ? docUpdateForm.notes
+                                                    : null;
+
                                             submitDocForm({
                                                 documentId: document.id,
                                                 libraryId: document.libraryId,
-                                                link: docUpdateForm.link,
+                                                link,
+                                                notes,
                                             });
                                         }}
                                         loading={docFormUpdating}
@@ -261,9 +392,38 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                                 <Button
                                     loading={docRemoving}
                                     onClick={() => {
-                                        removeDocument({
-                                            documentId: document.id,
-                                            libraryId: document.libraryId,
+                                        toast((t) => {
+                                            return (
+                                                <span className="cursor-default text-center text-neutral-950">
+                                                    Remove this document?
+                                                    <div className="flex flex-row justify-between pt-3">
+                                                        <button
+                                                            onClick={() => {
+                                                                toast.dismiss(
+                                                                    t.id,
+                                                                );
+                                                            }}
+                                                        >
+                                                            Keep!🗃️
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                removeDocument({
+                                                                    documentId:
+                                                                        document.id,
+                                                                    libraryId:
+                                                                        document.libraryId,
+                                                                });
+                                                                toast.dismiss(
+                                                                    t.id,
+                                                                );
+                                                            }}
+                                                        >
+                                                            Remove!🪓
+                                                        </button>
+                                                    </div>
+                                                </span>
+                                            );
                                         });
                                     }}
                                     className="mt-3 self-end"
@@ -276,9 +436,51 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                     </Tooltip>
                 </div>
             </div>
-            <div className="font-medium">
-                <div>Added: {dtfmt.format(document.createdAt)}</div>
-                <div>{publishedAt}</div>
+
+            <div
+                className={` px-3 font-medium transition-all  ${
+                    expanded
+                        ? ` overflow-y-scroll ${
+                              document.notes ? "h-60" : "h-28" // expanded with notes vs without
+                          } `
+                        : "h-0 overflow-hidden"
+                }`}
+            >
+                <div>
+                    <span className="inline-block w-24">Added:</span>
+                    <span>{dtfmt.format(document.createdAt)}</span>
+                </div>
+                <div>
+                    <span className="inline-block w-24">Published: </span>
+                    <span>
+                        {document.publishedAt
+                            ? dtfmt.format(document.publishedAt)
+                            : "Not found"}
+                    </span>
+                </div>
+                <div>
+                    <span className="inline-block w-24">Link: </span>
+                    <span>{document.link ?? "None"}</span>
+                </div>
+
+                <div className=" cursor-default ">
+                    <span className="inline-block w-24">Notes: </span>
+                    <span>{!document.notes && "None"}</span>
+                    <div>{document.notes}</div>
+                </div>
+            </div>
+            <div
+                className={`group/tab transtion-all flex cursor-pointer flex-row justify-center rounded-b-[20px] bg-sand-300 hover:bg-sand-400 ${
+                    expanded ? "py-1" : "h-0 overflow-hidden"
+                }`}
+                onClick={() => {
+                    setExpanded(false);
+                }}
+            >
+                <Arrow
+                    size={12}
+                    className={`text-sand-500 group-hover/tab:text-sand-50`}
+                />
             </div>
         </div>
     );
@@ -295,12 +497,12 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
     const { mutate: removeLibrary, isLoading } = api.library.remove.useMutation(
         {
             onMutate: () => {
-                toast.loading("Removing list...💨", {
+                toast.loading("Removing library...💨", {
                     id: removedFromListsToastId,
                 });
             },
             onSuccess: async () => {
-                toast.success("Removed from saved lists!☁️", {
+                toast.success("Removed library!☁️", {
                     id: removedFromListsToastId,
                 });
                 await router.push("/libraries");
@@ -322,7 +524,7 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
                 onClick={() => {
                     toast((t) => {
                         return (
-                            <span className="text-primary-950 cursor-default text-center">
+                            <span className="cursor-default text-center text-neutral-950">
                                 Sure you want to delete this library?
                                 <div className="flex flex-row justify-between pt-3">
                                     <button
@@ -367,6 +569,14 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
         </>
     );
 };
+enum UploadType {
+    Single,
+    Multiple,
+}
+type SingleDocForm = {
+    notes: string;
+    link: string;
+};
 
 const AddDocumentWizard = ({
     libraryId,
@@ -379,7 +589,11 @@ const AddDocumentWizard = ({
     const [uploadFile, setUploadFile] = useState<FileList | null>(null);
     const [uploadFiles, setUploadFiles] = useState<FileList | null>(null);
     // const [sourceType, sourceTypeDisplay] = parseForType(batchUrl);
-
+    const [uploadType, setUploadType] = useState(UploadType.Single);
+    const [singleDocForm, setSingleDocForm] = useState<SingleDocForm>({
+        notes: "",
+        link: "",
+    });
     const addDocToast = "addDocToastId";
     const { mutate: addDocument, isLoading: singleLoading } =
         api.document.postOne.useMutation({
@@ -394,12 +608,13 @@ const AddDocumentWizard = ({
             onError: (e) => {
                 if (e.data?.code == "BAD_REQUEST") {
                     void toast.error(e.message, { id: addDocToast });
-                } else {
-                    console.log("ERROR MESSAGE", e);
-                    void toast.error(`Something went wrong!`, {
-                        id: addDocToast,
-                    });
+                    return;
                 }
+
+                console.log("ERROR MESSAGE", e);
+                void toast.error(`Something went wrong!`, {
+                    id: addDocToast,
+                });
             },
         });
 
@@ -435,10 +650,22 @@ const AddDocumentWizard = ({
                         id: addDocToast,
                     });
                 } else {
+                    const link =
+                        singleDocForm.link !== ""
+                            ? singleDocForm.link
+                            : undefined;
+
+                    const notes =
+                        singleDocForm.notes !== ""
+                            ? singleDocForm.notes
+                            : undefined;
+
                     addDocument({
                         file: contents,
                         libraryId: libraryId,
                         filename: file?.name ?? "Not found",
+                        link,
+                        notes,
                     });
                 }
             }
@@ -494,14 +721,75 @@ const AddDocumentWizard = ({
     const singleFileInput = useRef<HTMLInputElement>(null);
     const multiFileInput = useRef<HTMLInputElement>(null);
     const fileName = singleFileInput.current?.files?.item(0)?.name;
+
+    const active = "rounded-md px-2 py-1 text-sand-50 bg-sand-950";
+    const inactive =
+        "border font-medium rounded-md px-2 py-1 hover:bg-sand-300";
     return (
         <div className=" px-4 pb-12 transition-all sm:px-16">
             <div className=" w-full rounded-xl bg-sand-200 py-6 shadow">
                 <div className="px-6 transition-all sm:px-16">
-                    <h1 className="text-xl">Add Documents</h1>
+                    <h1 className="mb-3 text-xl">Add Documents</h1>
+                    <div className="mb-6 flex flex-row gap-3">
+                        <h2
+                            onClick={() => {
+                                setUploadType(UploadType.Single);
+                            }}
+                            className={`cursor-pointer ${
+                                uploadType == UploadType.Single
+                                    ? active
+                                    : inactive
+                            }`}
+                        >
+                            Single File
+                        </h2>
+                        <h2
+                            onClick={() => {
+                                setUploadType(UploadType.Multiple);
+                            }}
+                            className={`cursor-pointer ${
+                                uploadType == UploadType.Multiple
+                                    ? active
+                                    : inactive
+                            }`}
+                        >
+                            Multiple Files
+                        </h2>
+                    </div>
                 </div>
-                <div className="mt-4 flex flex-col gap-3">
-                    <div className="flex  h-full items-center justify-between  overflow-hidden px-6 transition-all sm:px-16">
+                {uploadType == UploadType.Single && (
+                    <div className="flex h-full flex-col justify-between  overflow-hidden px-6 transition-all sm:px-16">
+                        <div></div>
+                        <div className="">
+                            <span>Link: </span>
+                            <input
+                                value={singleDocForm.link}
+                                onChange={(e) => {
+                                    setSingleDocForm((p) => ({
+                                        ...p,
+                                        link: e.target.value,
+                                    }));
+                                }}
+                                type="url"
+                                name=""
+                                placeholder="Optional link to this document"
+                                id=""
+                                className="mb-3 w-full rounded-md bg-sand-50 px-3 py-1 outline-none"
+                            />
+                            <span>Notes: </span>
+                            <textarea
+                                value={singleDocForm.notes}
+                                onChange={(e) => {
+                                    setSingleDocForm((p) => ({
+                                        ...p,
+                                        notes: e.target.value,
+                                    }));
+                                }}
+                                placeholder="Optional notes for this document"
+                                id=""
+                                className="mb-3 h-28 max-h-96 w-full rounded-md bg-sand-50 p-3 outline-none"
+                            />
+                        </div>
                         <div>
                             <input
                                 name="Hidden file input button"
@@ -516,27 +804,32 @@ const AddDocumentWizard = ({
                             <div className="flex flex-col md:flex-row md:items-center">
                                 <Button
                                     name="Shown file input button"
-                                    text="Select a single file"
+                                    text="Select File"
                                     color="neutral"
                                     className="me-3"
                                     onClick={(e) =>
                                         singleFileInput?.current?.click()
                                     }
                                 />
-                                <div className="w-48 truncate lg:w-64">
-                                    {fileName}
-                                </div>
+                                <div className="truncate ">{fileName}</div>
                             </div>
                         </div>
                         <Button
                             disabled={!uploadFile || singleLoading}
                             onClick={upload}
-                            className=""
+                            className="self-end"
                             color="secondary"
-                            text="Upload File"
+                            text="Upload"
                         ></Button>
                     </div>
-                    <div className=" flex h-full  items-start justify-between gap-3 border-sand-300 px-6 transition-all  sm:flex-row sm:items-center sm:px-16">
+                )}
+                {uploadType == UploadType.Multiple && (
+                    <div className=" flex h-full flex-col border-sand-300 px-6 transition-all sm:px-16">
+                        <div className="mb-3">
+                            Uploading multiple files will take some time to
+                            finish. You can check the status of the upload in
+                            your jobs.
+                        </div>
                         <div>
                             <input
                                 className="hidden"
@@ -549,9 +842,9 @@ const AddDocumentWizard = ({
                                 placeholder="Provide a link to a folder of files"
                             />
                             <Button
-                                text="Submit multiple files"
+                                text="Select Files"
                                 color="neutral"
-                                className="bg"
+                                className=""
                                 onClick={(e) =>
                                     multiFileInput?.current?.click()
                                 }
@@ -560,12 +853,12 @@ const AddDocumentWizard = ({
                         <Button
                             disabled={!uploadFiles || multiLoading}
                             onClick={uploadMany}
-                            className=" "
+                            className=" self-end"
                             color="secondary"
-                            text="Create Job"
+                            text="Upload"
                         ></Button>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

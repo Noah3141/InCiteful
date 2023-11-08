@@ -12,6 +12,7 @@ import {
     jobs_cancel,
     type Response as CancelJobRes,
 } from "~/models/jobs/cancel";
+import { randomInt } from "crypto";
 
 export const jobsRouter = createTRPCRouter({
     checkJob: protectedProcedure
@@ -111,4 +112,90 @@ export const jobsRouter = createTRPCRouter({
 
             return cancelled;
         }),
+
+    generateTestJob: protectedProcedure.mutation(async ({ ctx }) => {
+        const random = randomInt(0, 3);
+        const library = await ctx.db.library.findFirst({
+            where: { userId: ctx.session.user.id },
+        });
+        if (!library) {
+            throw new TRPCError({ code: "NOT_FOUND" });
+        }
+        switch (random) {
+            case 0:
+                const createdJob1: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.CANCELLED,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob1;
+            case 1:
+                const createdJob2: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.COMPLETED,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob2;
+            case 2:
+                const createdJob3: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.FAILED,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob3;
+            case 3:
+                const createdJob4: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.PENDING,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob4;
+            case 4:
+                const createdJob5: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.RUNNING,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob5;
+            case 5:
+                const createdJob6: Job = await ctx.db.job.create({
+                    data: {
+                        status: Status.UNKNOWN,
+                        documentCount: randomInt(1, 30),
+                        message:
+                            "Created by random job function in admin panel",
+                        libraryId: library?.id,
+                        userId: ctx.session.user.id,
+                    },
+                });
+                return createdJob6;
+        }
+
+        throw new TRPCError({ code: "NOT_IMPLEMENTED" });
+    }),
 });

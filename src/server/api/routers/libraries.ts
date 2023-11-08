@@ -133,6 +133,18 @@ export const librariesRouter = createTRPCRouter({
 
             return removed;
         }),
+
+    updateTitle: protectedProcedure
+        .input(z.object({ title: z.string(), libraryId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const updatedLibrary: Library = await ctx.db.library.update({
+                where: { userId: ctx.session.user.id, id: input.libraryId },
+                data: {
+                    title: input.title,
+                },
+            });
+            return updatedLibrary;
+        }),
 });
 
 export type LibraryDocsAndJobs = {

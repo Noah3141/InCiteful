@@ -5,10 +5,11 @@ import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
 import { dateTimeFormatter as dtfmt } from "~/utils/tools";
-import { AiOutlineCheckCircle } from "react-icons/ai";
+
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Button from "~/components/Button";
+import { BiSolidCheckCircle } from "react-icons/bi";
 
 type ProfileForm = {
     name: string | null;
@@ -133,13 +134,13 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                             );
                                         }}
                                         className={`
-                                        w-full  max-w-md rounded-md  bg-neutral-50 px-3   text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
+                                        w-full  max-w-md rounded-md  bg-sand-50 px-3   text-2xl text-sand-950 caret-sand-900 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
                                         hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0
                                         `}
                                         type="text"
                                         value={form.name ?? ""}
                                     ></input>
-                                    <AiOutlineCheckCircle
+                                    <BiSolidCheckCircle
                                         size={28}
                                         onClick={() => {
                                             setEditting(closedEdits);
@@ -185,18 +186,18 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                                                 );
                                             }}
                                             className={`
-                                            w-full  max-w-md rounded-md  bg-neutral-50  px-3 text-2xl text-neutral-900 caret-neutral-800 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
+                                            w-full  max-w-md rounded-md  bg-sand-50  px-3 text-2xl text-sand-950 caret-sand-900 outline-none ring-0 ring-tango-600 hover:cursor-pointer 
                                             hover:ring-1 hover:ring-tango-500 focus:cursor-text focus:ring-0
                                             `}
                                             type="text"
                                             value={form.email ?? ""}
                                         ></input>
-                                        <AiOutlineCheckCircle
+                                        <BiSolidCheckCircle
                                             size={28}
                                             onClick={() => {
                                                 setEditting(closedEdits);
                                             }}
-                                            className=" me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] "
+                                            className="me-2 translate-x-1 cursor-pointer rounded-sm p-[3px] text-sand-950 hover:text-sand-900 "
                                         />
                                     </div>
                                 </>

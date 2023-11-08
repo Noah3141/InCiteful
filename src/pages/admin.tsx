@@ -6,7 +6,7 @@ import Button from "~/components/Button";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
 
 type Menu = {
     libraries: boolean;
@@ -35,6 +35,11 @@ const Admin = () => {
     const { data, isLoading } = api.user.getAdminPanel.useQuery(search);
 
     const map = new Map<string, Menu>();
+
+    const generateJobToast = "GenerateJobToastId";
+    const { mutate: generateJob } = api.job.generateTestJob.useMutation({
+        ...defaultOpts(generateJobToast),
+    });
 
     const defaultMenu: Menu = {
         libraries: false,
@@ -93,10 +98,21 @@ const Admin = () => {
                                     <div>
                                         Created: {dtfmt.format(user.createdAt)}
                                     </div>
+                                    {user.id === session.user.id && (
+                                        <Button
+                                            onClick={() => {
+                                                generateJob();
+                                            }}
+                                            className="mt-3"
+                                            small
+                                            color="neutral"
+                                            text="Generate Random Prisma Job (UI only)"
+                                        />
+                                    )}
                                     <div>
                                         <div>
                                             <h1 className="mt-3 text-xl">
-                                                Jobs - {user._count.jobs}
+                                                Jobs - {user._count.jobs}{" "}
                                             </h1>
                                             <Button
                                                 small={true}
@@ -452,17 +468,7 @@ type LibraryPlus = {
     title: string;
     createdAt: Date;
 } & {
-    documents: {
-        id: string;
-        title: string;
-        libraryId: string;
-        jobId: string | null;
-        createdAt: Date;
-        publishedAt: Date | null;
-        docletCount: number | null;
-        publicationSource: string;
-        link: string | null;
-    }[];
+    documents: Document[];
     _count: {
         User: number;
         documents: number;
@@ -489,10 +495,10 @@ const LibraryReadout = ({ library }: { library: LibraryPlus }) => {
                     }}
                 ></Button>
                 <div
-                    className={`divide-y divide-gable-700 scroll-smooth rounded-lg bg-gable-900 text-sand-50 shadow-inner shadow-gable-950 ring-baltic-600 transition-all   hover:ring-2  ${
+                    className={` overflow-hidden scroll-smooth rounded-lg  text-sand-50 shadow-inner shadow-gable-950 ring-baltic-800 transition-all   hover:ring-2  ${
                         documentExpanded
-                            ? "h-96 overflow-scroll overscroll-contain sm:p-5"
-                            : "h-0 overflow-hidden sm:px-5 sm:py-0"
+                            ? "h-[600px] overflow-scroll overscroll-contain "
+                            : "h-0 overflow-hidden"
                     }`}
                 >
                     {library.documents.map((document, i) => {
@@ -528,39 +534,44 @@ const DocumentReadout = ({
         document.publishedAt ? dtfmt.format(document.publishedAt) : "null"
     }`;
     const docLink = `${document.link ?? null}`;
+    const docNotes = `${document.notes ?? null}`;
     return (
         <>
             <div
                 key={i}
-                className="flex flex-col gap-1 divide-y divide-baltic-950  p-3 font-medium"
+                className="flex flex-col divide-y divide-baltic-950 p-8  font-medium  odd:bg-gable-900 even:bg-gable-950"
             >
-                <div className="flex flex-row font-semibold">
+                <div className="flex flex-row py-1 font-semibold">
                     <span className="w-40 ">Document ID: </span>
                     <span>{docId}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Title: </span>
                     <span>{docTitle}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Doc Job ID: </span>
                     <span>{docJobId}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Publication Source: </span>
                     <span>{docPubSource}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Library ID: </span>
                     <span>{docLibraryId}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Published: </span>
                     <span>{docPublishedAt}</span>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row py-1">
                     <span className="w-40">Link: </span>
                     <span>{docLink}</span>
+                </div>
+                <div className="flex flex-row py-1">
+                    <span className="w-40">Notes: </span>
+                    <span>{docNotes}</span>
                 </div>
             </div>
         </>
