@@ -127,6 +127,7 @@ model Document {
     publicationSource String
     authors           Author[]
     Reference         Reference[]
+    link              String?
 }
 
 model Notebook {

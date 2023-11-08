@@ -1,30 +1,21 @@
 // import "react-tooltip/dist/react-tooltip.css";
 import { useRouter } from "next/router";
-import React, {
-    DetailedHTMLProps,
-    InputHTMLAttributes,
-    useRef,
-    useState,
-} from "react";
+import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import {
-    IoIosRemoveCircle,
-    IoIosRemoveCircleOutline,
-    IoMdRemoveCircle,
-    IoMdRemoveCircleOutline,
-} from "react-icons/io";
+import { IoIosRemoveCircle, IoIosRemoveCircleOutline } from "react-icons/io";
 import { Tooltip } from "react-tooltip";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
 import { Status, type Document } from "@prisma/client";
 import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
 import { JobStatus, toTitleCase } from "~/components/JobStatus";
-import { SourceType } from "~/models/all_requests";
-import { FileAPI } from "~/models/documents/add";
+import { type FileAPI } from "~/models/documents/add";
 import Arrow from "~/images/icons/Arrow";
+import Link from "next/link";
+import { VscEdit } from "react-icons/vsc";
 //
 
 const LibraryPage = () => {
@@ -87,9 +78,34 @@ const LibraryPage = () => {
 };
 
 const DocumentList = ({ documents }: { documents: Document[] }) => {
+    return (
+        <div className="border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
+            <div>
+                <h1 className=" text-2xl">
+                    Documents{documents.length > 0 && `: ${documents.length}`}
+                </h1>
+            </div>
+            <div className="mt-4 flex max-h-96 flex-col ">
+                {documents.length !== 0
+                    ? documents.map((document: Document, i) => (
+                          <DocumentRow key={i} i={i} document={document} />
+                      ))
+                    : "No documents added yet"}
+            </div>
+        </div>
+    );
+};
+
+export default LibraryPage;
+
+type DocumentUpdateForm = {
+    link: string;
+};
+
+function DocumentRow({ document, i }: { document: Document; i: number }) {
     const trpc = api.useContext();
     const removeDocumentToast = "removeDocumentToastId";
-    const { mutate: removeDocument, isLoading } =
+    const { mutate: removeDocument, isLoading: docRemoving } =
         api.document.remove.useMutation({
             onMutate: () => {
                 toast.loading("Removing document...", {
@@ -110,67 +126,125 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
             },
         });
 
+    const [docUpdateForm, setDocUpdateForm] = useState<DocumentUpdateForm>({
+        link: document.link ?? "",
+    });
+
+    const documentUpdateToast = "DocumentUpdateToastId";
+    const { mutate: submitDocForm, isLoading: docFormUpdating } =
+        api.document.updateForm.useMutation({
+            ...defaultOpts(documentUpdateToast),
+            onSuccess: async () => {
+                toast.success("Document updated!", { id: documentUpdateToast });
+                await trpc.library.invalidate();
+            },
+        });
+
+    const title = document.link ? (
+        <Link
+            data-tooltip-place="left"
+            data-tooltip-delay-show={300}
+            data-tooltip-id={`doc-link-${i}`}
+            target="_blank"
+            className="text-gable-600 hover:text-gable-700 hover:underline"
+            href={document.link}
+        >
+            {document.title}
+            <Tooltip style={{ fontSize: 12 }} id={`doc-link-${i}`}>
+                <span>Open in new tab</span>
+            </Tooltip>
+        </Link>
+    ) : (
+        <span className="">{document.title}</span>
+    );
+
+    const publishedAt = document.publishedAt ? (
+        <div>{dtfmt.format(document.publishedAt)}</div>
+    ) : (
+        <div>Publish date not found</div>
+    );
+
     return (
-        <div className="border-y border-sand-300 px-4 py-6 transition-all  sm:px-16">
-            <div>
-                <h1 className=" text-2xl">
-                    Documents{documents.length > 0 && `: ${documents.length}`}
-                </h1>
+        <div key={document.id} className=" py-3">
+            <div className="flex flex-row">
+                <div className="w-11/12 text-xl ">
+                    {title}
+                    <span className="ps-2 font-medium">
+                        ({document.publicationSource})
+                    </span>
+                </div>
+                <div id={`clickEdit-${i}`} className="group mx-2 w-4">
+                    <VscEdit className="" size={24} />
+                    <Tooltip
+                        style={{
+                            borderRadius: "8px",
+                            background: "rgb(252 246 240)",
+                        }}
+                        border={"1px solid rgb(65 60 80)"}
+                        openOnClick
+                        anchorSelect={`#clickEdit-${i}`}
+                        clickable
+                    >
+                        <div className="flex flex-col gap-3 divide-y divide-baltic-800 text-baltic-950">
+                            <div>
+                                <div className="flex flex-row  items-center gap-2 ">
+                                    <span>Link:</span>
+                                    <input
+                                        value={docUpdateForm.link}
+                                        onChange={(e) => {
+                                            setDocUpdateForm((p) => ({
+                                                ...p,
+                                                link: e.target.value,
+                                            }));
+                                        }}
+                                        className="rounded-md bg-baltic-800 px-2 py-1 text-baltic-200 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
+                                        type="text"
+                                        name=""
+                                        id=""
+                                    />
+                                </div>
+                                <div className="mt-2 flex flex-row justify-end">
+                                    <Button
+                                        onClick={() => {
+                                            submitDocForm({
+                                                documentId: document.id,
+                                                libraryId: document.libraryId,
+                                                link: docUpdateForm.link,
+                                            });
+                                        }}
+                                        loading={docFormUpdating}
+                                        text="Submit"
+                                        small
+                                        color="neutral"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-row justify-center">
+                                <Button
+                                    loading={docRemoving}
+                                    onClick={() => {
+                                        removeDocument({
+                                            documentId: document.id,
+                                            libraryId: document.libraryId,
+                                        });
+                                    }}
+                                    className="mt-3 self-end"
+                                    small
+                                    color="neutral"
+                                    text="Remove Document"
+                                />
+                            </div>
+                        </div>
+                    </Tooltip>
+                </div>
             </div>
-            <div className="mt-4 flex max-h-96 flex-col overflow-y-scroll">
-                {documents.length !== 0
-                    ? documents.map((document: Document) => {
-                          //
-                          const publishedAt = document.publishedAt ? (
-                              <div>{dtfmt.format(document.publishedAt)}</div>
-                          ) : (
-                              <div>Publish date not found</div>
-                          );
-                          return (
-                              <div key={document.id} className="py-3">
-                                  <div className="flex flex-row">
-                                      <div className="w-11/12 text-xl ">
-                                          {document.title}
-                                          <span className="ps-2 font-medium">
-                                              ({document.publicationSource})
-                                          </span>
-                                      </div>
-                                      <div
-                                          onClick={() => {
-                                              removeDocument({
-                                                  documentId: document.id,
-                                                  libraryId: document.libraryId,
-                                              });
-                                          }}
-                                          className="group w-4 px-2"
-                                      >
-                                          <IoMdRemoveCircleOutline
-                                              className="inline group-hover:hidden"
-                                              size={24}
-                                          />
-                                          <IoMdRemoveCircle
-                                              className="hidden group-hover:inline"
-                                              size={24}
-                                          />
-                                      </div>
-                                  </div>
-                                  <div className="font-medium">
-                                      <div>
-                                          Added:{" "}
-                                          {dtfmt.format(document.createdAt)}
-                                      </div>
-                                      <div>{publishedAt}</div>
-                                  </div>
-                              </div>
-                          );
-                      })
-                    : "No documents added yet"}
+            <div className="font-medium">
+                <div>Added: {dtfmt.format(document.createdAt)}</div>
+                <div>{publishedAt}</div>
             </div>
         </div>
     );
-};
-
-export default LibraryPage;
+}
 
 type DeleteLibraryProps = {
     libraryId: string;

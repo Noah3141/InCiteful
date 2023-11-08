@@ -269,4 +269,25 @@ export const documentsRouter = createTRPCRouter({
             });
             return removed;
         }),
+
+    updateForm: protectedProcedure
+        .input(
+            z.object({
+                libraryId: z.string(),
+                documentId: z.string(),
+                link: z.string().optional(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const updated: Document = await ctx.db.document.update({
+                where: {
+                    id: input.documentId,
+                    libraryId: input.libraryId,
+                },
+                data: {
+                    link: input.link,
+                },
+            });
+            return updated;
+        }),
 });

@@ -38,8 +38,8 @@ const Button = ({
             disabled:opacity-50 disabled:hover:bg-opacity-0 disabled:cursor-default`
             : color == "neutral"
             ? // NEUTRAL CLASSES
-              `bg-neutral-700 rounded-sm text-neutral-100 rounded
-            hover:bg-neutral-800 hover:text-neutral-100`
+              `bg-baltic-700 rounded-sm text-neutral-100 rounded-md
+            hover:bg-baltic-800 hover:text-neutral-100`
             : null;
     const sizeClasses = small ? "py-1 px-4 w-fit" : "py-3 px-6 w-fit";
     const loaderColor =
@@ -57,7 +57,9 @@ const Button = ({
         >
             {loading ? (
                 <Loading
-                    className="absolute  -right-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 "
+                    className={`absolute  -right-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
+                        small ? "scale-75" : ""
+                    } `}
                     color={loaderColor}
                     inline={true}
                 />

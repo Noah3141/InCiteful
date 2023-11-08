@@ -261,11 +261,15 @@ const LibraryReadout = ({
                 </h1>
                 <h1 className="flex flex-row justify-between gap-3">
                     <span>Created at: </span>
-                    <span>{dtfmt.format(selectedLibrary?.createdAt)}</span>
+                    <span className="w-36 text-right">
+                        {dtfmt.format(selectedLibrary?.createdAt)}
+                    </span>
                 </h1>
                 <h1 className="flex flex-row justify-between gap-3">
                     <span>Last updated: </span>
-                    <span>{dtfmt.format(selectedLibrary?.updatedAt)}</span>
+                    <span className="w-36 text-right">
+                        {dtfmt.format(selectedLibrary?.updatedAt)}
+                    </span>
                 </h1>
             </div>
             <div className="max-h-60 overflow-x-hidden overflow-y-scroll border-t border-t-gable-800 p-4 ">

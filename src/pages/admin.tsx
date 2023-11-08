@@ -461,6 +461,7 @@ type LibraryPlus = {
         publishedAt: Date | null;
         docletCount: number | null;
         publicationSource: string;
+        link: string | null;
     }[];
     _count: {
         User: number;
@@ -518,23 +519,49 @@ const DocumentReadout = ({
     document: Document;
     i: number;
 }) => {
-    const docId = `Document ID: ${document.id}`;
-    const docTitle = `Title: ${document.title}`;
-    const docJobId = `Doc Job ID: ${document.jobId}`;
-    const docPubSource = `Publication Source: ${document.publicationSource}`;
-    const docLibraryId = `Library ID: ${document.libraryId}`;
-    const docPublishedAt = `Published: ${
+    const docId = `${document.id}`;
+    const docTitle = `${document.title}`;
+    const docJobId = `${document.jobId}`;
+    const docPubSource = `${document.publicationSource}`;
+    const docLibraryId = `${document.libraryId}`;
+    const docPublishedAt = `${
         document.publishedAt ? dtfmt.format(document.publishedAt) : "null"
     }`;
+    const docLink = `${document.link ?? null}`;
     return (
         <>
-            <div key={i} className="mb-3 p-3 font-medium">
-                <div className="font-semibold">{docId}</div>
-                <div>{docTitle}</div>
-                <div>{docJobId}</div>
-                <div>{docPubSource}</div>
-                <div>{docLibraryId}</div>
-                <div>{docPublishedAt}</div>
+            <div
+                key={i}
+                className="flex flex-col gap-1 divide-y divide-baltic-950  p-3 font-medium"
+            >
+                <div className="flex flex-row font-semibold">
+                    <span className="w-40 ">Document ID: </span>
+                    <span>{docId}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Title: </span>
+                    <span>{docTitle}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Doc Job ID: </span>
+                    <span>{docJobId}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Publication Source: </span>
+                    <span>{docPubSource}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Library ID: </span>
+                    <span>{docLibraryId}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Published: </span>
+                    <span>{docPublishedAt}</span>
+                </div>
+                <div className="flex flex-row">
+                    <span className="w-40">Link: </span>
+                    <span>{docLink}</span>
+                </div>
             </div>
         </>
     );
