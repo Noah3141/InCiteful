@@ -6,3 +6,11 @@ export const tooltipStyles = {
     paddingLeft: "1em",
     paddingRight: "1em",
 };
+
+export const thinTooltipStyles = {
+    fontSize: 12,
+    paddingLeft: "8px",
+    paddingRight: "8px",
+    paddingBottom: "0px",
+    paddingTop: "0px",
+};

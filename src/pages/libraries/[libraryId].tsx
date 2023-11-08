@@ -1,6 +1,6 @@
 // import "react-tooltip/dist/react-tooltip.css";
 import { useRouter } from "next/router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoIosRemoveCircle, IoIosRemoveCircleOutline } from "react-icons/io";
 import { Tooltip } from "react-tooltip";
@@ -15,7 +15,8 @@ import { JobStatus, toTitleCase } from "~/components/JobStatus";
 import { type FileAPI } from "~/models/documents/add";
 import Arrow from "~/images/icons/Arrow";
 import Link from "next/link";
-import { VscEdit } from "react-icons/vsc";
+import { BiEditAlt } from "react-icons/bi";
+import { thinTooltipStyles } from "~/styles/tooltips";
 //
 
 const LibraryPage = () => {
@@ -126,6 +127,8 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             },
         });
 
+    const [editting, setEditting] = useState(false);
+
     const [docUpdateForm, setDocUpdateForm] = useState<DocumentUpdateForm>({
         link: document.link ?? "",
     });
@@ -150,7 +153,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             href={document.link}
         >
             {document.title}
-            <Tooltip style={{ fontSize: 12 }} id={`doc-link-${i}`}>
+            <Tooltip style={thinTooltipStyles} id={`doc-link-${i}`}>
                 <span>Open in new tab</span>
             </Tooltip>
         </Link>
@@ -165,7 +168,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
     );
 
     return (
-        <div key={document.id} className=" py-3">
+        <div key={document.id} className="group/row py-3 transition-all">
             <div className="flex flex-row">
                 <div className="w-11/12 text-xl ">
                     {title}
@@ -173,19 +176,54 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                         ({document.publicationSource})
                     </span>
                 </div>
-                <div id={`clickEdit-${i}`} className="group mx-2 w-4">
-                    <VscEdit className="" size={24} />
+                <div
+                    id={`clickEdit-${i}`}
+                    className={` group
+                        relative ms-2 grid h-8 w-8 items-center justify-center   
+                        
+                        ${
+                            editting
+                                ? "after:bg-baltic-700"
+                                : "after:scale-0 after:bg-gable-800 after:opacity-25 hover:after:scale-100"
+                        }
+                        after:absolute after:left-0 after:top-0 after:-z-10 after:h-8 after:w-8  after:rounded-full   after:transition-all 
+
+                    `}
+                >
+                    <div
+                        className={`transition-opacity ${
+                            editting
+                                ? "opacity-100 duration-0"
+                                : " opacity-0 duration-150 group-hover/row:opacity-100"
+                        }`}
+                    >
+                        <BiEditAlt
+                            className={`transition-colors    ${
+                                editting ? "text-sand-50 " : "text-neutral-900 "
+                            }`}
+                            size={24}
+                        />
+                    </div>
                     <Tooltip
                         style={{
                             borderRadius: "8px",
-                            background: "rgb(252 246 240)",
+                            background: "rgb(245 230 214)",
+                            boxShadow: " 0px 10px 15px rgb(0,0,0,.15)",
                         }}
                         border={"1px solid rgb(65 60 80)"}
                         openOnClick
+                        opacity={1}
                         anchorSelect={`#clickEdit-${i}`}
                         clickable
+                        afterHide={() => {
+                            setEditting(false);
+                        }}
+                        afterShow={() => {
+                            setEditting(true);
+                        }}
+                        className=""
                     >
-                        <div className="flex flex-col gap-3 divide-y divide-baltic-800 text-baltic-950">
+                        <div className="flex flex-col gap-3 divide-y  divide-baltic-800 text-baltic-950 ">
                             <div>
                                 <div className="flex flex-row  items-center gap-2 ">
                                     <span>Link:</span>
