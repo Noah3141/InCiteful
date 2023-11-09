@@ -5,6 +5,7 @@ import { type FileAPI } from "../documents/add";
 export type Request = {
     user_id: string;
     library_id: string;
+    library_name: string;
     files: FileAPI[];
     notify_by_email: string | null;
 };

@@ -43,6 +43,7 @@ export const documentsRouter = createTRPCRouter({
             z.object({
                 filename: z.string(),
                 libraryId: z.string(),
+                libraryTitle: z.string(),
                 file: z.string().optional(),
                 notes: z.string().optional(),
                 link: z.string().optional(),
@@ -65,11 +66,11 @@ export const documentsRouter = createTRPCRouter({
             // Send document to the backend
             const res = await documents_add({
                 file: {
-                    doc_id: createId(),
                     contents: input.file,
                     filename: input.filename,
                     size: input.file.length,
                 },
+                library_name: input.libraryTitle,
                 library_id: input.libraryId,
                 user_id: ctx.session.user.id,
             });
@@ -133,6 +134,7 @@ export const documentsRouter = createTRPCRouter({
         .input(
             z.object({
                 libraryId: z.string(),
+                libraryTitle: z.string(),
                 files: z.array(ZodFile),
                 notifyByEmail: z.string().nullable(),
             }),
@@ -141,6 +143,7 @@ export const documentsRouter = createTRPCRouter({
             const job_added: JobAddResponse = await jobs_add({
                 user_id: ctx.session.user.id,
                 library_id: input.libraryId,
+                library_name: input.libraryTitle,
                 files: input.files,
                 notify_by_email: input.notifyByEmail,
             });

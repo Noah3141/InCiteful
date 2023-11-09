@@ -51,6 +51,7 @@ const LibraryPage = () => {
                     <DeleteLibrary libraryId={pathId} />
                 </div>
                 <AddDocumentWizard
+                    libraryTitle={data.library.title}
                     notifyByEmail={data.notifyByEmail}
                     libraryId={data.library.title}
                 />
@@ -71,6 +72,7 @@ const LibraryPage = () => {
                     </div>
                 </div>
                 <AddDocumentWizard
+                    libraryTitle={data.library.title}
                     notifyByEmail={data.notifyByEmail}
                     libraryId={data.library.id}
                 />
@@ -583,9 +585,11 @@ type SingleDocForm = {
 const AddDocumentWizard = ({
     libraryId,
     notifyByEmail,
+    libraryTitle,
 }: {
     libraryId: string;
     notifyByEmail: string | null;
+    libraryTitle: string;
 }) => {
     const trpc = api.useContext();
     const [uploadFile, setUploadFile] = useState<FileList | null>(null);
@@ -668,6 +672,7 @@ const AddDocumentWizard = ({
                         libraryId: libraryId,
                         filename: file?.name ?? "Not found",
                         link,
+                        libraryTitle,
                         notes,
                     });
                 }
@@ -702,7 +707,6 @@ const AddDocumentWizard = ({
                             contents,
                             filename: file.name,
                             size: file.size,
-                            doc_id: createId(),
                         });
                     }
                 }
@@ -718,6 +722,7 @@ const AddDocumentWizard = ({
             files,
             libraryId,
             notifyByEmail,
+            libraryTitle,
         });
     };
 
