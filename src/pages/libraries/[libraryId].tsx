@@ -20,6 +20,7 @@ import { IoCloseCircle } from "react-icons/io5";
 import { thinTooltipStyles } from "~/styles/tooltips";
 import { TRPCClientError } from "@trpc/client";
 import HoverEdit from "~/components/HoverEdit";
+import { createId } from "@paralleldrive/cuid2";
 //
 
 const LibraryPage = () => {
@@ -663,6 +664,7 @@ const AddDocumentWizard = ({
 
                     addDocument({
                         file: contents,
+
                         libraryId: libraryId,
                         filename: file?.name ?? "Not found",
                         link,
@@ -700,6 +702,7 @@ const AddDocumentWizard = ({
                             contents,
                             filename: file.name,
                             size: file.size,
+                            doc_id: createId(),
                         });
                     }
                 }

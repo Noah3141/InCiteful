@@ -12,10 +12,11 @@ export type FileAPI = z.infer<typeof ZodFile>;
 export type Response = z.infer<typeof ResponseSchema>;
 export type DocumentAPI = z.infer<typeof ZodDocument>;
 
-const ZodFile = z.object({
+export const ZodFile = z.object({
     contents: z.string(),
     filename: z.string(),
     size: z.number(),
+    doc_id: z.string(),
 });
 
 export const ZodDocument = z.object({

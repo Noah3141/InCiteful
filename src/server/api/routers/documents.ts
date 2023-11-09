@@ -10,6 +10,7 @@ import { type Document, type Job } from "@prisma/client";
 import {
     DocumentAPI,
     ZodDocument,
+    ZodFile,
     documents_add,
 } from "~/models/documents/add";
 import { jobs_add } from "~/models/jobs/add";
@@ -64,6 +65,7 @@ export const documentsRouter = createTRPCRouter({
             // Send document to the backend
             const res = await documents_add({
                 file: {
+                    doc_id: createId(),
                     contents: input.file,
                     filename: input.filename,
                     size: input.file.length,
@@ -131,13 +133,7 @@ export const documentsRouter = createTRPCRouter({
         .input(
             z.object({
                 libraryId: z.string(),
-                files: z.array(
-                    z.object({
-                        contents: z.string(),
-                        filename: z.string(),
-                        size: z.number(),
-                    }),
-                ),
+                files: z.array(ZodFile),
                 notifyByEmail: z.string().nullable(),
             }),
         )
