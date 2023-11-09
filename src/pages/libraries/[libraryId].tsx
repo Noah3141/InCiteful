@@ -358,7 +358,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                                                 notes: e.target.value,
                                             }));
                                         }}
-                                        className="baltic-scroller h-40 w-[450px] resize-none overflow-y-auto  rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
+                                        className="baltic-scroller h-40 w-[450px] resize-none overflow-y-auto  whitespace-pre-wrap rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
                                         id=""
                                     ></textarea>
                                 </div>
@@ -439,9 +439,9 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             </div>
 
             <div
-                className={`sand-scroller px-3 font-medium transition-all  ${
+                className={`sand-scroller whitespace-pre-wrap px-5 font-medium transition-all ${
                     expanded
-                        ? ` overflow-y-auto ${
+                        ? ` overflow-y-auto pb-2 ${
                               document.notes ? "h-60" : "h-28" // expanded with notes vs without
                           } `
                         : "h-0 overflow-hidden"
@@ -464,7 +464,7 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                     <span>{document.link ?? "None"}</span>
                 </div>
 
-                <div className=" cursor-default ">
+                <div className=" mt-1 cursor-default border-t border-t-sand-300 pt-1 ">
                     <span className="inline-block w-24">Notes: </span>
                     <span>{!document.notes && "None"}</span>
                     <div>{document.notes}</div>

@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Loading from "./Loading";
 
 type Props = {
@@ -50,10 +50,20 @@ const Button = ({
             : color == "neutral"
             ? `primary`
             : "neutral";
+
+    const [mouseDown, setMouseDown] = useState(false);
     return (
         <button
             {...props}
-            className={`relative w-fit cursor-pointer whitespace-nowrap  ${className} ${sizeClasses} ${colorClasses}`}
+            onMouseDown={() => {
+                setMouseDown(true);
+            }}
+            onMouseUp={() => {
+                setMouseDown(false);
+            }}
+            className={`relative w-fit cursor-pointer whitespace-nowrap transition-transform duration-100 ${
+                mouseDown ? "translate-y-[2px]" : "translate-y-0"
+            }  ${className} ${sizeClasses} ${colorClasses}`}
         >
             {loading ? (
                 <Loading

@@ -445,7 +445,7 @@ const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
     return (
         <div className="mt-3 flex flex-col gap-3 rounded-sm">
             <textarea
-                className="h-32 w-full rounded bg-neutral-50 p-2 font-medium text-neutral-950 outline-none ring-tango-500 hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
+                className="h-32 w-full whitespace-pre-wrap rounded bg-neutral-50 p-2 font-medium text-neutral-950 outline-none ring-tango-500 hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
                 name="topic-notes"
                 onChange={(e) => {
                     setNotesField(e.target.value);
@@ -503,7 +503,7 @@ const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
                 onChange={(e) => {
                     setNotesField(e.target.value);
                 }}
-                className="h-full w-full overscroll-contain rounded bg-neutral-50 p-2 font-medium text-neutral-950 caret-neutral-950 outline-none ring-tango-500  hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
+                className="h-full w-full overscroll-contain whitespace-pre-wrap rounded bg-neutral-50 p-2 font-medium text-neutral-950 caret-neutral-950 outline-none ring-tango-500  hover:cursor-pointer hover:ring-2 focus:cursor-text focus:ring-0"
             ></textarea>
             <Button
                 onClick={() => {
