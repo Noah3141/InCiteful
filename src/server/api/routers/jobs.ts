@@ -133,6 +133,13 @@ export const jobsRouter = createTRPCRouter({
             return cancelled;
         }),
 
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.db.job.findMany({
+            where: { userId: ctx.session.user.id },
+            orderBy: [{ createdAt: "desc" }, { status: "desc" }],
+        });
+    }),
+
     generateTestJob: protectedProcedure
         .input(z.object({ libraryId: z.string() }))
         .mutation(async ({ input, ctx }) => {

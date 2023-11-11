@@ -77,10 +77,20 @@ export const librariesRouter = createTRPCRouter({
         const libraries = await ctx.db.library.findMany({
             where: { userId: ctx.session.user.id },
             orderBy: { documents: { _count: "desc" } },
-            include: { _count: true },
+            include: { _count: { select: { documents: true } } },
         });
 
         return libraries;
+    }),
+
+    getAllDashboard: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.db.library.findMany({
+            where: { userId: ctx.session.user.id },
+            include: {
+                _count: true,
+                jobs: true,
+            },
+        });
     }),
 
     /// Get all available documents while checking for job statuses. Pass

@@ -125,4 +125,12 @@ export const notebooksRouter = createTRPCRouter({
                 },
             });
         }),
+
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.db.topic.findMany({
+            where: { userId: ctx.session.user.id },
+            orderBy: { references: { _count: "desc" } },
+            include: { _count: { select: { references: true } } },
+        });
+    }),
 });
