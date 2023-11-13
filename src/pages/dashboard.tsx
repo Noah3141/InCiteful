@@ -744,7 +744,7 @@ const AddToTopicWizard = ({ referenceId, topicId }: AddToTopicWizardProps) => {
     const { mutate: addToTopic, isLoading } =
         api.notebook.addToTopic.useMutation({
             onMutate: () => {
-                toast.loading("Loading...", { id: addToTopicToast });
+                toast.loading("Adding to topic...", { id: addToTopicToast });
             },
             onSuccess: async () => {
                 toast.success("Success!", { id: addToTopicToast });

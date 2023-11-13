@@ -244,7 +244,6 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
         onSettled: () => {
             setTimeout(() => {
                 resetUpdateStatus();
-                console.log("foo");
             }, 2000);
         },
         onMutate: () => {
@@ -557,27 +556,25 @@ const DeleteLibrary = ({ libraryId }: DeleteLibraryProps) => {
     const trpc = api.useContext();
     const router = useRouter();
     const removedFromListsToastId = "removedFromListsToast";
-    const { mutate: removeLibrary, isLoading } = api.library.remove.useMutation(
-        {
-            onMutate: () => {
-                toast.loading("Removing library...💨", {
-                    id: removedFromListsToastId,
-                });
-            },
-            onSuccess: async () => {
-                toast.success("Removed library!☁️", {
-                    id: removedFromListsToastId,
-                });
-                await router.push("/libraries");
-                await trpc.library.invalidate();
-            },
-            onError: () => {
-                toast.error("Something went wrong!⛈️", {
-                    id: removedFromListsToastId,
-                });
-            },
+    const { mutate: removeLibrary, status } = api.library.remove.useMutation({
+        onMutate: () => {
+            toast.loading("Removing library...💨", {
+                id: removedFromListsToastId,
+            });
         },
-    );
+        onSuccess: async () => {
+            toast.success("Removed library!☁️", {
+                id: removedFromListsToastId,
+            });
+            await router.push("/libraries");
+            await trpc.library.invalidate();
+        },
+        onError: () => {
+            toast.error("Something went wrong!⛈️", {
+                id: removedFromListsToastId,
+            });
+        },
+    });
     return (
         <>
             <div
@@ -660,44 +657,60 @@ const AddDocumentWizard = ({
         link: "",
     });
     const addDocToast = "addDocToastId";
-    const { mutate: addDocument, isLoading: singleLoading } =
-        api.document.postOne.useMutation({
-            onMutate: () => {
-                toast.loading("Loading...", { id: addDocToast });
-            },
-            onSuccess: async () => {
-                toast.success("Document added!", { id: addDocToast });
-                await trpc.library.invalidate();
-                await trpc.job.invalidate();
-            },
-            onError: (e) => {
-                if (e.data?.code == "BAD_REQUEST") {
-                    void toast.error(e.message, { id: addDocToast });
-                    return;
-                }
+    const {
+        mutate: addDocument,
+        status: addingDocumentStatus,
+        reset: resetAddingDocumentStatus,
+    } = api.document.postOne.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                resetAddingDocumentStatus();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Adding document...", { id: addDocToast });
+        },
+        onSuccess: async () => {
+            toast.success("Document added!", { id: addDocToast });
+            await trpc.library.invalidate();
+            await trpc.job.invalidate();
+        },
+        onError: (e) => {
+            if (e.data?.code == "BAD_REQUEST") {
+                void toast.error(e.message, { id: addDocToast });
+                return;
+            }
 
-                console.log("ERROR MESSAGE", e);
-                void toast.error(`Something went wrong!`, {
-                    id: addDocToast,
-                });
-            },
-        });
+            console.log("ERROR MESSAGE", e);
+            void toast.error(`Something went wrong!`, {
+                id: addDocToast,
+            });
+        },
+    });
 
     const addBatchToast = "addBatchToastId";
-    const { mutate: addDocuments, isLoading: multiLoading } =
-        api.document.postBatch.useMutation({
-            onMutate: () => {
-                toast.loading("Loading...", { id: addBatchToast });
-            },
-            onSuccess: () => {
-                toast.success("Documents received! Check status in jobs.", {
-                    id: addBatchToast,
-                });
-            },
-            onError: () => {
-                toast.error(`Something went wrong!`, { id: addBatchToast });
-            },
-        });
+    const {
+        mutate: addDocuments,
+        status: multiDocStatus,
+        reset: resetMultiDocStatus,
+    } = api.document.postBatch.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                resetMultiDocStatus();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Submitting documents...", { id: addBatchToast });
+        },
+        onSuccess: () => {
+            toast.success("Documents received! Check status in jobs.", {
+                id: addBatchToast,
+            });
+        },
+        onError: () => {
+            toast.error(`Something went wrong!`, { id: addBatchToast });
+        },
+    });
 
     const upload = () => {
         const file = uploadFile?.item(0);
@@ -826,7 +839,7 @@ const AddDocumentWizard = ({
                     </div>
                 </div>
                 {uploadType == UploadType.Single && (
-                    <div className="flex h-full flex-col justify-between  overflow-hidden px-6 transition-all sm:px-16">
+                    <div className="flex h-full flex-col justify-between  px-6 transition-all sm:px-16">
                         <div></div>
                         <div className="">
                             <span>Link: </span>
@@ -883,8 +896,9 @@ const AddDocumentWizard = ({
                             </div>
                         </div>
                         <Button
-                            disabled={!uploadFile || singleLoading}
+                            disabled={!uploadFile}
                             onClick={upload}
+                            state={addingDocumentStatus}
                             className="self-end"
                             color="secondary"
                             text="Upload"
@@ -919,8 +933,9 @@ const AddDocumentWizard = ({
                             />
                         </div>
                         <Button
-                            disabled={!uploadFiles || multiLoading}
+                            disabled={!uploadFiles}
                             onClick={uploadMany}
+                            state={multiDocStatus}
                             className=" self-end"
                             color="secondary"
                             text="Upload"
@@ -942,27 +957,35 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
     const [listState, setListState] = useState<JobListState>(initialList);
 
     const cancelJobToast = "CancelJobToastId";
-    const { mutate: cancelJob, isLoading: jobCancelLoading } =
-        api.job.cancel.useMutation({
-            onMutate: () => {
-                toast.loading("Loading...", { id: cancelJobToast });
-            },
-            onSuccess: async () => {
-                toast.success("Job cancelled!", { id: cancelJobToast });
-                await trpc.library.invalidate();
-            },
-            onError: async (e) => {
-                if (e.data?.code == "BAD_REQUEST") {
-                    void toast.error(e.message, { id: cancelJobToast });
-                } else {
-                    console.log("ERROR MESSAGE", e);
-                    void toast.error(`Something went wrong!`, {
-                        id: cancelJobToast,
-                    });
-                }
-                await trpc.library.invalidate();
-            },
-        });
+    const {
+        mutate: cancelJob,
+        status: jobCancelStatus,
+        reset: resetJobCancelStatus,
+    } = api.job.cancel.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                resetJobCancelStatus();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Loading...", { id: cancelJobToast });
+        },
+        onSuccess: async () => {
+            toast.success("Job cancelled!", { id: cancelJobToast });
+            await trpc.library.invalidate();
+        },
+        onError: async (e) => {
+            if (e.data?.code == "BAD_REQUEST") {
+                void toast.error(e.message, { id: cancelJobToast });
+            } else {
+                console.log("ERROR MESSAGE", e);
+                void toast.error(`Something went wrong!`, {
+                    id: cancelJobToast,
+                });
+            }
+            await trpc.library.invalidate();
+        },
+    });
 
     if (data.jobs.length == 0) {
         return (
@@ -1065,6 +1088,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                     <div className="flex h-full w-40 shrink-0 justify-end pb-4 pe-4">
                                         {cancellable ? (
                                             <Button
+                                                state={jobCancelStatus}
                                                 onClick={() => {
                                                     cancelJob({
                                                         jobId: job.id,

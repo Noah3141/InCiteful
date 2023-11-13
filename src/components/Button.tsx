@@ -36,7 +36,12 @@ const Button = ({
                     ? ""
                     : " enabled:hover:bg-sushi-500 enabled:hover:border-sushi-500 enabled:hover:text-sand-50"
             }
-            disabled:opacity-50 disabled:hover:bg-opacity-0 disabled:cursor-default`
+            ${
+                state == "idle"
+                    ? "disabled:opacity-50 disabled:hover:bg-opacity-0 disabled:cursor-default"
+                    : "disabled:cursor-progress"
+            }
+            `
             : color == "neutral"
             ? // NEUTRAL CLASSES
               `bg-baltic-700  text-neutral-100 rounded-lg
@@ -68,7 +73,7 @@ const Button = ({
             }  ${className} ${sizeClasses} ${colorClasses}`}
         >
             {state === "error" && (
-                <div className="absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2">
+                <div className="absolute right-1/2  top-1/2 -translate-y-1/2 translate-x-1/2">
                     ❌
                 </div>
             )}
@@ -79,7 +84,7 @@ const Button = ({
                             ? "text-tango-500"
                             : color === "secondary"
                             ? "text-sushi-600"
-                            : "text-tango-500"
+                            : "text-sushi-500"
                     }`}
                     size={24}
                 />

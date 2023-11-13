@@ -107,7 +107,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
             }, 2000);
         },
         onMutate: () => {
-            toast.loading("Loading...", { id: profileSubmitToast });
+            toast.loading("Updating profile...", { id: profileSubmitToast });
         },
         onSuccess: async () => {
             await trpc.user.invalidate();
