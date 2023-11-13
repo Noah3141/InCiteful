@@ -47,14 +47,23 @@ export const librariesRouter = createTRPCRouter({
                 },
             });
 
-            // Alert the Python
-            const res = await libraries_create({
-                library_id: created.id,
-                user_id: ctx.session.user.id,
-            });
+            try {
+                // Alert the Python
+                const res = await libraries_create({
+                    library_id: created.id,
+                    user_id: ctx.session.user.id,
+                });
 
-            // If the Python says something went wrong, undo our work to keep in sync
-            if (!res.success) {
+                // If the Python says something went wrong, undo our work to keep in sync
+                if (!res.success) {
+                    throw new TRPCError({
+                        code: "CONFLICT",
+                        message: `API returned 'success: false' to create library attempt: "${
+                            res.error ?? "No message provided"
+                        }"`,
+                    });
+                }
+            } catch (error) {
                 await ctx.db.library.delete({
                     where: {
                         id: created.id,
@@ -63,10 +72,10 @@ export const librariesRouter = createTRPCRouter({
                     },
                 });
                 throw new TRPCError({
-                    code: "CONFLICT",
-                    message: `API returned 'success: false' to create library attempt: "${
-                        res.error ?? "No message provided"
-                    }"`,
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: `"Library creation undone. Error encountered during Python sync: ${JSON.stringify(
+                        error,
+                    )}"`,
                 });
             }
 
@@ -88,7 +97,7 @@ export const librariesRouter = createTRPCRouter({
             where: { userId: ctx.session.user.id },
             include: {
                 _count: true,
-                jobs: true,
+                jobs: { orderBy: [{ status: "asc" }, { createdAt: "desc" }] },
             },
         });
     }),

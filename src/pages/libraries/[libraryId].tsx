@@ -7,7 +7,7 @@ import { Tooltip } from "react-tooltip";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
-import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { defaultOpts, dtfmt } from "~/utils/tools";
 import { Status, type Document, Library } from "@prisma/client";
 import Button from "~/components/Button";
 import { type LibraryDocsAndJobs } from "~/server/api/routers/libraries";
@@ -193,29 +193,42 @@ type DocumentUpdateForm = {
 function DocumentRow({ document, i }: { document: Document; i: number }) {
     const trpc = api.useContext();
     const removeDocumentToast = "removeDocumentToastId";
-    const { mutate: removeDocument, isLoading: docRemoving } =
-        api.document.remove.useMutation({
-            onMutate: () => {
-                toast.loading("Removing document...", {
-                    id: removeDocumentToast,
-                });
-            },
-            onSuccess: async () => {
-                toast.success("Document removed from library!", {
-                    id: removeDocumentToast,
-                });
-                await trpc.document.invalidate();
-                await trpc.library.invalidate();
-            },
-            onError: () => {
-                toast.error("Something went wrong!", {
-                    id: removeDocumentToast,
-                });
-            },
-        });
+    const {
+        mutate: removeDocument,
+        status: removalStatus,
+        reset: resetRemoveStatus,
+    } = api.document.remove.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                resetRemoveStatus();
+                console.log("foo");
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Removing document...", {
+                id: removeDocumentToast,
+            });
+        },
+        onSuccess: async () => {
+            toast.success("Document removed from library!", {
+                id: removeDocumentToast,
+                duration: 2000,
+            });
+            await trpc.document.invalidate();
+            await trpc.library.invalidate();
+        },
+        onError: () => {
+            toast.error("Something went wrong!", {
+                id: removeDocumentToast,
+                duration: 2000,
+            });
+        },
+    });
 
     const [expanded, setExpanded] = useState(false);
     const [editting, setEditting] = useState(false);
+
+    const [consideringRemoval, setConsideringRemoval] = useState(false);
 
     const [docUpdateForm, setDocUpdateForm] = useState<DocumentUpdateForm>({
         link: document.link ?? "",
@@ -223,28 +236,41 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
     });
 
     const documentUpdateToast = "DocumentUpdateToastId";
-    const { mutate: submitDocForm, isLoading: docFormUpdating } =
-        api.document.updateForm.useMutation({
-            onMutate: () => {
-                toast.loading("Updating document...", {
-                    id: documentUpdateToast,
-                });
-            },
-            onError: (e) => {
-                if (e.data?.code == "BAD_REQUEST") {
-                    void toast.error(e.message, { id: documentUpdateToast });
-                    return;
-                }
-                toast.error("Something went wrong!", {
-                    id: documentUpdateToast,
-                });
-            },
-            onSuccess: async () => {
-                toast.success("Document updated!", { id: documentUpdateToast });
-                await trpc.library.invalidate();
-                await trpc.document.invalidate();
-            },
-        });
+    const {
+        mutate: submitDocForm,
+        status: updateStatus,
+        reset: resetUpdateStatus,
+    } = api.document.updateForm.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                resetUpdateStatus();
+                console.log("foo");
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Updating document...", {
+                id: documentUpdateToast,
+            });
+        },
+        onError: (e) => {
+            if (e.data?.code == "BAD_REQUEST") {
+                void toast.error(e.message, { id: documentUpdateToast });
+                return;
+            }
+            toast.error("Something went wrong!", {
+                id: documentUpdateToast,
+                duration: 2000,
+            });
+        },
+        onSuccess: async () => {
+            toast.success("Document updated!", {
+                id: documentUpdateToast,
+                duration: 2000,
+            });
+            await trpc.library.invalidate();
+            await trpc.document.invalidate();
+        },
+    });
 
     const title = document.link ? (
         <Link
@@ -307,138 +333,170 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
                         }`}
                     >
                         <BiEditAlt
-                            className={`relative z-30 transition-colors   ${
+                            className={`relative z-20 transition-colors   ${
                                 editting ? "text-baltic-50 " : "text-sand-950 "
                             }`}
                             size={24}
                         />
                     </div>
-                    <Tooltip
-                        style={{
-                            borderRadius: "8px",
-                            background: "rgb(245 230 214)",
-                            boxShadow: " 0px 10px 15px rgb(0,0,0,.15)",
-                            maxWidth: "95vw",
-                        }}
-                        border={"1px solid rgb(65 60 80)"}
-                        openOnClick
-                        opacity={1}
-                        anchorSelect={`#clickEdit-${i}`}
-                        clickable
-                        afterHide={() => {
-                            setEditting(false);
-                        }}
-                        afterShow={() => {
-                            setEditting(true);
-                        }}
-                        className=""
-                    >
-                        <div className="flex flex-col gap-3 divide-y divide-baltic-800  pt-2 text-baltic-950 ">
-                            <div className="flex flex-col gap-1">
-                                <div className="flex flex-row  items-center gap-2 ">
-                                    <span className="w-10">Link:</span>
-                                    <input
-                                        value={docUpdateForm.link}
-                                        onChange={(e) => {
-                                            setDocUpdateForm((p) => ({
-                                                ...p,
-                                                link: e.target.value,
-                                            }));
-                                        }}
-                                        className="w-full rounded-md bg-baltic-800 px-2 py-1 text-baltic-50 caret-tango-500 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
-                                        type="url"
-                                        name=""
-                                        id=""
-                                    />
-                                </div>
-                                <div className="flex flex-row justify-between gap-1">
-                                    <span className="w-10">Notes: </span>
-                                    <textarea
-                                        value={docUpdateForm.notes}
-                                        onChange={(e) => {
-                                            setDocUpdateForm((p) => ({
-                                                ...p,
-                                                notes: e.target.value,
-                                            }));
-                                        }}
-                                        className="baltic-scroller h-40 w-[450px] resize-none overflow-y-auto  whitespace-pre-wrap rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
-                                        id=""
-                                    ></textarea>
-                                </div>
-                                <div className="mt-2 flex flex-row justify-end">
-                                    <Button
-                                        onClick={() => {
-                                            const link =
-                                                docUpdateForm.link !== ""
-                                                    ? docUpdateForm.link
-                                                    : null;
-
-                                            const notes =
-                                                docUpdateForm.notes !== ""
-                                                    ? docUpdateForm.notes
-                                                    : null;
-
-                                            submitDocForm({
-                                                documentId: document.id,
-                                                libraryId: document.libraryId,
-                                                link,
-                                                notes,
-                                            });
-                                        }}
-                                        loading={docFormUpdating}
-                                        text="Submit"
-                                        small
-                                        color="neutral"
-                                    />
-                                </div>
+                </div>
+                <Tooltip
+                    style={{
+                        zIndex: 100,
+                        borderRadius: "8px",
+                        background: "rgb(245 230 214)",
+                        boxShadow: " 0px 10px 15px rgb(0,0,0,.15)",
+                        maxWidth: "95vw",
+                    }}
+                    border={"1px solid rgb(65 60 80)"}
+                    openOnClick
+                    opacity={1}
+                    anchorSelect={`#clickEdit-${i}`}
+                    clickable
+                    afterHide={() => {
+                        setEditting(false);
+                        setConsideringRemoval(false);
+                    }}
+                    afterShow={() => {
+                        setEditting(true);
+                    }}
+                    className=""
+                >
+                    <div className="flex flex-col gap-3 divide-y divide-baltic-800  pt-2 text-baltic-950 ">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex flex-row  items-center gap-2 ">
+                                <span className="w-10">Link:</span>
+                                <input
+                                    value={docUpdateForm.link}
+                                    onChange={(e) => {
+                                        setDocUpdateForm((p) => ({
+                                            ...p,
+                                            link: e.target.value,
+                                        }));
+                                    }}
+                                    className="w-full rounded-md bg-baltic-800 px-2 py-1 text-baltic-50 caret-tango-500 outline-none  hover:cursor-pointer hover:bg-baltic-900 focus:cursor-text focus:bg-baltic-800 "
+                                    type="url"
+                                    name=""
+                                    id=""
+                                />
                             </div>
-                            <div className="flex flex-row justify-center">
+                            <div className="flex flex-row justify-between gap-1">
+                                <span className="w-10">Notes: </span>
+                                <textarea
+                                    value={docUpdateForm.notes}
+                                    onChange={(e) => {
+                                        setDocUpdateForm((p) => ({
+                                            ...p,
+                                            notes: e.target.value,
+                                        }));
+                                    }}
+                                    className="baltic-scroller h-40 w-[450px] resize-none overflow-y-auto  whitespace-pre-wrap rounded-lg bg-baltic-800 p-2 text-baltic-50 caret-tango-500 outline-none"
+                                    id=""
+                                ></textarea>
+                            </div>
+                            <div className="mt-2 flex flex-row justify-end">
                                 <Button
-                                    loading={docRemoving}
                                     onClick={() => {
-                                        toast((t) => {
-                                            return (
-                                                <span className="cursor-default text-center text-neutral-950">
-                                                    Remove this document?
-                                                    <div className="flex flex-row justify-between pt-3">
-                                                        <button
-                                                            onClick={() => {
-                                                                toast.dismiss(
-                                                                    t.id,
-                                                                );
-                                                            }}
-                                                        >
-                                                            Keep!🗃️
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                removeDocument({
-                                                                    documentId:
-                                                                        document.id,
-                                                                    libraryId:
-                                                                        document.libraryId,
-                                                                });
-                                                                toast.dismiss(
-                                                                    t.id,
-                                                                );
-                                                            }}
-                                                        >
-                                                            Remove!🪓
-                                                        </button>
-                                                    </div>
-                                                </span>
-                                            );
+                                        const link =
+                                            docUpdateForm.link !== ""
+                                                ? docUpdateForm.link
+                                                : null;
+
+                                        const notes =
+                                            docUpdateForm.notes !== ""
+                                                ? docUpdateForm.notes
+                                                : null;
+
+                                        submitDocForm({
+                                            documentId: document.id,
+                                            libraryId: document.libraryId,
+                                            link,
+                                            notes,
                                         });
                                     }}
-                                    className="mt-3 self-end"
+                                    state={updateStatus}
+                                    text="Submit"
                                     small
                                     color="neutral"
-                                    text="Remove Document"
                                 />
                             </div>
                         </div>
-                    </Tooltip>
-                </div>
+                        <div className="flex flex-row justify-center">
+                            <button
+                                onClick={() => {
+                                    setConsideringRemoval(false);
+                                }}
+                                className={`absolute bottom-2 left-4 scale-0 rounded-lg border border-baltic-900 px-2  py-1 transition-transform   hover:bg-baltic-900 hover:text-tango-500 ${
+                                    consideringRemoval
+                                        ? "scale-100 duration-300"
+                                        : " duration-100"
+                                }`}
+                            >
+                                Keep!🗃️
+                            </button>
+                            <Button
+                                state={removalStatus}
+                                onClick={() => {
+                                    setConsideringRemoval(true);
+
+                                    // toast((t) => {
+                                    //     return (
+                                    //         <span className="cursor-default text-center text-neutral-950">
+                                    //             Remove this document?
+                                    //             <div className="flex flex-row justify-between pt-3">
+                                    //                 <button
+                                    //                     onClick={() => {
+                                    //                         toast.dismiss(
+                                    //                             t.id,
+                                    //                         );
+                                    //                     }}
+                                    //                 >
+                                    //                     Keep!🗃️
+                                    //                 </button>
+                                    //                 <button
+                                    //                     onClick={() => {
+                                    //                         removeDocument({
+                                    //                             documentId:
+                                    //                                 document.id,
+                                    //                             libraryId:
+                                    //                                 document.libraryId,
+                                    //                         });
+                                    //                         toast.dismiss(
+                                    //                             t.id,
+                                    //                         );
+                                    //                     }}
+                                    //                 >
+                                    //                     Remove!🪓
+                                    //                 </button>
+                                    //             </div>
+                                    //         </span>
+                                    //     );
+                                    // });
+                                }}
+                                className="mt-3 self-end"
+                                small
+                                color="neutral"
+                                text="Remove Document"
+                            />
+                            <button
+                                onClick={() => {
+                                    removeDocument({
+                                        documentId: document.id,
+                                        libraryId: document.libraryId,
+                                    });
+                                    setConsideringRemoval(false);
+                                }}
+                                className={`absolute bottom-2 right-4 scale-0 rounded-lg border border-baltic-900 px-2 py-1  transition-transform  hover:bg-baltic-900 hover:text-tango-500 ${
+                                    consideringRemoval
+                                        ? "scale-100 duration-300"
+                                        : "duration-100"
+                                }`}
+                            >
+                                Remove!🪓
+                            </button>
+                        </div>
+                    </div>
+                </Tooltip>
             </div>
 
             <div
@@ -452,14 +510,15 @@ function DocumentRow({ document, i }: { document: Document; i: number }) {
             >
                 <div>
                     <span className="inline-block w-24">Added:</span>
-                    <span>{dtfmt.format(document.createdAt)}</span>
+                    <span>{dtfmt({ at: document.createdAt })}</span>
                 </div>
                 <div>
                     <span className="inline-block w-24">Published: </span>
                     <span>
-                        {document.publishedAt
-                            ? dtfmt.format(document.publishedAt)
-                            : "Not found"}
+                        {dtfmt({
+                            at: document.publishedAt,
+                            ifNull: "Not found",
+                        })}
                     </span>
                 </div>
                 <div>
@@ -929,9 +988,11 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                     const cancellable =
                         job.status == Status.PENDING ||
                         job.status == Status.RUNNING;
-                    const startedAt = job.startedAt
-                        ? dtfmt.format(job.startedAt)
-                        : "Not yet";
+
+                    const startedAt = dtfmt({
+                        at: job.startedAt,
+                        ifNull: "Not yet",
+                    });
 
                     const rowMarginClasses =
                         i === 0
@@ -965,7 +1026,7 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                     <JobStatus status={job.status} />
                                 </div>
                                 <div className="w-40">
-                                    {dtfmt.format(job.createdAt)}
+                                    {dtfmt({ at: job.createdAt })}
                                 </div>
                                 <div className="hidden w-28 sm:block">
                                     {job.documentCount}
@@ -974,9 +1035,10 @@ const JobWizard = ({ data }: { data: LibraryDocsAndJobs }) => {
                                     {startedAt}
                                 </div>
                                 <div className="w-36">
-                                    {job.endedAt
-                                        ? dtfmt.format(job.endedAt)
-                                        : "Not yet"}
+                                    {dtfmt({
+                                        at: job.endedAt,
+                                        ifNull: "Not yet",
+                                    })}
                                 </div>
                             </div>
                             <div

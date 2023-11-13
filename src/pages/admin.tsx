@@ -6,7 +6,7 @@ import Button from "~/components/Button";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
-import { defaultOpts, dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { defaultOpts, dtfmt } from "~/utils/tools";
 
 type Menu = {
     libraries: boolean;
@@ -89,7 +89,7 @@ const Admin = () => {
                                     <div>Membership: {user.membership}</div>
                                     <div>Role: {user.role}</div>
                                     <div>
-                                        Created: {dtfmt.format(user.createdAt)}
+                                        Created: {dtfmt({ at: user.createdAt })}
                                     </div>
 
                                     <div>
@@ -388,7 +388,7 @@ const LibraryReadout = ({
         <li key={library.id} className="flex flex-col p-2 sm:p-6 ">
             <span className="text-2xl">Library ID: {library.id}</span>
             <span>Title: {library.title}</span>
-            <span>Created: {dtfmt.format(library.createdAt)}</span>
+            <span>Created: {dtfmt({ at: library.createdAt })}</span>
             <div className="">
                 <Button
                     className="my-3"
@@ -471,7 +471,7 @@ const DocumentReadout = ({
     const docPubSource = `${document.publicationSource}`;
     const docLibraryId = `${document.libraryId}`;
     const docPublishedAt = `${
-        document.publishedAt ? dtfmt.format(document.publishedAt) : "null"
+        document.publishedAt ? dtfmt({ at: document.publishedAt }) : "null"
     }`;
     const docLink = `${document.link ?? null}`;
     const docNotes = `${document.notes ?? null}`;
@@ -543,18 +543,18 @@ const JobReadout = ({ job, i }: { job: Job; i: number }) => {
                 </div>
                 <div className="flex flex-row py-1">
                     <span className="w-40 ">Created: </span>
-                    <span>{dtfmt.format(job.createdAt)}</span>
+                    <span>{dtfmt({ at: job.createdAt })}</span>
                 </div>
                 <div className="flex flex-row py-1">
                     <span className="w-40 ">Started: </span>
                     <span>
-                        {job.startedAt ? dtfmt.format(job.startedAt) : "null"}
+                        {job.startedAt ? dtfmt({ at: job.startedAt }) : "null"}
                     </span>
                 </div>
                 <div className="flex flex-row py-1">
                     <span className="w-40 ">Finished: </span>
                     <span>
-                        {job.endedAt ? dtfmt.format(job.endedAt) : "null"}
+                        {job.endedAt ? dtfmt({ at: job.endedAt }) : "null"}
                     </span>
                 </div>
             </div>

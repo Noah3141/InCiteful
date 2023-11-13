@@ -17,7 +17,7 @@ import Loading from "~/components/Loading";
 import MiddleColumn from "~/components/MiddleColumn";
 import { tooltipStyles } from "~/styles/tooltips";
 import { api } from "~/utils/api";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { dtfmt } from "~/utils/tools";
 import Image from "next/image";
 import InCiteful from "~/images/logos/InCiteful";
 import { ReferencesWithDocuments } from "~/server/api/routers/query";
@@ -47,9 +47,17 @@ type QueryDropdowns = {
 const Dashboard = () => {
     const router = useRouter();
     const { status, data: session } = useSession();
-    const { data: user, isLoading } = api.user.getDashboardData.useQuery();
+
+    // Data fetches
+    const { data: libraries, isLoading: librariesLoading } =
+        api.library.getAllDashboard.useQuery();
+    const { data: topics, isLoading: topicsLoading } =
+        api.notebook.getAll.useQuery();
+
+    // Two sidebar selected states
     const [selectedLibraryIdx, setSelectedLibrary] = useState(0);
     const [selectedTopicIdx, setSelectedTopic] = useState(0);
+
     // Query bar's dropdown UI states
     const queryDropdownsClosed = {
         topN: false,
@@ -57,14 +65,17 @@ const Dashboard = () => {
     };
     const [queryDropdowns, setQueryDropdowns] =
         useState<QueryDropdowns>(queryDropdownsClosed);
+
     // Query bar's active settings
     const [query, setQuery] = useState<QueryState>({
         text: "",
         orderBy: "Score",
         topN: 10,
     });
+
     // Actual reference list returned by API
     const [references, setReferences] = useState<ReferencesWithDocuments>();
+
     notify(session?.user.notifications ?? []);
 
     if (status == "loading")
@@ -75,13 +86,8 @@ const Dashboard = () => {
         return <Loading inline={false} color="secondary" />;
     }
 
-    if (!user && !isLoading) {
-        void router.push("//");
-        return <Loading inline={false} color="secondary" />;
-    }
-
-    const selectedLibrary = user?.libraries[selectedLibraryIdx];
-    const selectedTopicId = user?.topics[selectedTopicIdx]?.id ?? "";
+    const selectedLibrary = libraries?.at(selectedLibraryIdx);
+    const selectedTopicId = topics?.at(selectedTopicIdx)?.id ?? "";
 
     return (
         <>
@@ -91,13 +97,18 @@ const Dashboard = () => {
                     <div className="flex shrink-0 flex-col  gap-3 ">
                         <LibrarySelector
                             {...{
-                                isLoading,
-                                libraries: user?.libraries,
+                                isLoading: librariesLoading,
+                                libraries: libraries,
                                 selectedLibraryIdx,
                                 setSelectedLibrary,
                             }}
                         />
-                        <LibraryReadout {...{ isLoading, selectedLibrary }} />
+                        <LibraryReadout
+                            {...{
+                                isLoading: librariesLoading,
+                                selectedLibrary,
+                            }}
+                        />
                     </div>
                     <MiddleColumn>
                         <div className="relative w-full pb-12">
@@ -132,8 +143,8 @@ const Dashboard = () => {
                             {...{
                                 selectedTopicIdx,
                                 setSelectedTopic,
-                                topics: user?.topics,
-                                isLoading,
+                                topics: topics,
+                                isLoading: topicsLoading,
                             }}
                         />
                     </div>
@@ -175,7 +186,7 @@ const LibrarySelector = ({
                         delayShow={500}
                         style={{
                             ...tooltipStyles,
-                            translate: "0px -5px",
+                            translate: "0px -12px",
                             zIndex: 40,
                         }}
                         id="dashboard-libraries-info"
@@ -204,7 +215,7 @@ const LibrarySelector = ({
                                             {library.title}
                                         </div>
                                         <div className="self-end whitespace-nowrap ps-2 text-sm text-gable-800">
-                                            {dtfmt.format(library.updatedAt)}
+                                            {dtfmt({ at: library.updatedAt })}
                                         </div>
                                     </button>
                                 </div>
@@ -219,7 +230,7 @@ const LibrarySelector = ({
 
 type LibraryReadoutProps = {
     selectedLibrary:
-        | (Library & { documents: Document[]; jobs: Job[] })
+        | (Library & { _count: { documents: number }; jobs: Job[] })
         | undefined;
     isLoading: boolean;
 };
@@ -228,6 +239,22 @@ const LibraryReadout = ({
     selectedLibrary,
     isLoading,
 }: LibraryReadoutProps) => {
+    if (isLoading)
+        return (
+            <List>
+                <Header>
+                    <Loading color="primary" inline={true} />
+                </Header>
+            </List>
+        );
+    if (!selectedLibrary)
+        return (
+            <List>
+                <Header>
+                    <div>Please select a library!</div>
+                </Header>
+            </List>
+        );
     return (
         <List>
             <Header>
@@ -241,9 +268,9 @@ const LibraryReadout = ({
                     >
                         <Link
                             className="  whitespace-pre-wrap text-xl "
-                            href={`/libraries/${selectedLibrary?.id}`}
+                            href={`/libraries/${selectedLibrary.id}`}
                         >
-                            {selectedLibrary?.title}
+                            {selectedLibrary.title}
                         </Link>
                         <Tooltip
                             place="right"
@@ -257,18 +284,18 @@ const LibraryReadout = ({
             <div className="px-4 py-3 font-medium">
                 <h1 className="flex flex-row justify-between gap-3">
                     <span>Documents: </span>
-                    <span>{selectedLibrary?.documents.length}</span>
+                    <span>{selectedLibrary._count.documents}</span>
                 </h1>
                 <h1 className="flex flex-row justify-between gap-3">
                     <span>Created at: </span>
                     <span className="w-36 text-right">
-                        {dtfmt.format(selectedLibrary?.createdAt)}
+                        {dtfmt({ at: selectedLibrary.createdAt })}
                     </span>
                 </h1>
                 <h1 className="flex flex-row justify-between gap-3">
                     <span>Last updated: </span>
                     <span className="w-36 text-right">
-                        {dtfmt.format(selectedLibrary?.updatedAt)}
+                        {dtfmt({ at: selectedLibrary.updatedAt })}
                     </span>
                 </h1>
             </div>
@@ -282,23 +309,21 @@ const LibraryReadout = ({
                             <>
                                 <div
                                     data-tooltip-id={`job-status-${job.id}`}
-                                    data-tooltip-content={`Created at: ${dtfmt.format(
-                                        job.createdAt,
-                                    )} \nStarted: ${
-                                        job.startedAt
-                                            ? dtfmt.format(job.startedAt)
-                                            : "Not yet"
-                                    } \nFinished: ${
-                                        job.endedAt
-                                            ? dtfmt.format(job.endedAt)
-                                            : "Not yet"
-                                    }`}
+                                    data-tooltip-content={`Created at: ${dtfmt({
+                                        at: job.createdAt,
+                                    })} \nStarted: ${dtfmt({
+                                        at: job.startedAt,
+                                        ifNull: "Not yet",
+                                    })} \nFinished: ${dtfmt({
+                                        at: job.endedAt,
+                                        ifNull: "Not yet",
+                                    })}`}
                                     data-tooltip-variant="info"
                                     key={job.id}
                                     className="flex flex-row justify-between"
                                 >
                                     <div className="font-medium">
-                                        {toTitleCase(job.status)}
+                                        {dtfmt({ at: job.createdAt })}
                                     </div>
                                     <div>
                                         <JobStatus status={job.status} />
@@ -325,7 +350,7 @@ type TopicsReadoutProps = {
     isLoading: boolean;
     topics:
         | (Topic & {
-              references: Reference[];
+              _count: { references: number };
           })[]
         | undefined;
     selectedTopicIdx: number;
@@ -367,37 +392,30 @@ const TopicsSelector = ({
                             className="py-4"
                         />
                     ) : (
-                        topics?.map(
-                            (
-                                topic: Topic & {
-                                    references: Reference[];
-                                },
-                                idx,
-                            ) => {
-                                return (
-                                    <div key={topic.id} className="">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedTopic(idx);
-                                            }}
-                                            className={`w-full border-s-4 px-4 py-2 text-left hover:bg-gable-900 ${
-                                                selectedTopicIdx === idx
-                                                    ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
-                                                    : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-neutral-50"
-                                            }`}
-                                        >
-                                            <div className="flex flex-row justify-between">
-                                                {topic.name}{" "}
-                                                <span className="text-gable-800">
-                                                    References:{" "}
-                                                    {topic.references.length}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    </div>
-                                );
-                            },
-                        )
+                        topics?.map((topic, idx) => {
+                            return (
+                                <div key={topic.id} className="">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedTopic(idx);
+                                        }}
+                                        className={`w-full border-s-4 px-4 py-2 text-left hover:bg-gable-900 ${
+                                            selectedTopicIdx === idx
+                                                ? " border-s-tango-500 text-tango-500 hover:text-tango-500"
+                                                : "  hover: border-s-gable-950 hover:border-s-gable-700 hover:text-neutral-50"
+                                        }`}
+                                    >
+                                        <div className="flex flex-row justify-between">
+                                            {topic.name}{" "}
+                                            <span className="shrink-0 text-gable-800">
+                                                References:{" "}
+                                                {topic._count.references}
+                                            </span>
+                                        </div>
+                                    </button>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </Body>
@@ -412,7 +430,7 @@ type QueryBarProps = {
     setQueryDropdowns: Dispatch<SetStateAction<QueryDropdowns>>;
     queryDropdownsClosed: QueryDropdowns;
     setSelectedLibrary: Dispatch<SetStateAction<number>>;
-    selectedLibrary: (Library & { documents: Document[] }) | undefined;
+    selectedLibrary: (Library & { _count: { documents: number } }) | undefined;
     references: ReferencesWithDocuments | undefined;
     setReferences: Dispatch<
         SetStateAction<ReferencesWithDocuments | undefined>
@@ -671,13 +689,10 @@ const ReferenceList = ({
                     const titleWithDate = (
                         <span className="font-normal">
                             {`${reference.document.title} 
-                        ${
-                            reference.document.publishedAt
-                                ? `(${dtfmt.format(
-                                      reference.document.publishedAt,
-                                  )})`
-                                : "(Date not found)"
-                        }
+                        ${`(${dtfmt({
+                            at: reference.document.publishedAt,
+                            ifNull: "(Date not found)",
+                        })})`}
                         `}
                         </span>
                     );

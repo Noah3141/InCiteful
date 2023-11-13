@@ -4,7 +4,7 @@ import HoverEdit from "~/components/HoverEdit";
 import Loading from "~/components/Loading";
 import Hall from "~/layouts/Hall";
 import { api } from "~/utils/api";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import {} from "~/utils/tools";
 
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -96,23 +96,34 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
     const [editting, setEditting] = useState<ProfileEditState>(closedEdits);
 
     const profileSubmitToast = "profileSubmitToastId";
-    const { mutate: submitProfile, isLoading: submitLoading } =
-        api.user.updateSession.useMutation({
-            onMutate: () => {
-                toast.loading("Loading...", { id: profileSubmitToast });
-            },
-            onSuccess: async () => {
-                await trpc.user.invalidate();
-                toast.success("Profile updated!", { id: profileSubmitToast });
-                setEditting(closedEdits);
-                setSavedForm(form);
-            },
-            onError: () => {
-                toast.error("Something went wrong!", {
-                    id: profileSubmitToast,
-                });
-            },
-        });
+    const {
+        mutate: submitProfile,
+        status: submitStatus,
+        reset,
+    } = api.user.updateSession.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                reset();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Loading...", { id: profileSubmitToast });
+        },
+        onSuccess: async () => {
+            await trpc.user.invalidate();
+            toast.success("Profile updated!", {
+                id: profileSubmitToast,
+                duration: 2000,
+            });
+            setEditting(closedEdits);
+            setSavedForm(form);
+        },
+        onError: () => {
+            toast.error("Something went wrong!", {
+                id: profileSubmitToast,
+            });
+        },
+    });
 
     return (
         <div className="">
@@ -245,7 +256,7 @@ const ProfileReadout = ({ user }: ProfileReadoutProps) => {
                     </div>
                     <div className="mt-6 flex flex-row justify-end pe-0 lg:pe-10">
                         <Button
-                            loading={submitLoading}
+                            state={submitStatus}
                             disabled={!unsavedChanges({ form, savedForm })}
                             color="secondary"
                             className=""

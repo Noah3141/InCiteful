@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from "react";
 import Loading from "./Loading";
+import { IoIosCheckmarkCircle } from "react-icons/io";
 
 type Props = {
     small?: boolean;
     text: string;
-    loading?: boolean;
     className?: string;
+    state?: "loading" | "success" | "error" | "idle";
     color: "primary" | "secondary" | "neutral";
     children?: ReactNode;
 } & React.DetailedHTMLProps<
@@ -16,8 +17,8 @@ type Props = {
 const Button = ({
     small = false,
     color,
+    state = "idle",
     text,
-    loading = false,
     className = "",
     children,
     ...props
@@ -31,7 +32,7 @@ const Button = ({
             ? // SECONDARY CLASSES
               `text-sushi-600 border-2 border-sushi-600 rounded-lg 
             ${
-                loading
+                state == "loading"
                     ? ""
                     : " enabled:hover:bg-sushi-500 enabled:hover:border-sushi-500 enabled:hover:text-sand-50"
             }
@@ -54,6 +55,7 @@ const Button = ({
     const [mouseDown, setMouseDown] = useState(false);
     return (
         <button
+            disabled={state !== "idle"}
             {...props}
             onMouseDown={() => {
                 setMouseDown(true);
@@ -65,7 +67,24 @@ const Button = ({
                 mouseDown ? "translate-y-[2px]" : "translate-y-0"
             }  ${className} ${sizeClasses} ${colorClasses}`}
         >
-            {loading ? (
+            {state === "error" && (
+                <div className="absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2">
+                    ❌
+                </div>
+            )}
+            {state === "success" && (
+                <IoIosCheckmarkCircle
+                    className={`absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 ${
+                        color === "primary"
+                            ? "text-tango-500"
+                            : color === "secondary"
+                            ? "text-sushi-600"
+                            : "text-tango-500"
+                    }`}
+                    size={24}
+                />
+            )}
+            {state === "loading" && (
                 <Loading
                     className={`absolute  -right-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
                         small ? "scale-75" : ""
@@ -73,10 +92,8 @@ const Button = ({
                     color={loaderColor}
                     inline={true}
                 />
-            ) : (
-                ""
-            )}{" "}
-            {loading ? (
+            )}
+            {state !== "idle" ? (
                 <span className={`text-[#fff0]`}>{text}</span>
             ) : (
                 <span>{text}</span>

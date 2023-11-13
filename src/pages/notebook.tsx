@@ -22,7 +22,7 @@ import MiddleColumn from "~/components/MiddleColumn";
 import Hall from "~/layouts/Hall";
 import { tooltipStyles } from "~/styles/tooltips";
 import { api } from "~/utils/api";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { dtfmt } from "~/utils/tools";
 
 type TopicWithReferences = Topic & {
     references: (Reference & { document: Document })[];
@@ -136,13 +136,13 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
             <div className=" p-3 pb-2 text-3xl leading-none">{topic?.name}</div>
             <div className="flex flex-row gap-4  px-3 pb-2">
                 <div className="font-medium">
-                    Created: {topic?.createdAt && dtfmt.format(topic.createdAt)}
+                    Created: {dtfmt({ at: topic.createdAt })}
                 </div>
                 <div>
                     {topic?.updatedAt && (
                         <div className="font-medium">
                             <span>Last Updated: </span>{" "}
-                            {dtfmt.format(topic.updatedAt)}
+                            {dtfmt({ at: topic.updatedAt })}
                         </div>
                     )}
                 </div>
@@ -151,11 +151,12 @@ const TopicReadout = ({ topic }: { topic: TopicWithReferences | null }) => {
             <div className="flex flex-col gap-12">
                 {topic?.references.length !== 0 ? (
                     topic?.references.map((reference) => {
-                        const articlePublished = reference.document.publishedAt
-                            ? dtfmt.format(reference.document.publishedAt)
-                            : "Not found";
+                        const articlePublished = dtfmt({
+                            at: reference.document.publishedAt,
+                            ifNull: "Not found",
+                        });
                         const referenceAdded = `Reference Added:
-                ${dtfmt.format(reference.addedAt)}`;
+                ${dtfmt({ at: reference.addedAt })}`;
                         return (
                             <div
                                 key={reference.id}
@@ -409,28 +410,38 @@ type TopicWizardProps = { topic: TopicWithReferences | null };
 const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
     const trpc = api.useContext();
     const updateTopicNotesToast = "UpdateTopicNotesToastId";
-    const { mutate: updateNote, isLoading: updateLoading } =
-        api.notebook.updateTopicNotes.useMutation({
-            onMutate: () => {
-                toast.loading("Saving...", { id: updateTopicNotesToast });
-            },
-            onError: (e) => {
-                if (e.data?.code == "BAD_REQUEST") {
-                    toast.error(e.message, { id: updateTopicNotesToast });
-                    return;
-                }
-                toast.error("Something went wrong", {
-                    id: updateTopicNotesToast,
-                });
+    const {
+        mutate: updateNote,
+        isLoading: updateLoading,
+        status: noteUpdateStatus,
+        reset,
+    } = api.notebook.updateTopicNotes.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                reset();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Saving...", { id: updateTopicNotesToast });
+        },
+        onError: (e) => {
+            if (e.data?.code == "BAD_REQUEST") {
+                toast.error(e.message, { id: updateTopicNotesToast });
                 return;
-            },
-            onSuccess: async () => {
-                toast.success("Success!", {
-                    id: updateTopicNotesToast,
-                });
-                await trpc.notebook.invalidate();
-            },
-        });
+            }
+            toast.error("Something went wrong", {
+                id: updateTopicNotesToast,
+            });
+            return;
+        },
+        onSuccess: async () => {
+            toast.success("Success!", {
+                id: updateTopicNotesToast,
+                duration: 2000,
+            });
+            await trpc.notebook.invalidate();
+        },
+    });
 
     const [notesField, setNotesField] = useState(topic?.notes);
 
@@ -454,7 +465,8 @@ const TopicNoteWizard = ({ topic }: TopicWizardProps) => {
                 id="topic-notes"
             ></textarea>
             <Button
-                disabled={updateLoading}
+                state={noteUpdateStatus}
+                // disabled={updateLoading}
                 onClick={() => {
                     if (!notesField) {
                         return;
@@ -473,29 +485,38 @@ const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
     const trpc = api.useContext();
     const [notesField, setNotesField] = useState(reference.notes ?? "");
     const updateReferenceNotesToast = "updateReferenceNotesToastId";
-    const { mutate: updateReferenceNote, isLoading } =
-        api.notebook.updateReferenceNotes.useMutation({
-            onMutate: () => {
-                toast.loading("Saving...", { id: updateReferenceNotesToast });
-            },
-            onError: (e) => {
-                console.log(e);
-                if (e.data?.code == "BAD_REQUEST") {
-                    toast.error(e.message, { id: updateReferenceNotesToast });
-                    return;
-                }
-                toast.error("Something went wrong", {
-                    id: updateReferenceNotesToast,
-                });
+    const {
+        mutate: updateReferenceNote,
+        status: updateStatus,
+        reset,
+    } = api.notebook.updateReferenceNotes.useMutation({
+        onSettled: () => {
+            setTimeout(() => {
+                reset();
+            }, 2000);
+        },
+        onMutate: () => {
+            toast.loading("Saving...", { id: updateReferenceNotesToast });
+        },
+        onError: (e) => {
+            console.log(e);
+            if (e.data?.code == "BAD_REQUEST") {
+                toast.error(e.message, { id: updateReferenceNotesToast });
                 return;
-            },
-            onSuccess: async () => {
-                toast.success("Success!", {
-                    id: updateReferenceNotesToast,
-                });
-                await trpc.notebook.invalidate();
-            },
-        });
+            }
+            toast.error("Something went wrong", {
+                id: updateReferenceNotesToast,
+            });
+            return;
+        },
+        onSuccess: async () => {
+            toast.success("Success!", {
+                id: updateReferenceNotesToast,
+                duration: 2000,
+            });
+            await trpc.notebook.invalidate();
+        },
+    });
     return (
         <div className="flex w-full flex-col rounded  lg:w-64 lg:transition-all xl:w-96">
             <textarea
@@ -512,7 +533,7 @@ const ReferenceNoteWizard = ({ reference }: { reference: Reference }) => {
                         notes: notesField,
                     });
                 }}
-                loading={isLoading}
+                state={updateStatus}
                 small={true}
                 className="mt-2 self-end"
                 color="neutral"

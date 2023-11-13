@@ -10,7 +10,7 @@ import { IoIosAddCircleOutline, IoIosAddCircle } from "react-icons/io";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { dateTimeFormatter as dtfmt } from "~/utils/tools";
+import { dtfmt } from "~/utils/tools";
 
 const Libraries = () => {
     const router = useRouter();
@@ -67,7 +67,7 @@ const Libraries = () => {
                                 <div className="flex flex-row items-center gap-6 font-medium">
                                     <div>
                                         Last updated:{" "}
-                                        {dtfmt.format(library.updatedAt)}
+                                        {dtfmt({ at: library.updatedAt })}
                                     </div>
                                     <div>
                                         Documents: {library._count.documents}
@@ -103,7 +103,7 @@ const AddLibrary = ({}: AddLibraryProps) => {
             }
         },
         onSuccess: async () => {
-            toast.success("Success!", { id: createLibId, duration: 2_000 });
+            toast.success("Success!", { id: createLibId, duration: 2000 });
             toast.dismiss("titleModal");
             await trpc.library.invalidate();
         },
